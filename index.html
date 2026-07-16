@@ -240,11 +240,37 @@ mjx-container[display="true"]{margin:.9em 0}
 <p><strong>一句話總結：</strong>前一層的輸出＝<strong>同一個資料點被重新表達成「在一組學到的方向上各投影多少」的新座標，而且整個空間已被非線性摺過一次</strong>，好讓下一層的超平面更容易把類別切開。這就是「深度」的意義——每多一層，就多摺一次、換一次更有利的座標系（接回 1.2 神經元、前接主題 8 前向傳播）。</p>
 
 <h3>1.4 常用範數與相似度</h3>
+<p><strong>範數 (norm)</strong> $\lVert\cdot\rVert$ 是把向量映到<strong>非負實數</strong>的函數，量「向量有多大／多長」。它憑三條公理才夠格叫「長度」：</p>
 <ul>
-<li><strong>L2 範數</strong> $\lVert\mathbf{x}\rVert_2=\sqrt{\sum x_i^2}$：長度；用於正則化、距離。</li>
-<li><strong>L1 範數</strong> $\lVert\mathbf{x}\rVert_1=\sum|x_i|$：稀疏性。</li>
-<li><strong>餘弦相似度</strong> $\cos\phi=\dfrac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert}$：只看方向、不看長度 — Embedding 語意檢索的核心（主題 15）。</li>
+<li><strong>非負性</strong>：$\lVert\mathbf{x}\rVert\ge 0$，且 $=0\iff\mathbf{x}=\mathbf{0}$（只有零向量長度為 0）。</li>
+<li><strong>齊次性</strong>：$\lVert\alpha\mathbf{x}\rVert=|\alpha|\,\lVert\mathbf{x}\rVert$（放大幾倍、長度就幾倍）。</li>
+<li><strong>三角不等式</strong>：$\lVert\mathbf{x}+\mathbf{y}\rVert\le\lVert\mathbf{x}\rVert+\lVert\mathbf{y}\rVert$（走直線最短，繞路只會更長）。</li>
 </ul>
+<p>最常用的是 <strong>p-範數</strong> $\lVert\mathbf{x}\rVert_p=\left(\sum_i|x_i|^p\right)^{1/p}$：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>範數</th><th>定義</th><th>量距離的方式</th><th>主要用途</th></tr></thead>
+<tbody>
+<tr><td><strong>L2</strong>（歐氏）</td><td>$\sqrt{\sum x_i^2}$</td><td>直線距離（畢氏定理）</td><td>長度、距離、L2 正則化</td></tr>
+<tr><td><strong>L1</strong></td><td>$\sum|x_i|$</td><td>沿座標軸走（計程車／曼哈頓）</td><td>稀疏性、L1 正則化</td></tr>
+<tr><td><strong>L∞</strong></td><td>$\max_i|x_i|$</td><td>只看變化最大的那一維</td><td>最壞情況界限</td></tr>
+</tbody>
+</table></div>
+<p><span class="geo">幾何意義。</span> 範數＝「原點到點 $\mathbf{x}$ 的距離」，但<strong>「距離」怎麼算隨範數而不同</strong>。最能看懂差異的是<strong>單位球</strong>（所有「長度 = 1」的點連成的形狀）：L2 是圓、L1 是菱形（尖角在座標軸上）、L∞ 是正方形，三者在 4 個座標軸點重合。</p>
+<figure><svg viewBox="0 0 300 300" role="img" aria-label="L1 菱形、L2 圓、L∞ 正方形三種單位球疊在同一組座標軸上">
+  <line x1="35" y1="150" x2="265" y2="150" stroke="#475569" stroke-width="1"/>
+  <line x1="150" y1="35" x2="150" y2="265" stroke="#475569" stroke-width="1"/>
+  <rect x="60" y="60" width="180" height="180" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="150" cy="150" r="90" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  <polygon points="150,60 240,150 150,240 60,150" fill="none" stroke="#34d399" stroke-width="2"/>
+  <g fill="#e5e7eb"><circle cx="240" cy="150" r="3"/><circle cx="150" cy="60" r="3"/><circle cx="60" cy="150" r="3"/><circle cx="150" cy="240" r="3"/></g>
+  <text x="246" y="72" fill="#fbbf24" font-size="13" font-weight="700">L∞</text>
+  <text x="204" y="100" fill="#38bdf8" font-size="13" font-weight="700">L2</text>
+  <text x="118" y="126" fill="#34d399" font-size="13" font-weight="700">L1</text>
+  <text x="256" y="145" fill="#94a3b8" font-size="11">x₁</text>
+  <text x="156" y="46" fill="#94a3b8" font-size="11">x₂</text>
+</svg><figcaption>單位球（‖x‖=1 的點集）：L1＝菱形（尖角在軸上）、L2＝圓、L∞＝正方形；三者在 4 個座標軸點重合（灰點）。L1 的尖角正是它「造成稀疏」的幾何原因。</figcaption></figure>
+<p><strong>為什麼 L1 造成稀疏（幾何直覺）。</strong> 正則化＝在「範數球」內找損失最小的點（主題 7）。<strong>L1 的球是菱形、尖角剛好落在座標軸上</strong>，最優解容易卡在頂點 → 某些座標變 0 → <strong>稀疏</strong>（自動做特徵選擇）；<strong>L2 的球是圓、沒有尖角</strong>，只會把權重整體壓小、不歸零。所以「L1 稀疏、L2 平滑」不是口訣，是<strong>菱形有角、圓形沒角</strong>的幾何結果。</p>
+<p><strong>餘弦相似度</strong> $\cos\phi=\dfrac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert}$：用範數把長度除掉，<strong>只看方向、不看長度</strong> — 這是 Embedding 語意檢索的核心（主題 15）。</p>
 <h3>1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
 <p>正規化的精神：<strong>拿掉「不該影響判斷的量」，讓比較公平、訓練穩定</strong>。基礎有兩種（第三種在主題 11）：</p>
 <p><strong>(a) 向量正規化。</strong> 把向量除以自身長度，變成<strong>單位向量</strong>（長度 = 1）：</p>
