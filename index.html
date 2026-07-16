@@ -232,23 +232,36 @@ mjx-container[display="true"]{margin:.9em 0}
   <line x1="490" y1="170" x2="525" y2="170" stroke="#38bdf8" stroke-width="2.5"/>
   <text x="545" y="197" fill="#94a3b8" font-size="11" text-anchor="middle">壓扁成線、面積 = 0</text>
 </svg><figcaption>行列式的幾何意義：矩陣把單位正方形（面積 1）拉成平行四邊形，其<strong>面積 = |det|</strong>（此例兩欄向量張成的平行四邊形面積 = 3 = det A）。當兩欄向量共線（det = 0），正方形被壓扁成一條線、面積歸零 → 矩陣不可逆。</figcaption></figure>
-<p><strong>用欄還是列？矩陣＝欄向量並排。</strong> 一個 2×2 矩陣可看成<strong>兩個欄向量並排</strong>，$\det$ 就是這兩個欄向量張成的<strong>平行四邊形面積</strong>。改用<strong>列向量</strong>算數值一樣（因為 $\det(\mathbf{A})=\det(\mathbf{A}^\top)$）；只是講「變換把空間拉成平行四邊形」的幾何時<strong>慣例用欄向量</strong>（＝基底被變換後搬到的位置）。實例 $\mathbf{A}=\begin{bmatrix}3&1\\2&3\end{bmatrix}$：</p>
-<figure><svg viewBox="0 0 270 300" role="img" aria-label="矩陣 [[3,1],[2,3]] 的兩個欄向量 (3,2)、(1,3) 張成平行四邊形，面積=det=7">
+<p><strong>用欄還是列？矩陣＝欄向量並排。</strong> 一個 2×2 矩陣可看成<strong>兩個欄向量並排</strong>，$\det$ 就是這兩個欄向量張成的<strong>平行四邊形面積</strong>。改用<strong>列向量</strong>算數值一樣（因為 $\det(\mathbf{A})=\det(\mathbf{A}^\top)$）；只是講「變換把空間拉成平行四邊形」的幾何時<strong>慣例用欄向量</strong>（＝基底被變換後搬到的位置）。以下用實例 $\mathbf{A}=\begin{bmatrix}3&1\\2&3\end{bmatrix}$ 看「拉成平行四邊形」的完整過程。</p>
+<p><strong>把單位正方形的 4 個角逐一搬過去（這就是「拉成」的字面意思）。</strong> 基底 $\mathbf{e}_1=(1,0)$、$\mathbf{e}_2=(0,1)$ 張成一個 1×1 的<strong>單位正方形</strong>（面積 = 1，當量尺）；它的四個角經 $\mathbf{A}$（$\mathbf{A}\begin{bmatrix}x\\y\end{bmatrix}=\begin{bmatrix}3x+y\\2x+3y\end{bmatrix}$）搬到新位置：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>原本的角</th><th>經 A 搬到</th></tr></thead>
+<tbody>
+<tr><td>$(0,0)$</td><td>$(0,0)$</td></tr>
+<tr><td>$(1,0)$（$\mathbf{e}_1$）</td><td>$(3,2)$ ← A 的第 1 欄</td></tr>
+<tr><td>$(0,1)$（$\mathbf{e}_2$）</td><td>$(1,3)$ ← A 的第 2 欄</td></tr>
+<tr><td>$(1,1)$</td><td>$(4,5)$</td></tr>
+</tbody>
+</table></div>
+<p>四個新位置連起來就是下圖的黃色平行四邊形；<strong>面積從 1 變成 7 → 放大 7 倍 → $\det\mathbf{A}=7$</strong>。</p>
+<figure><svg viewBox="0 0 270 300" role="img" aria-label="單位正方形（面積1）被矩陣 [[3,1],[2,3]] 拉成平行四邊形（面積7=det）">
   <g stroke="#1e293b" stroke-width="1">
     <line x1="85" y1="55" x2="85" y2="255"/><line x1="125" y1="55" x2="125" y2="255"/><line x1="165" y1="55" x2="165" y2="255"/><line x1="205" y1="55" x2="205" y2="255"/>
     <line x1="45" y1="215" x2="205" y2="215"/><line x1="45" y1="175" x2="205" y2="175"/><line x1="45" y1="135" x2="205" y2="135"/><line x1="45" y1="95" x2="205" y2="95"/><line x1="45" y1="55" x2="205" y2="55"/>
   </g>
   <line x1="45" y1="255" x2="240" y2="255" stroke="#475569" stroke-width="1.4" marker-end="url(#ar-s)"/>
   <line x1="45" y1="255" x2="45" y2="45" stroke="#475569" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <rect x="45" y="215" width="40" height="40" fill="#64748b" fill-opacity="0.30" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="65" y="240" fill="#cbd5e1" font-size="11" text-anchor="middle">1</text>
   <polygon points="45,255 165,175 205,55 85,135" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24" stroke-width="1.5"/>
   <line x1="45" y1="255" x2="165" y2="175" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
   <line x1="45" y1="255" x2="85" y2="135" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
   <text x="168" y="172" fill="#34d399" font-size="12" font-weight="700">a₁=(3,2)</text>
-  <text x="56" y="128" fill="#38bdf8" font-size="12" font-weight="700">a₂=(1,3)</text>
-  <text x="108" y="160" fill="#fcd34d" font-size="12" font-weight="700">面積=7</text>
+  <text x="56" y="126" fill="#38bdf8" font-size="12" font-weight="700">a₂=(1,3)</text>
+  <text x="112" y="158" fill="#fcd34d" font-size="12" font-weight="700">面積=7</text>
   <text x="232" y="270" fill="#94a3b8" font-size="11">x</text>
   <text x="30" y="52" fill="#94a3b8" font-size="11">y</text>
-</svg><figcaption>兩個<strong>欄向量</strong> $\mathbf{a}_1=(3,2)$、$\mathbf{a}_2=(1,3)$ 張成的平行四邊形，面積 $=|3\times3-1\times2|=7=\det\mathbf{A}$。（用列向量 $(3,1)$、$(2,3)$ 算，面積也是 7。）</figcaption></figure>
+</svg><figcaption>虛線小方格 = 基底 $\mathbf{e}_1,\mathbf{e}_2$ 張成的<strong>單位正方形（面積 1）</strong>；矩陣 A 把它「拉成」黃色<strong>平行四邊形</strong> — $\mathbf{e}_1$ 被搬到 $(3,2)$、$\mathbf{e}_2$ 被搬到 $(1,3)$（＝A 的兩欄）。面積 1 → 7，<strong>放大倍率 = det A = 7</strong>；用列向量算也是 7。</figcaption></figure>
 
 <h3 id="layer-output">1.3.1 一層的輸出在幾何上是什麼？（換座標系＋非線性摺疊）</h3>
 <p>前面談的是「一層的線性部分 $\mathbf{W}\mathbf{x}+\mathbf{b}$」。但真正餵給下一層的，是再經過激活 $\mathbf{a}=\sigma(\mathbf{z})$ 的輸出。<strong>那個輸出向量 $\mathbf{a}$ 在幾何上代表什麼？</strong>由淺到深有四層意義：</p>
