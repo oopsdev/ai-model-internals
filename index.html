@@ -59,6 +59,7 @@ mjx-container[display="true"]{margin:.9em 0}
   <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
   <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
   <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
 </defs></svg>
 
 <p>這份是 <strong>ai-background-knowledge</strong> 的<strong>深入版</strong>：前者講「是什麼、用在哪」（中深、無數學），本文講「<strong>為什麼會動</strong>」— 含數學式、運算展開、神經網路內部推導。目標是讓工程師看懂模型內部運作，而不只是會呼叫 API。</p>
@@ -209,6 +210,34 @@ mjx-container[display="true"]{margin:.9em 0}
 <li><strong>列視角（特徵偵測）</strong>：每一列是一個權重向量，$z_j=\mathbf{w}_{j,:}^\top\mathbf{x}$ 是內積＝$\mathbf{x}$ 對第 $j$ 個樣式的對齊分數 → 一層＝一排特徵偵測器（接回 1.2 神經元）。</li>
 </ul>
 <p><strong>矩陣相乘＝變換的合成</strong>：$\mathbf{A}(\mathbf{B}\mathbf{x})$ 是「先做 B 再做 A」。特殊情形：對角矩陣＝沿各軸縮放（接回 1.6 特徵值）、旋轉矩陣＝轉一個角度、行列式＝面積 / 體積被放大的倍率。</p>
+
+<h3 id="layer-output">1.3.1 一層的輸出在幾何上是什麼？（換座標系＋非線性摺疊）</h3>
+<p>前面談的是「一層的線性部分 $\mathbf{W}\mathbf{x}+\mathbf{b}$」。但真正餵給下一層的，是再經過激活 $\mathbf{a}=\sigma(\mathbf{z})$ 的輸出。<strong>那個輸出向量 $\mathbf{a}$ 在幾何上代表什麼？</strong>由淺到深有四層意義：</p>
+<ol>
+<li><strong>每個分量＝一次投影（對齊程度）。</strong> 分量 $z_j=\mathbf{w}_j\!\cdot\!\mathbf{x}+b_j$ 的幾何意義（1.1）是把輸入點 $\mathbf{x}$ <strong>投影到方向 $\mathbf{w}_j$</strong>，量「$\mathbf{x}$ 有多對齊第 $j$ 個學到的特徵樣板」；等價地，$z_j$ 正比於 $\mathbf{x}$ 到「第 $j$ 個神經元決策超平面」的<strong>帶號距離</strong>。</li>
+<li><strong>整個輸出向量＝資料點在「新特徵座標系」的新座標（re-embedding）。</strong> 原本 $\mathbf{x}$ 用原始特徵軸描述；一層之後改用「對樣板 1 的對齊度、對樣板 2 的對齊度…」這組<strong>新軸</strong>來描述<strong>同一個點</strong>的位置。所以一層的輸出＝那個點在「由學到的方向張成的新空間」裡的<strong>新座標</strong>；下一層看到的不是原始資料，而是這份重新表達過的座標。</li>
+<li><strong>非線性 $\sigma$＝把空間摺疊／扭曲（這是「深度」有效的關鍵）。</strong> 若沒有 $\sigma$，多層只是矩陣連乘＝仍是一個矩陣（1.3），幾何上只有旋轉＋縮放＋剪切，再多層也切不開本來線性不可分的資料。$\sigma$（ReLU、sigmoid）會把座標空間<strong>摺起來、壓扁、彎折</strong>，於是原本纏在一起的兩類被拉到「一刀（下一層超平面）就能分開」的位置。</li>
+<li><strong>維度變化＝升維展開／降維壓縮。</strong> 神經元數 &gt; 輸入維度 → <strong>升維</strong>攤開（類似 kernel trick，本來擠一起的更好分）；神經元數 &lt; 輸入維度 → <strong>降維壓縮</strong>，只留最有判別力的特徵座標。</li>
+</ol>
+<figure><svg viewBox="0 0 660 300" role="img" aria-label="一層把輸入座標換成新特徵座標並摺疊空間，使兩類從線性不可分變為可分">
+  <rect x="20" y="48" width="252" height="198" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="146" y="38" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">輸入空間（原始座標）</text>
+  <g fill="#38bdf8"><circle cx="72" cy="92" r="6"/><circle cx="98" cy="112" r="6"/><circle cx="80" cy="130" r="6"/><circle cx="212" cy="186" r="6"/><circle cx="238" cy="206" r="6"/><circle cx="220" cy="223" r="6"/></g>
+  <g fill="#64748b"><circle cx="212" cy="92" r="6"/><circle cx="238" cy="112" r="6"/><circle cx="220" cy="130" r="6"/><circle cx="72" cy="186" r="6"/><circle cx="98" cy="206" r="6"/><circle cx="80" cy="223" r="6"/></g>
+  <text x="146" y="263" fill="#94a3b8" font-size="11" text-anchor="middle">兩類交錯，任何直線都切不開</text>
+  <line x1="286" y1="147" x2="374" y2="147" stroke="#a78bfa" stroke-width="2.5" marker-end="url(#ar-p)"/>
+  <text x="330" y="132" fill="#c4b5fd" font-size="11" text-anchor="middle">Wx+b 換軸</text>
+  <text x="330" y="167" fill="#c4b5fd" font-size="11" text-anchor="middle">σ 摺疊</text>
+  <rect x="388" y="48" width="252" height="198" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="514" y="38" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">新特徵空間（換座標＋摺疊後）</text>
+  <g fill="#38bdf8"><circle cx="450" cy="92" r="6"/><circle cx="482" cy="106" r="6"/><circle cx="456" cy="122" r="6"/><circle cx="502" cy="90" r="6"/></g>
+  <g fill="#64748b"><circle cx="470" cy="196" r="6"/><circle cx="506" cy="182" r="6"/><circle cx="540" cy="206" r="6"/><circle cx="516" cy="216" r="6"/></g>
+  <line x1="408" y1="168" x2="620" y2="140" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="514" y="263" fill="#94a3b8" font-size="11" text-anchor="middle">同一批點被拉開，一刀即可分</text>
+</svg><figcaption>一層＝把每個資料點換到「以學到的方向為軸」的新座標系，並用 σ 把空間摺疊；原本線性不可分的兩類，在新空間裡被下一層的超平面（黃虛線）一刀分開。點的顏色代表類別，兩張圖是同一批點的前後對照。</figcaption></figure>
+<p><strong>摺紙比喻。</strong> 一張畫著兩條交纏螺旋的紙，攤平時一條直線分不開；把紙<strong>摺幾摺</strong>後，一刀就能切開。每一層的輸出，就是那張紙被摺過一次後的新狀態。</p>
+<p><strong>一句話總結：</strong>前一層的輸出＝<strong>同一個資料點被重新表達成「在一組學到的方向上各投影多少」的新座標，而且整個空間已被非線性摺過一次</strong>，好讓下一層的超平面更容易把類別切開。這就是「深度」的意義——每多一層，就多摺一次、換一次更有利的座標系（接回 1.2 神經元、前接主題 8 前向傳播）。</p>
+
 <h3>1.4 常用範數與相似度</h3>
 <ul>
 <li><strong>L2 範數</strong> $\lVert\mathbf{x}\rVert_2=\sqrt{\sum x_i^2}$：長度；用於正則化、距離。</li>
