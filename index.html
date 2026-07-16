@@ -411,6 +411,18 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="250" y="58" fill="#38bdf8" font-size="12" font-weight="700">PC1 (λ=4.5)</text>
   <text x="212" y="150" fill="#34d399" font-size="12" font-weight="700">PC2 (λ=0.5)</text>
 </svg><figcaption>PCA：資料雲（黃點）沿 (1,1) 拉長。共變異數矩陣特徵分解得主軸 — PC1 = (1,1)（長軸、λ=4.5）、PC2 = (1,−1)（短軸、λ=0.5）；投影到 PC1 即把 2D 降到 1D、保留 90% 變異。</figcaption></figure>
+<p><strong>第 5 步（投影降維）：2 個數字 → 1 個數字。</strong> 一個 2D 點要用兩個座標定位；投影到主軸 $\mathbf{v}_1$ 後，只需「沿 $\mathbf{v}_1$ 的位置」一個數（用內積算，1.1）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>原本（2 個數）</th><th>投影到 $\mathbf{v}_1$（1 個數）</th></tr></thead>
+<tbody>
+<tr><td>$(2,1)$</td><td>$2.12$</td></tr>
+<tr><td>$(1,2)$</td><td>$2.12$</td></tr>
+<tr><td>$(0,0)$</td><td>$0$</td></tr>
+<tr><td>$(-1,-2)$</td><td>$-2.12$</td></tr>
+<tr><td>$(-2,-1)$</td><td>$-2.12$</td></tr>
+</tbody>
+</table></div>
+<p>例：$(2,1)\cdot\frac1{\sqrt2}(1,1)=\frac{3}{\sqrt2}\approx2.12$。注意 $(2,1)$ 與 $(1,2)$ <strong>都變 2.12</strong> — 它們沿 $\mathbf{v}_1$ 落在同位置、只差在被丟掉的 $\mathbf{v}_2$ 方向；分不出這兩點，就是那損失的 10%。若這 10% 不重要，用 1 個數取代 2 個數就很划算（真實場景：50 維壓到 5 維幾乎不失真）。</p>
 <p>因為 $\mathbf{C}$ <strong>對稱</strong>，特徵向量必互相垂直 → 主軸是一組<strong>正交新座標系</strong>（呼應 1.3.1 換座標系）。幾何上 $\mathbf{C}$ 把資料雲編碼成一個沿 $(1,1)$ 拉長的橢圓：長軸方向 = $\mathbf{v}_1$、半軸長² = 特徵值。</p>
 
 <blockquote><p><strong>工程意涵。</strong> 「模型推論」在數學上 ≈ 一串矩陣乘法。模型大小（參數量）≈ 所有 $\mathbf{W}$ 的元素數；推論算力 ≈ 矩陣乘法次數 (FLOPs)。這直接對應「模型越大越吃 VRAM 與算力」。</p></blockquote>
