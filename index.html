@@ -271,6 +271,7 @@ mjx-container[display="true"]{margin:.9em 0}
 <li><strong>幾何</strong>：三角形／多邊形面積、體積、判斷共線共面（det = 0）、方向（det 正負＝有無翻轉／鏡射）。</li>
 <li><strong>機率／ML</strong>：多元高斯分布的協方差 $\det\boldsymbol{\Sigma}$（機率密度歸一化常數）；換座標的 <strong>Jacobian 行列式</strong>（多重積分換元、生成模型 normalizing flows 用 $\log\lvert\det\mathbf{J}\rvert$）。</li>
 </ul>
+<p><strong>非方陣呢？</strong> 非方陣（列數 ≠ 欄數）<strong>沒有行列式</strong> — 因為它「進出不同維度」，沒有單一的體積倍率。要量體積改用 <strong>Gram 行列式</strong> $\sqrt{\det(\mathbf{A}^\top\mathbf{A})}$、要通用縮放用<strong>奇異值 (SVD)</strong>、要求逆用<strong>偽逆 (pseudoinverse)</strong>。ML 常把非方陣的資料矩陣 $\mathbf{X}$（$m$ 筆 × $n$ 特徵）湊成方陣 $\mathbf{X}^\top\mathbf{X}$ 來用（回歸的正規方程就是這樣）。</p>
 
 <h3 id="layer-output">1.3.1 一層的輸出在幾何上是什麼？（換座標系＋非線性摺疊）</h3>
 <p>前面談的是「一層的線性部分 $\mathbf{W}\mathbf{x}+\mathbf{b}$」。但真正餵給下一層的，是再經過激活 $\mathbf{a}=\sigma(\mathbf{z})$ 的輸出。<strong>那個輸出向量 $\mathbf{a}$ 在幾何上代表什麼？</strong>由淺到深有四層意義：</p>
