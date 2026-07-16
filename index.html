@@ -333,6 +333,7 @@ mjx-container[display="true"]{margin:.9em 0}
 <p>$$\hat{\mathbf{x}} = \frac{\mathbf{x}}{\lVert\mathbf{x}\rVert}$$</p>
 <p><strong>去掉長度、只留方向</strong>。正規化後，兩向量的內積就<strong>直接等於餘弦相似度</strong>：$\hat{\mathbf{a}}^\top\hat{\mathbf{b}}=\cos\phi$。幾何上這也代表「$\mathbf{a}$ 在單位向量 $\hat{\mathbf{b}}$ 上的投影長」。這就是為什麼 Embedding 語意檢索要正規化 — 比「像不像」不該被向量長短干擾（長文件與短文件講同主題，方向相近但長度差很多）。</p>
 <p><strong>(b) 特徵正規化。</strong> 訓練前把各特徵縮到可比範圍，否則大尺度特徵（如 bytes 百萬級）會壓過小特徵（如封包數幾十），主宰距離與梯度：</p>
+<blockquote><p><strong>名詞澄清。</strong> 這裡的「特徵」是 <strong>feature（輸入變數／欄位）</strong>，與 1.6 的「特徵值／特徵向量（<strong>eigen</strong>）」是<strong>完全不同的東西、只是中文撞名</strong>。</p></blockquote>
 <div class="tablewrap"><table>
 <thead><tr><th>方法</th><th>公式</th><th>結果</th></tr></thead>
 <tbody>
@@ -346,6 +347,7 @@ mjx-container[display="true"]{margin:.9em 0}
 
 <h3>1.6 特徵值與特徵向量 — 變換下「不轉向」的軸</h3>
 <p>對方陣 $\mathbf{A}$，若存在非零向量 $\mathbf{v}$ 使 $\mathbf{A}\mathbf{v}=\lambda\mathbf{v}$，則 $\mathbf{v}$ 是<strong>特徵向量</strong>、純量 $\lambda$ 是<strong>特徵值</strong>。</p>
+<blockquote><p><strong>名詞澄清。</strong> 這裡的「特徵」是 <strong>eigen</strong>（固有、特性），與 1.5 的「特徵 = feature（輸入變數）」<strong>只是中文撞名、毫無關係</strong>。尤其注意：本節的<strong>特徵向量 (eigenvector) ≠ 資料的 feature vector</strong>（1.1 的 $\mathbf{x}$）。判斷靠上下文 — 講矩陣／變換／PCA／伸縮就是 eigen，講資料／輸入／欄位就是 feature。</p></blockquote>
 <p><span class="geo">幾何意義。</span> 矩陣＝對空間做線性變換（旋轉 / 拉伸 / 剪切）；大多數向量被 $\mathbf{A}$ 一乘會<strong>轉向</strong>，而<strong>特徵向量是少數「方向不變、只被拉長或縮短」的特殊軸</strong>，倍率就是 $\lambda$（$\lambda \gt 1$ 拉長、$0 \lt \lambda \lt 1$ 縮短、$\lambda \lt 0$ 反向、$\lambda=1$ 不變）。把單位圓上所有向量用 $\mathbf{A}$ 變換會變成<strong>橢圓</strong> — 橢圓的長短軸方向＝特徵向量、半軸長＝特徵值。</p>
 <figure><svg viewBox="0 0 380 215" role="img" aria-label="特徵向量：單位圓經矩陣變成橢圓，橢圓軸即特徵向量">
   <circle cx="190" cy="112" r="45" fill="none" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5 4"/>
