@@ -153,8 +153,8 @@ mjx-container[display="true"]{margin:.9em 0}
   <circle cx="120" cy="82" r="4.5" fill="#64748b"/>
   <text x="66" y="76" fill="#94a3b8" font-size="10">z 為負 → 不激發 (a≈0)</text>
 </svg><figcaption>神經元 = 一條決策邊界 w·x+b=0（法向量 w）；z=w·x+b 是帶符號的「對齊 / 距離分數」，激活 σ 把它壓成輸出 a</figcaption></figure>
-<p><strong>激活 $\sigma$ — 非線性。</strong> 若沒有 $\sigma$，多層神經元疊起來仍是線性（矩陣連乘 $\mathbf{W}_2\mathbf{W}_1\mathbf{x}$ 還是一個矩陣），疊幾層都只能學線性邊界。<strong>加入非線性後，多層才能逼近任意複雜函數</strong> — 這是深度學習能學複雜樣式的關鍵（激活函數細節見主題 9）。</p>
-<p><span class="geo">接回上下文。</span> 一個神經元 = 一次內積 + 偏置 + 非線性；<strong>一層 = 很多神經元 = 一個矩陣 $\mathbf{W}$</strong>（每列是一個神經元的權重，即 1.3 的列視角）：$\mathbf{z}=\mathbf{W}\mathbf{x}+\mathbf{b}$、$\mathbf{a}=\sigma(\mathbf{z})$；<strong>多層堆疊 + 非線性 = 深度網路</strong>，前一層的輸出當下一層輸入，逐層抽取越來越抽象的特徵。</p>
+<p><strong>激活 $\sigma$ — 非線性轉換。</strong> 若沒有 $\sigma$，多層神經元疊起來仍是線性（矩陣連乘 $\mathbf{W}_2\mathbf{W}_1\mathbf{x}$ 還是一個矩陣），疊幾層都只能學線性邊界。<strong>加入非線性轉換後，多層才能逼近任意複雜函數</strong> — 這是深度學習能學複雜樣式的關鍵（激活函數細節見主題 9）。</p>
+<p><span class="geo">接回上下文。</span> 一個神經元 = 一次內積 + 偏置 + 非線性轉換；<strong>一層 = 很多神經元 = 一個矩陣 $\mathbf{W}$</strong>（每列是一個神經元的權重，即 1.3 的列視角）：$\mathbf{z}=\mathbf{W}\mathbf{x}+\mathbf{b}$、$\mathbf{a}=\sigma(\mathbf{z})$；<strong>多層堆疊 + 非線性轉換 = 深度網路</strong>，前一層的輸出當下一層輸入，逐層抽取越來越抽象的特徵。</p>
 
 <h3>1.3 矩陣乘法 — 座標變換，也是對各樣板的對齊程度</h3>
 <p>把一層 $m$ 個神經元的權重疊成矩陣 $\mathbf{W}\in\mathbb{R}^{m\times n}$，一次算出整層加權和：</p>
