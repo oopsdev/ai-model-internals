@@ -370,6 +370,27 @@ mjx-container[display="true"]{margin:.9em 0}
   <text x="338" y="163" fill="#94a3b8" font-size="12">x</text>
   <text x="32" y="40" fill="#94a3b8" font-size="12">y</text>
 </svg><figcaption>線性回歸：找一條線讓各點到線的垂直誤差（虛線）平方和 (MSE) 最小</figcaption></figure>
+
+<p><span class="geo">分類 vs 回歸（一張圖看懂）。</span> 同一堆資料點：<strong>分類是拿超平面把點雲「切開」</strong>（判在哪一側/哪一區）；<strong>回歸是拿一條線「穿過」點雲</strong>（讓點盡量貼近、預測數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上，差別只在輸出怎麼用 — 分類看落在哪一側（argmax），回歸直接讀數值。</p>
+<figure><svg viewBox="0 0 660 230" role="img" aria-label="分類是用超平面切開點雲，回歸是用一條線穿過點雲">
+  <rect x="20" y="45" width="280" height="155" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="160" y="35" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">分類：用超平面「切開」</text>
+  <line x1="70" y1="60" x2="265" y2="188" stroke="#fbbf24" stroke-width="2.5"/>
+  <g fill="#38bdf8"><circle cx="205" cy="75" r="5.5"/><circle cx="240" cy="90" r="5.5"/><circle cx="220" cy="108" r="5.5"/><circle cx="250" cy="70" r="5.5"/></g>
+  <g fill="#64748b"><circle cx="70" cy="150" r="5.5"/><circle cx="100" cy="170" r="5.5"/><circle cx="85" cy="132" r="5.5"/><circle cx="115" cy="155" r="5.5"/></g>
+  <text x="238" y="150" fill="#fcd34d" font-size="11" text-anchor="middle">邊界</text>
+  <rect x="360" y="45" width="280" height="155" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="500" y="35" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">回歸：用一條線「穿過」</text>
+  <line x1="385" y1="188" x2="620" y2="188" stroke="#475569" stroke-width="1"/>
+  <line x1="385" y1="60" x2="385" y2="188" stroke="#475569" stroke-width="1"/>
+  <line x1="395" y1="172" x2="618" y2="72" stroke="#34d399" stroke-width="2.5"/>
+  <g stroke="#64748b" stroke-width="1" stroke-dasharray="4 3">
+   <line x1="440" y1="150" x2="440" y2="158"/><line x1="500" y1="120" x2="500" y2="112"/><line x1="560" y1="95" x2="560" y2="103"/></g>
+  <g fill="#fbbf24"><circle cx="420" cy="160" r="4"/><circle cx="440" cy="150" r="4"/><circle cx="480" cy="140" r="4"/><circle cx="500" cy="120" r="4"/><circle cx="540" cy="112" r="4"/><circle cx="560" cy="95" r="4"/><circle cx="600" cy="82" r="4"/></g>
+  <text x="612" y="185" fill="#94a3b8" font-size="11">x</text>
+  <text x="372" y="66" fill="#94a3b8" font-size="11">y</text>
+</svg><figcaption>同一件事的兩種目標 — 分類用超平面把點雲<strong>切開</strong>（判在哪一側）；回歸用一條線<strong>穿過</strong>點雲（讓殘差最小、輸出數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上。</figcaption></figure>
+
 <h3>4.2 梯度與更新</h3>
 <p>$$\nabla_{\mathbf{w}}L=\frac{2}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)\,\mathbf{x}_i$$</p>
 <p>再用梯度下降 $\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}L$。<strong>「預測誤差 $(\hat y-y)$ 乘輸入 $\mathbf{x}$」的形式會在神經網路反覆出現</strong> — backprop 最外層永遠是誤差項。</p>
