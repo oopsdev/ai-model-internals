@@ -265,7 +265,7 @@ mjx-container[display="true"]{margin:.9em 0}
 <p><strong>3D 版：單位立方體 → 平行六面體。</strong> 換成 3×3 矩陣，它作用在 3D 空間：<strong>三個欄向量</strong>張成一個<strong>平行六面體 (parallelepiped)</strong>，det = 它的<strong>體積</strong>。單位立方體（體積 1）被拉成這個平行六面體，體積就是 |det|。例 $\mathbf{A}=\mathrm{diag}(2,3,1)$：把立方體拉成 $2\times3\times1$ 的箱子，體積 $=2\times3\times1=6=\det\mathbf{A}$；det = 0 則壓扁成平面或線（體積 0）。同一個「大小放大的固定倍數」概念，2D 是面積、3D 是體積、n 維是 n 維體積。</p>
 <p><strong>行列式的應用。</strong> 它遠不只算面積，是線代的常用工具：</p>
 <ul>
-<li><strong>可逆性／線性相關（最常用的開關）</strong>：det ≠ 0 → 可逆、欄向量線性獨立；det = 0 → 不可逆（奇異）、向量線性相關（空間被壓扁）。</li>
+<li><strong>可逆性／線性相關（最常用的開關）</strong>：det ≠ 0 → <strong>可逆</strong> — 變換一對一、沒壓扁空間，能「倒帶」還原（存在反矩陣 $\mathbf{A}^{-1}$，$\mathbf{A}^{-1}\mathbf{A}=\mathbf{I}$），欄向量線性獨立；det = 0 → <strong>不可逆（奇異）</strong> — 空間被壓扁、不同輸入被壓到同一輸出（資訊丟失、還不回去），欄向量線性相關。它決定 $\mathbf{A}\mathbf{x}=\mathbf{b}$ 有沒有唯一解（回歸、共線性、正則化的根源）。</li>
 <li><strong>解線性方程組</strong>：$\mathbf{A}\mathbf{x}=\mathbf{b}$，det ≠ 0 有唯一解、det = 0 無解或無限多（克拉瑪公式直接用 det 解）。</li>
 <li><strong>求特徵值</strong>：$\det(\mathbf{A}-\lambda\mathbf{I})=0$（見 1.6，PCA／譜分析入口）。</li>
 <li><strong>幾何</strong>：三角形／多邊形面積、體積、判斷共線共面（det = 0）、方向（det 正負＝有無翻轉／鏡射）。</li>
