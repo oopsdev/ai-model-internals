@@ -255,7 +255,17 @@ mjx-container[display="true"]{margin:.9em 0}
 <tr><td><strong>L∞</strong></td><td>$\max_i|x_i|$</td><td>只看變化最大的那一維</td><td>最壞情況界限</td></tr>
 </tbody>
 </table></div>
-<p><span class="geo">幾何意義。</span> 範數＝「原點到點 $\mathbf{x}$ 的距離」，但<strong>「距離」怎麼算隨範數而不同</strong>。最能看懂差異的是<strong>單位球</strong>（所有「長度 = 1」的點連成的形狀）：L2 是圓、L1 是菱形（尖角在座標軸上）、L∞ 是正方形，三者在 4 個座標軸點重合。</p>
+<p><span class="geo">幾何意義。</span> 範數＝「原點到點 $\mathbf{x}$ 的距離」，但<strong>「距離」怎麼算隨範數而不同</strong>。最能看懂差異的是<strong>單位球</strong>：所有「長度 = 1」的點連成的形狀 — L2 是圓、L1 是菱形（尖角在座標軸上）、L∞ 是正方形。</p>
+<p><strong>先破除常見誤會：這三個形狀不是「一個向量的樣子」，而是「所有長度 = 1 的向量」連起來的集合</strong>（無限多個點，不是一個）。單一向量的長度只是<strong>一個數字</strong>；但不同範數對「長度 = 1」的認定不同，所以「長度都算 1 的那群點」連出來的形狀就不同。看同一批點在三種範數下的長度：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>點 $(x_1,x_2)$</th><th>L2 $\sqrt{x_1^2+x_2^2}$</th><th>L1 $\lvert x_1\rvert+\lvert x_2\rvert$</th><th>L∞ $\max$</th></tr></thead>
+<tbody>
+<tr><td>$(1,0)$</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>$(1,1)$</td><td>1.41</td><td>2</td><td>1</td></tr>
+<tr><td>$(0.5,0.5)$</td><td>0.71</td><td>1</td><td>0.5</td></tr>
+</tbody>
+</table></div>
+<p>反過來問「<strong>哪些點的長度剛好 = 1？</strong>」三種範數的答案（點集）形狀就不同：<strong>L2</strong> 滿足 $x_1^2+x_2^2=1$ → <strong>圓</strong>；<strong>L1</strong> 滿足 $\lvert x_1\rvert+\lvert x_2\rvert=1$ → <strong>菱形</strong>（$(0.5,0.5)$ 在菱形上、卻不在圓上）；<strong>L∞</strong> 滿足 $\max=1$ → <strong>正方形</strong>（角落 $(1,1)$ 在正方形上，但 L2 長度是 1.41、不在圓上）。所以形狀是「<strong>這個範數認為哪些點跟原點一樣遠</strong>」的地圖，三者在 4 個座標軸點重合。</p>
 <figure><svg viewBox="0 0 300 300" role="img" aria-label="L1 菱形、L2 圓、L∞ 正方形三種單位球疊在同一組座標軸上">
   <line x1="35" y1="150" x2="265" y2="150" stroke="#475569" stroke-width="1"/>
   <line x1="150" y1="35" x2="150" y2="265" stroke="#475569" stroke-width="1"/>
@@ -268,7 +278,7 @@ mjx-container[display="true"]{margin:.9em 0}
   <text x="118" y="126" fill="#34d399" font-size="13" font-weight="700">L1</text>
   <text x="256" y="145" fill="#94a3b8" font-size="11">x₁</text>
   <text x="156" y="46" fill="#94a3b8" font-size="11">x₂</text>
-</svg><figcaption>單位球（‖x‖=1 的點集）：L1＝菱形（尖角在軸上）、L2＝圓、L∞＝正方形；三者在 4 個座標軸點重合（灰點）。L1 的尖角正是它「造成稀疏」的幾何原因。</figcaption></figure>
+</svg><figcaption>單位球＝所有長度 = 1 的向量集合（不是單一向量）：L1＝菱形（尖角在軸上）、L2＝圓、L∞＝正方形；三者在 4 個座標軸點重合（灰點）。L1 的尖角正是它「造成稀疏」的幾何原因。</figcaption></figure>
 <p><strong>為什麼 L1 造成稀疏（幾何直覺）。</strong> 正則化＝在「範數球」內找損失最小的點（主題 7）。<strong>L1 的球是菱形、尖角剛好落在座標軸上</strong>，最優解容易卡在頂點 → 某些座標變 0 → <strong>稀疏</strong>（自動做特徵選擇）；<strong>L2 的球是圓、沒有尖角</strong>，只會把權重整體壓小、不歸零。所以「L1 稀疏、L2 平滑」不是口訣，是<strong>菱形有角、圓形沒角</strong>的幾何結果。</p>
 <p><strong>餘弦相似度</strong> $\cos\phi=\dfrac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert}$：用範數把長度除掉，<strong>只看方向、不看長度</strong> — 這是 Embedding 語意檢索的核心（主題 15）。</p>
 <h3>1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
