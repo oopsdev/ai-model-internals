@@ -318,6 +318,20 @@ mjx-container[display="true"]{margin:.9em 0}
 </tbody>
 </table></div>
 <p><strong>為什麼檢索要這樣：</strong>長文件與短文件若講同一主題，embedding <strong>方向相近</strong>但<strong>長度差很多</strong>；語意檢索要判斷「同不同主題」，不該被長短干擾 → 用只看方向的餘弦相似度，而非會被長度灌水的原始內積（Embedding 語意檢索的核心，主題 15）。</p>
+
+<p><strong>範數的用途（不只正則化）。</strong> 範數是「量大小／長度／距離」的通用地基，貫穿整個教材：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>應用</th><th>用範數做什麼</th></tr></thead>
+<tbody>
+<tr><td>距離 / 相似度</td><td>兩點距離 $\lVert\mathbf{a}-\mathbf{b}\rVert$ → KNN、分群、異常偵測</td></tr>
+<tr><td><strong>正則化</strong> (regularization)</td><td>懲罰權重 $\lVert\mathbf{w}\rVert$ 防過擬合（L1 稀疏／L2 平滑，主題 7）</td></tr>
+<tr><td><strong>正規化</strong> (normalization)</td><td>$\mathbf{x}/\lVert\mathbf{x}\rVert$ 做單位向量、Layer/Batch Norm（1.5、主題 11）</td></tr>
+<tr><td>餘弦相似度</td><td>除以範數消掉長度 → Embedding 語意檢索（主題 15）</td></tr>
+<tr><td>損失函數</td><td>MSE ＝殘差的 L2 範數平方 $\lVert\hat{\mathbf{y}}-\mathbf{y}\rVert^2$（主題 4）</td></tr>
+<tr><td>梯度裁剪 (gradient clipping)</td><td>限制梯度大小 $\lVert\nabla\rVert$ 穩定訓練（主題 6）</td></tr>
+</tbody>
+</table></div>
+<p>所以<strong>範數是地基，正則化只是蓋在上面的其中一間房</strong>。易混提醒：<strong>正則化 = regularization</strong>（防過擬合）、<strong>正規化 = normalization</strong>（調尺度），只差一字、英文也像，做的事卻完全不同（見 1.5）。</p>
 <h3>1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
 <p>正規化的精神：<strong>拿掉「不該影響判斷的量」，讓比較公平、訓練穩定</strong>。基礎有兩種（第三種在主題 11）：</p>
 <p><strong>(a) 向量正規化。</strong> 把向量除以自身長度，變成<strong>單位向量</strong>（長度 = 1）：</p>
