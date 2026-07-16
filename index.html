@@ -117,25 +117,7 @@ mjx-container[display="true"]{margin:.9em 0}
 </table></div>
 <p>注意：內積 $=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$，<strong>值大也可能只是向量長</strong>；要純比方向對齊、不受長度干擾，看 $\cos\phi\in[-1,1]$（正規化後的內積，見 1.5）。神經元同理：輸入越對齊權重樣式，內積越大、激活越強（負值＝強烈不符合）。</p>
 
-<h4 style="color:#fff;margin:1.3em 0 .4em">推導（餘弦定律）：分量乘積之和 ＝ 長度 × 夾角餘弦</h4>
-<p>內積有兩個定義 — 代數的「<strong>分量乘積之和</strong> $\sum_i a_ib_i$」與幾何的「$\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$」。用<strong>餘弦定律</strong>可證它們相等。取由 $\mathbf{a}$、$\mathbf{b}$ 與其差 $\mathbf{a}-\mathbf{b}$ 圍成的三角形（夾角 $\phi$）：</p>
-<figure><svg viewBox="0 0 380 210" role="img" aria-label="餘弦定律推導用三角形：邊 a、b、a-b">
-  <line x1="70" y1="170" x2="232" y2="58" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
-  <line x1="70" y1="170" x2="330" y2="170" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
-  <line x1="232" y1="58" x2="330" y2="170" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="6 4"/>
-  <path d="M112,170 A42 42 0 0 0 96,146" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
-  <text x="118" y="162" fill="#94a3b8" font-size="12">φ</text>
-  <text x="132" y="104" fill="#38bdf8" font-size="12" font-weight="700">a　|a|</text>
-  <text x="188" y="188" fill="#34d399" font-size="12" font-weight="700">b　|b|</text>
-  <text x="292" y="108" fill="#fcd34d" font-size="12" font-weight="700">|a−b|</text>
-</svg><figcaption>三邊 |a|、|b|、|a−b| 與夾角 φ；對這個三角形套餘弦定律即可推出內積</figcaption></figure>
-<p><strong>(1) 代數展開</strong>（純用分量、畢氏）：</p>
-<p>$$\lVert\mathbf{a}-\mathbf{b}\rVert^2=\sum_i (a_i-b_i)^2=\sum_i a_i^2-2\sum_i a_ib_i+\sum_i b_i^2=\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2-2\sum_i a_ib_i$$</p>
-<p><strong>(2) 餘弦定律</strong>（純幾何，三邊 $\lVert\mathbf{a}\rVert$、$\lVert\mathbf{b}\rVert$、$\lVert\mathbf{a}-\mathbf{b}\rVert$，夾角 $\phi$）：</p>
-<p>$$\lVert\mathbf{a}-\mathbf{b}\rVert^2=\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2-2\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$$</p>
-<p>兩式左邊同為 $\lVert\mathbf{a}-\mathbf{b}\rVert^2$，右邊相等；消去 $\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2$ 得：</p>
-<p>$$\boxed{\;\sum_i a_ib_i=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi\;}$$</p>
-<p>即<strong>「分量乘積之和」恰等於「兩向量長度 × 夾角餘弦」</strong> — 代數與幾何兩種內積定義其實是同一件事，這也解釋了為什麼「分量硬乘相加」會等於「量測方向對齊程度」。</p>
+<p>內積的代數定義 $\sum_i a_ib_i$ 與幾何定義 $\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$ 為何會相等？關鍵是<strong>餘弦定律</strong>；完整推導見<a href="#a1">附錄 A</a>。</p>
 
 <h3>1.2 神經元 — 把線性代數變成「會學習的特徵偵測器」</h3>
 <p>人工神經元是深度學習的最小單元，靈感來自生物神經元（收多個輸入、加權整合、超過門檻才「激發」放電）。它的數學定義只有兩步：</p>
@@ -399,7 +381,7 @@ mjx-container[display="true"]{margin:.9em 0}
 
 <hr>
 <h2 id="a1">附錄 A — 餘弦定律 (Law of Cosines)</h2>
-<p>主題 1.1 用餘弦定律推導內積，這裡補上餘弦定律本身的敘述與<strong>自足的推導</strong>（不使用內積，以免與 1.1 循環論證）。</p>
+<p>內積的代數定義與幾何定義為何相等 (主題 1.1)？關鍵是餘弦定律。本附錄先給餘弦定律的敘述 (A.1) 與<strong>自足推導</strong> (A.2，不使用內積)，再用它證明內積兩種定義等價 (A.3)。</p>
 
 <h3>A.1 敘述</h3>
 <p>三角形三邊長 $a, b, c$，設 $C$ 為邊 $c$ 所對的夾角，則</p>
@@ -433,7 +415,27 @@ mjx-container[display="true"]{margin:.9em 0}
 <p>$$c^2 = b^2 - 2ab\cos C + a^2\cos^2 C + a^2\sin^2 C$$</p>
 <p>因 $\cos^2 C + \sin^2 C = 1$（畢氏恆等式），$a^2\cos^2 C + a^2\sin^2 C = a^2$：</p>
 <p>$$\boxed{\;c^2 = a^2 + b^2 - 2ab\cos C\;}\qquad\blacksquare$$</p>
-<p>此推導只用了<strong>距離公式 + 畢氏恆等式</strong>，完全獨立於內積，所以 1.1「用餘弦定律證內積」不構成循環論證。（等價作法：從 $B$ 對邊 $b$ 作垂線、用畢氏定理分段相加，結果相同。）</p>
+<p>此推導只用了<strong>距離公式 + 畢氏恆等式</strong>，完全獨立於內積，所以下面 A.3「用餘弦定律證內積」不構成循環論證。（等價作法：從 $B$ 對邊 $b$ 作垂線、用畢氏定理分段相加，結果相同。）</p>
+
+<h3>A.3 用餘弦定律證明內積的兩種定義等價</h3>
+<p>內積有兩個定義 — 代數的「<strong>分量乘積之和</strong> $\sum_i a_ib_i$」與幾何的「$\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$」。用 A.2 的餘弦定律可證它們相等。取由 $\mathbf{a}$、$\mathbf{b}$ 與其差 $\mathbf{a}-\mathbf{b}$ 圍成的三角形（夾角 $\phi$）：</p>
+<figure><svg viewBox="0 0 380 210" role="img" aria-label="用餘弦定律推內積的三角形：邊 a、b、a-b">
+  <line x1="70" y1="170" x2="232" y2="58" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
+  <line x1="70" y1="170" x2="330" y2="170" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
+  <line x1="232" y1="58" x2="330" y2="170" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="6 4"/>
+  <path d="M112,170 A42 42 0 0 0 96,146" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="118" y="162" fill="#94a3b8" font-size="12">φ</text>
+  <text x="132" y="104" fill="#38bdf8" font-size="12" font-weight="700">a　|a|</text>
+  <text x="188" y="188" fill="#34d399" font-size="12" font-weight="700">b　|b|</text>
+  <text x="292" y="108" fill="#fcd34d" font-size="12" font-weight="700">|a−b|</text>
+</svg><figcaption>三邊 |a|、|b|、|a−b| 與夾角 φ；對這個三角形套餘弦定律即可推出內積</figcaption></figure>
+<p><strong>(1) 代數展開</strong>（純用分量、畢氏）：</p>
+<p>$$\lVert\mathbf{a}-\mathbf{b}\rVert^2=\sum_i (a_i-b_i)^2=\sum_i a_i^2-2\sum_i a_ib_i+\sum_i b_i^2=\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2-2\sum_i a_ib_i$$</p>
+<p><strong>(2) 餘弦定律</strong>（A.2，三邊 $\lVert\mathbf{a}\rVert$、$\lVert\mathbf{b}\rVert$、$\lVert\mathbf{a}-\mathbf{b}\rVert$，夾角 $\phi$）：</p>
+<p>$$\lVert\mathbf{a}-\mathbf{b}\rVert^2=\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2-2\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$$</p>
+<p>兩式左邊同為 $\lVert\mathbf{a}-\mathbf{b}\rVert^2$，右邊相等；消去 $\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2$ 得：</p>
+<p>$$\boxed{\;\sum_i a_ib_i=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi\;}$$</p>
+<p>即<strong>「分量乘積之和」恰等於「兩向量長度 × 夾角餘弦」</strong> — 代數與幾何兩種內積定義其實是同一件事，這也解釋了為什麼「分量硬乘相加」會等於「量測方向對齊程度」。</p>
 
 <div class="note">
 本版 v0.1 完成 Part I（主題 1–3）與 Part II 起手（4–5）。後續批次：6 梯度下降/優化器、7 正則化、8–11 神經網路（前向/激活/反向/初始化）、12 CNN、13 RNN/LSTM、14 注意力與 Transformer、15 Embedding、16–18 LLM（tokenization/生成/LoRA）、19 評估指標數學、20 浮點與量化。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
