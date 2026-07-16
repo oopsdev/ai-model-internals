@@ -385,10 +385,21 @@ mjx-container[display="true"]{margin:.9em 0}
 <li><strong>中心化</strong>：平均 $=(3,3)$，減掉後得 $(2,1),(1,2),(0,0),(-1,-2),(-2,-1)$。</li>
 <li><strong>共變異數矩陣</strong> $\mathbf{C}=\frac{1}{n-1}\sum(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^\top$（$n=5$，除以 4）：$\text{Var}(x)=\text{Var}(y)=\frac{10}{4}=2.5$、$\text{Cov}=\frac{8}{4}=2$：
 $$\mathbf{C}=\begin{bmatrix}2.5 & 2\\ 2 & 2.5\end{bmatrix}$$</li>
-<li><strong>特徵分解</strong>：解 $\det(\mathbf{C}-\lambda\mathbf{I})=(2.5-\lambda)^2-2^2=0$ → $\lambda_1=4.5,\ \lambda_2=0.5$；對應特徵向量 $\mathbf{v}_1=\frac{1}{\sqrt2}(1,1)$、$\mathbf{v}_2=\frac{1}{\sqrt2}(1,-1)$。</li>
+<li><strong>特徵分解</strong>：解特徵方程得 $\lambda_1=4.5,\ \lambda_2=0.5$，對應特徵向量 $\mathbf{v}_1=\frac{1}{\sqrt2}(1,1)$、$\mathbf{v}_2=\frac{1}{\sqrt2}(1,-1)$（計算細部見下）。</li>
 <li><strong>解讀</strong>：$\mathbf{v}_1=(1,1)$ 是變化最大的主軸（變異 $\lambda_1=4.5$），佔總變異 $\frac{4.5}{4.5+0.5}=90\%$；$\mathbf{v}_2$ 垂直於它、變異僅 0.5。</li>
 <li><strong>投影降維</strong>：把中心化點投影到 $\mathbf{v}_1$（做內積，1.1）得 1D 座標 $\approx 2.12,\ 2.12,\ 0,\ -2.12,\ -2.12$ — 原本每點 2 個數字，現在 <strong>1 個數字</strong>就抓住 90% 的變化。</li>
 </ol>
+<p><strong>第 3 步（特徵分解）怎麼算？</strong> 拆成三小步：</p>
+<p><strong>(a) 特徵值 — 解特徵方程。</strong> 由定義 $\mathbf{C}\mathbf{v}=\lambda\mathbf{v}$ 移項成 $(\mathbf{C}-\lambda\mathbf{I})\mathbf{v}=\mathbf{0}$；要有非零解 $\mathbf{v}$，就必須讓該矩陣「壓扁空間」（否則只有零解），即 $\det(\mathbf{C}-\lambda\mathbf{I})=0$：</p>
+<p>$$\det\begin{bmatrix}2.5-\lambda & 2\\ 2 & 2.5-\lambda\end{bmatrix}=(2.5-\lambda)^2-2^2=0 \;\Rightarrow\; 2.5-\lambda=\pm2 \;\Rightarrow\; \lambda_1=4.5,\ \lambda_2=0.5$$</p>
+<p><strong>(b) 特徵向量 — 每個 $\lambda$ 代回 $(\mathbf{C}-\lambda\mathbf{I})\mathbf{v}=\mathbf{0}$ 解。</strong></p>
+<ul>
+<li>$\lambda_1=4.5$：$\mathbf{C}-4.5\mathbf{I}=\begin{bmatrix}-2&2\\2&-2\end{bmatrix}$，方程 $-2v_1+2v_2=0\Rightarrow v_1=v_2$ → 取 $(1,1)$，正規化成 $\frac1{\sqrt2}(1,1)$。</li>
+<li>$\lambda_2=0.5$：$\mathbf{C}-0.5\mathbf{I}=\begin{bmatrix}2&2\\2&2\end{bmatrix}$，方程 $2v_1+2v_2=0\Rightarrow v_1=-v_2$ → 取 $(1,-1)$，正規化成 $\frac1{\sqrt2}(1,-1)$。</li>
+</ul>
+<p><strong>(c) 驗證 $\mathbf{C}\mathbf{v}=\lambda\mathbf{v}$：</strong></p>
+<p>$$\mathbf{C}\begin{bmatrix}1\\1\end{bmatrix}=\begin{bmatrix}2.5+2\\2+2.5\end{bmatrix}=\begin{bmatrix}4.5\\4.5\end{bmatrix}=4.5\begin{bmatrix}1\\1\end{bmatrix},\qquad \mathbf{C}\begin{bmatrix}1\\-1\end{bmatrix}=\begin{bmatrix}0.5\\-0.5\end{bmatrix}=0.5\begin{bmatrix}1\\-1\end{bmatrix}$$</p>
+<p>$\mathbf{C}$ 乘上去<strong>沒轉向、只縮放</strong>，倍率就是特徵值 — 完全符合 1.6「特徵向量＝不轉向的軸」。（$\lambda$ 從大排到小：$\mathbf{v}_1$ 是變化最大的第一主成分。）</p>
 <figure><svg viewBox="0 0 380 240" role="img" aria-label="PCA 主軸：資料雲沿 (1,1) 拉長，PC1 為長軸、PC2 為短軸">
   <line x1="40" y1="120" x2="340" y2="120" stroke="#475569" stroke-width="1"/>
   <line x1="190" y1="20" x2="190" y2="220" stroke="#475569" stroke-width="1"/>
