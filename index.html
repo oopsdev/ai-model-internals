@@ -190,8 +190,8 @@ mjx-container[display="true"]{margin:.9em 0}
 </table></div>
 <p>（向量本身即 $m\times 1$ 矩陣；矩陣 × 向量是矩陣乘法的特例，結果剛好「一欄」故稱向量。）</p>
 <p><span class="geo">幾何意義。</span> 矩陣乘一個向量 = 對整個空間做一次<strong>線性變換</strong>（旋轉 / 縮放 / 剪切 / 翻轉）。最直覺的看法：<strong>矩陣的每一「欄」就是原本的座標軸（基底）被變換後落到的位置</strong>。因為</p>
-<p>$$\mathbf{W}\mathbf{x} = x_1\,\mathbf{w}_{:,1} + x_2\,\mathbf{w}_{:,2} + \dots + x_n\,\mathbf{w}_{:,n}$$</p>
-<p>$\mathbf{W}\mathbf{x}$ 就是「用 $\mathbf{x}$ 的分量，把 $\mathbf{W}$ 的各欄（變換後的軸）加權相加」。由基底張成的單位正方形，會被 $\mathbf{W}$ 拉成一個<strong>平行四邊形</strong>，其邊就是 $\mathbf{W}$ 的欄向量：</p>
+<p>$$\mathbf{W}\mathbf{x} = x_1\,\mathbf{w}_1 + x_2\,\mathbf{w}_2 + \dots + x_n\,\mathbf{w}_n$$</p>
+<p>其中 $\mathbf{w}_j$ 為 $\mathbf{W}$ 的第 $j$ 欄。$\mathbf{W}\mathbf{x}$ 就是「用 $\mathbf{x}$ 的分量，把 $\mathbf{W}$ 的各欄（變換後的軸）加權相加」。由基底張成的單位正方形，會被 $\mathbf{W}$ 拉成一個<strong>平行四邊形</strong>，其邊就是 $\mathbf{W}$ 的欄向量：</p>
 <figure><svg viewBox="0 0 340 195" role="img" aria-label="矩陣乘法：基底軸變換到矩陣的欄，單位正方形變平行四邊形">
   <rect x="60" y="88" width="62" height="62" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="4 3"/>
   <line x1="60" y1="150" x2="122" y2="150" stroke="#64748b" stroke-width="1.5"/>
