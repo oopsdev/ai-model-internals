@@ -90,7 +90,7 @@ mjx-container[display="true"]{margin:.9em 0}
 <hr>
 <h2 id="1">1. 線性代數 — 向量、矩陣、內積</h2>
 <p>神經網路的每一層，本質就是<strong>矩陣乘法 + 非線性轉換</strong>。先把語言備齊。</p>
-<h3>1.1 向量與內積</h3>
+<h3>1.1 向量與內積 — 投影與量測對齊程度</h3>
 <p>一個 $n$ 維向量 $\mathbf{x}=(x_1,x_2,\dots,x_n)^\top$ 可看成一個資料點的特徵（例如一條 flow 的封包數、bytes、時長…）。<strong>內積 (dot product)</strong> 是最核心的運算：</p>
 <p>$$\mathbf{w}\cdot\mathbf{x} = \mathbf{w}^\top\mathbf{x} = \sum_{i=1}^{n} w_i x_i$$</p>
 <p>它衡量兩向量的「對齊程度」。幾何上 $\mathbf{w}^\top\mathbf{x} = \lVert\mathbf{w}\rVert\,\lVert\mathbf{x}\rVert\cos\phi$，其中 $\lVert\mathbf{x}\rVert=\sqrt{\sum_i x_i^2}$ 是長度、$\phi$ 是夾角。<strong>一個神經元做的就是一次內積 $\mathbf{w}^\top\mathbf{x}$ 加偏置 $b$</strong>，代表「用權重量測輸入有多符合某樣式」。（注：這裡的「對齊」是方向與長度的綜合分數；純方向的相似度需先正規化，見 1.5。）</p>
