@@ -372,6 +372,27 @@ mjx-container[display="true"]{margin:.9em 0}
 </table></div>
 <p><strong>最常見的入口是 PCA</strong>：網路遙測常有數十個彼此相關的特徵，PCA 用特徵分解找出「真正有變化的少數主方向」，把維度降下來、去掉冗餘 — 這就是特徵值 / 向量在 ML 的日常用途，也和主題 8 Embedding 的「用少數維度表徵資料」一脈相承。</p>
 
+<p><strong>動手做一次 PCA（數字例子）。</strong> 用 5 個 2D 點示範「共變異數矩陣做特徵分解」的完整流程。資料：$(5,4),(4,5),(3,3),(2,1),(1,2)$。</p>
+<ol>
+<li><strong>中心化</strong>：平均 $=(3,3)$，減掉後得 $(2,1),(1,2),(0,0),(-1,-2),(-2,-1)$。</li>
+<li><strong>共變異數矩陣</strong> $\mathbf{C}=\frac{1}{n-1}\sum(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^\top$（$n=5$，除以 4）：$\text{Var}(x)=\text{Var}(y)=\frac{10}{4}=2.5$、$\text{Cov}=\frac{8}{4}=2$：
+$$\mathbf{C}=\begin{bmatrix}2.5 & 2\\ 2 & 2.5\end{bmatrix}$$</li>
+<li><strong>特徵分解</strong>：解 $\det(\mathbf{C}-\lambda\mathbf{I})=(2.5-\lambda)^2-2^2=0$ → $\lambda_1=4.5,\ \lambda_2=0.5$；對應特徵向量 $\mathbf{v}_1=\frac{1}{\sqrt2}(1,1)$、$\mathbf{v}_2=\frac{1}{\sqrt2}(1,-1)$。</li>
+<li><strong>解讀</strong>：$\mathbf{v}_1=(1,1)$ 是變化最大的主軸（變異 $\lambda_1=4.5$），佔總變異 $\frac{4.5}{4.5+0.5}=90\%$；$\mathbf{v}_2$ 垂直於它、變異僅 0.5。</li>
+<li><strong>投影降維</strong>：把中心化點投影到 $\mathbf{v}_1$（做內積，1.1）得 1D 座標 $\approx 2.12,\ 2.12,\ 0,\ -2.12,\ -2.12$ — 原本每點 2 個數字，現在 <strong>1 個數字</strong>就抓住 90% 的變化。</li>
+</ol>
+<figure><svg viewBox="0 0 380 240" role="img" aria-label="PCA 主軸：資料雲沿 (1,1) 拉長，PC1 為長軸、PC2 為短軸">
+  <line x1="40" y1="120" x2="340" y2="120" stroke="#475569" stroke-width="1"/>
+  <line x1="190" y1="20" x2="190" y2="220" stroke="#475569" stroke-width="1"/>
+  <ellipse cx="190" cy="120" rx="64" ry="21" transform="rotate(-45 190 120)" fill="#38bdf8" fill-opacity="0.08" stroke="#475569" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="135" y1="175" x2="245" y2="65" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
+  <line x1="172" y1="102" x2="208" y2="138" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
+  <g fill="#fbbf24"><circle cx="250" cy="90" r="4.5"/><circle cx="220" cy="60" r="4.5"/><circle cx="190" cy="120" r="4.5"/><circle cx="160" cy="180" r="4.5"/><circle cx="130" cy="150" r="4.5"/></g>
+  <text x="250" y="58" fill="#38bdf8" font-size="12" font-weight="700">PC1 (λ=4.5)</text>
+  <text x="212" y="150" fill="#34d399" font-size="12" font-weight="700">PC2 (λ=0.5)</text>
+</svg><figcaption>PCA：資料雲（黃點）沿 (1,1) 拉長。共變異數矩陣特徵分解得主軸 — PC1 = (1,1)（長軸、λ=4.5）、PC2 = (1,−1)（短軸、λ=0.5）；投影到 PC1 即把 2D 降到 1D、保留 90% 變異。</figcaption></figure>
+<p>因為 $\mathbf{C}$ <strong>對稱</strong>，特徵向量必互相垂直 → 主軸是一組<strong>正交新座標系</strong>（呼應 1.3.1 換座標系）。幾何上 $\mathbf{C}$ 把資料雲編碼成一個沿 $(1,1)$ 拉長的橢圓：長軸方向 = $\mathbf{v}_1$、半軸長² = 特徵值。</p>
+
 <blockquote><p><strong>工程意涵。</strong> 「模型推論」在數學上 ≈ 一串矩陣乘法。模型大小（參數量）≈ 所有 $\mathbf{W}$ 的元素數；推論算力 ≈ 矩陣乘法次數 (FLOPs)。這直接對應「模型越大越吃 VRAM 與算力」。</p></blockquote>
 
 <hr>
