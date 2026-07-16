@@ -332,6 +332,20 @@ mjx-container[display="true"]{margin:.9em 0}
 </tbody>
 </table></div>
 <p>所以<strong>範數是地基，正則化只是蓋在上面的其中一間房</strong>。易混提醒：<strong>正則化 = regularization</strong>（防過擬合）、<strong>正規化 = normalization</strong>（調尺度），只差一字、英文也像，做的事卻完全不同（見 1.5）。</p>
+
+<p><strong>為什麼不是只用 L2？不同範數配不同問題。</strong> 沒有一個範數「萬用」——選哪個，等於宣告「我認為怎樣算近、什麼該忽略」。L2 是好用的預設（平滑可微、對應直線距離與內積角度），但下列情況換別的更好：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>情況</th><th>L2 的問題</th><th>改用</th></tr></thead>
+<tbody>
+<tr><td><strong>有離群值</strong></td><td>誤差被<strong>平方放大</strong> → 少數極端點主宰結果</td><td><strong>L1</strong>（絕對值、線性，較穩健；如中位數 vs 平均）</td></tr>
+<tr><td><strong>要稀疏／選特徵</strong></td><td>圓沒角、不歸零</td><td><strong>L1</strong>（菱形尖角 → 權重歸零）</td></tr>
+<tr><td><strong>維度很高</strong></td><td>L2 距離「集中」→ 遠近差異被抹平、失去鑑別力</td><td><strong>L1</strong>（低 p 在高維保留較多鑑別力）</td></tr>
+<tr><td><strong>只在乎最壞那一維</strong></td><td>L2 把各維混在一起平均掉</td><td><strong>L∞</strong>（保證每一維誤差都 ≤ 界限）</td></tr>
+<tr><td><strong>比兩個機率分布</strong></td><td>不符機率幾何</td><td><strong>L1 全變差</strong>、JS 散度</td></tr>
+<tr><td><strong>只看方向、不管長度</strong></td><td>L2 距離含長度</td><td><strong>餘弦</strong>（L2 角度，除掉長度）</td></tr>
+</tbody>
+</table></div>
+<p>其中「離群值」最直觀：$\sum(\text{誤差})^2$ 裡誤差 10 貢獻 100、誤差 1 只貢獻 1，<strong>L2 會為了那個 10 拼命調整、忽略其他點</strong>；L1 用 $\sum|\text{誤差}|$，不被單一離群點綁架。另外<strong>「餘弦」這種角度型相似度是 L2 專屬</strong>（角度／內積綁在 L2 幾何，柯西–施瓦茲才保證 $\cos\phi\in[-1,1]$、相同方向剛好 = 1）；<strong>L1／L∞ 表達相似是靠「距離」</strong>而非角度（要相似度就把距離反過來，如 $1/(1+d)$）。這就是「<strong>沒有免費的午餐</strong>」：度量要配問題，不是 L2 打天下。</p>
 <h3>1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
 <p>正規化的精神：<strong>拿掉「不該影響判斷的量」，讓比較公平、訓練穩定</strong>。基礎有兩種（第三種在主題 11）：</p>
 <p><strong>(a) 向量正規化。</strong> 把向量除以自身長度，變成<strong>單位向量</strong>（長度 = 1）：</p>
