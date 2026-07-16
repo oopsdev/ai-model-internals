@@ -279,8 +279,45 @@ mjx-container[display="true"]{margin:.9em 0}
   <text x="256" y="145" fill="#94a3b8" font-size="11">x₁</text>
   <text x="156" y="46" fill="#94a3b8" font-size="11">x₂</text>
 </svg><figcaption>單位球＝所有長度 = 1 的向量集合（不是單一向量）：L1＝菱形（尖角在軸上）、L2＝圓、L∞＝正方形；三者在 4 個座標軸點重合（灰點）。L1 的尖角正是它「造成稀疏」的幾何原因。</figcaption></figure>
-<p><strong>為什麼 L1 造成稀疏（幾何直覺）。</strong> 正則化＝在「範數球」內找損失最小的點（主題 7）。<strong>L1 的球是菱形、尖角剛好落在座標軸上</strong>，最優解容易卡在頂點 → 某些座標變 0 → <strong>稀疏</strong>（自動做特徵選擇）；<strong>L2 的球是圓、沒有尖角</strong>，只會把權重整體壓小、不歸零。所以「L1 稀疏、L2 平滑」不是口訣，是<strong>菱形有角、圓形沒角</strong>的幾何結果。</p>
-<p><strong>餘弦相似度</strong> $\cos\phi=\dfrac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert}$：用範數把長度除掉，<strong>只看方向、不看長度</strong> — 這是 Embedding 語意檢索的核心（主題 15）。</p>
+<p><strong>為什麼 L1 造成稀疏（幾何直覺）。</strong> 先說正則化在做什麼：訓練要讓損失 $L(\mathbf{w})$ 最小（$\mathbf{w}$ 是權重），同時為防過擬合要求「權重別太大」— 等價於<strong>在「權重不超出一個範數球」的限制下找損失最小的權重</strong>（$\lVert\mathbf{w}\rVert\le t$，球就是允許範圍；主題 7）。</p>
+<p>幾何畫面：損失像一座山、畫成<strong>等高線</strong>（同一圈損失相同），不受限制的最低點 $\hat{\mathbf{w}}$ 通常落在球外。所以答案是<strong>「損失等高線第一次碰到球」的接觸點</strong>。想像從 $\hat{\mathbf{w}}$ 吹一個氣球（等高線一圈圈變大），碰到球邊那一刻就是解：</p>
+<ul>
+<li><strong>L2 ＝圓（滑順）</strong>：接觸點通常在<strong>斜邊</strong> → $w_1,w_2$ 都不為 0 → 權重只被壓小、不歸零。</li>
+<li><strong>L1 ＝菱形（尖角剛好戳在座標軸上）</strong>：尖角最突出，氣球最容易<strong>先被尖角戳到</strong> → 接觸點落在頂點 → 頂點在軸上 → <strong>另一個座標 = 0</strong>（該特徵被關掉）→ <strong>稀疏</strong>。</li>
+</ul>
+<figure><svg viewBox="0 0 680 270" role="img" aria-label="L2 圓的損失等高線切在斜邊、L1 菱形切在尖角造成某座標為零">
+  <text x="170" y="28" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">L2（圓）→ 解在斜邊</text>
+  <line x1="55" y1="165" x2="290" y2="165" stroke="#475569" stroke-width="1"/>
+  <line x1="150" y1="60" x2="150" y2="250" stroke="#475569" stroke-width="1"/>
+  <circle cx="150" cy="165" r="55" fill="#38bdf8" fill-opacity="0.10" stroke="#38bdf8" stroke-width="2"/>
+  <ellipse cx="248" cy="83" rx="86" ry="44" transform="rotate(-38 248 83)" fill="none" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <ellipse cx="248" cy="83" rx="52" ry="27" transform="rotate(-38 248 83)" fill="none" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <circle cx="248" cy="83" r="3.5" fill="#94a3b8"/><text x="256" y="78" fill="#94a3b8" font-size="11">ŵ（無限制最佳）</text>
+  <circle cx="191" cy="128" r="5" fill="#fbbf24"/>
+  <text x="150" y="240" fill="#fcd34d" font-size="11" text-anchor="middle">解：w₁, w₂ 皆 ≠ 0</text>
+  <text x="500" y="28" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">L1（菱形）→ 解卡在尖角</text>
+  <line x1="405" y1="165" x2="640" y2="165" stroke="#475569" stroke-width="1"/>
+  <line x1="500" y1="60" x2="500" y2="250" stroke="#475569" stroke-width="1"/>
+  <polygon points="500,110 555,165 500,220 445,165" fill="#34d399" fill-opacity="0.10" stroke="#34d399" stroke-width="2"/>
+  <ellipse cx="592" cy="85" rx="112" ry="46" transform="rotate(-16 592 85)" fill="none" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <ellipse cx="592" cy="85" rx="70" ry="30" transform="rotate(-16 592 85)" fill="none" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <circle cx="592" cy="85" r="3.5" fill="#94a3b8"/><text x="600" y="80" fill="#94a3b8" font-size="11">ŵ</text>
+  <circle cx="500" cy="110" r="5" fill="#fbbf24"/>
+  <text x="500" y="240" fill="#fcd34d" font-size="11" text-anchor="middle">解卡尖角 → w₁ = 0（稀疏）</text>
+</svg><figcaption>正則化＝在球內找損失最低點＝損失等高線（灰虛線，繞著無限制最佳解 ŵ）第一次碰到球的地方。L2 圓切在斜邊（w₁、w₂ 皆非零）；L1 菱形的尖角在座標軸上，等高線最容易戳到尖角 → 某座標歸零 → 稀疏。</figcaption></figure>
+<p>所以「L1 稀疏、L2 平滑」不是死記的口訣，是<strong>菱形有角（角在軸上）、圓形沒角</strong>的幾何結果。</p>
+
+<p><strong>餘弦相似度 — 用範數把長度除掉。</strong> 回想 1.1：$\mathbf{a}\cdot\mathbf{b}=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$，內積<strong>混了兩件事</strong> — 方向多對齊（$\cos\phi$）與兩者多長（$\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert$）。只看內積會被長度干擾（很長的向量就算方向沒多準、內積也大）。把內積<strong>除以兩者長度（範數）</strong>，長度因子直接約掉，只剩方向：</p>
+<p>$$\cos\phi=\frac{\mathbf{a}\cdot\mathbf{b}}{\lVert\mathbf{a}\rVert\,\lVert\mathbf{b}\rVert}=\frac{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi}{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert}\in[-1,1]$$</p>
+<p>只跟夾角有關、與長度無關。例子：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>兩向量</th><th>內積（原始）</th><th>餘弦相似度</th></tr></thead>
+<tbody>
+<tr><td>$\mathbf{a}=(2,0),\ \mathbf{b}=(10,0)$（同方向、b 長 5 倍）</td><td>$20$（看似很大）</td><td>$\frac{20}{2\times10}=1$（方向完全相同）</td></tr>
+<tr><td>$\mathbf{a}=(2,0),\ \mathbf{c}=(0,2)$（垂直）</td><td>$0$</td><td>$0$（不相關）</td></tr>
+</tbody>
+</table></div>
+<p><strong>為什麼檢索要這樣：</strong>長文件與短文件若講同一主題，embedding <strong>方向相近</strong>但<strong>長度差很多</strong>；語意檢索要判斷「同不同主題」，不該被長短干擾 → 用只看方向的餘弦相似度，而非會被長度灌水的原始內積（Embedding 語意檢索的核心，主題 15）。</p>
 <h3>1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
 <p>正規化的精神：<strong>拿掉「不該影響判斷的量」，讓比較公平、訓練穩定</strong>。基礎有兩種（第三種在主題 11）：</p>
 <p><strong>(a) 向量正規化。</strong> 把向量除以自身長度，變成<strong>單位向量</strong>（長度 = 1）：</p>
