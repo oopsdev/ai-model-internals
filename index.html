@@ -263,6 +263,14 @@ mjx-container[display="true"]{margin:.9em 0}
   <text x="30" y="52" fill="#94a3b8" font-size="11">y</text>
 </svg><figcaption>虛線小方格 = 基底 $\mathbf{e}_1,\mathbf{e}_2$ 張成的<strong>單位正方形（面積 1）</strong>；矩陣 A 把它「拉成」黃色<strong>平行四邊形</strong> — $\mathbf{e}_1$ 被搬到 $(3,2)$、$\mathbf{e}_2$ 被搬到 $(1,3)$（＝A 的兩欄）。面積 1 → 7，<strong>放大倍率 = det A = 7</strong>；用列向量算也是 7。</figcaption></figure>
 <p><strong>3D 版：單位立方體 → 平行六面體。</strong> 換成 3×3 矩陣，它作用在 3D 空間：<strong>三個欄向量</strong>張成一個<strong>平行六面體 (parallelepiped)</strong>，det = 它的<strong>體積</strong>。單位立方體（體積 1）被拉成這個平行六面體，體積就是 |det|。例 $\mathbf{A}=\mathrm{diag}(2,3,1)$：把立方體拉成 $2\times3\times1$ 的箱子，體積 $=2\times3\times1=6=\det\mathbf{A}$；det = 0 則壓扁成平面或線（體積 0）。同一個「大小放大的固定倍數」概念，2D 是面積、3D 是體積、n 維是 n 維體積。</p>
+<p><strong>行列式的應用。</strong> 它遠不只算面積，是線代的常用工具：</p>
+<ul>
+<li><strong>可逆性／線性相關（最常用的開關）</strong>：det ≠ 0 → 可逆、欄向量線性獨立；det = 0 → 不可逆（奇異）、向量線性相關（空間被壓扁）。</li>
+<li><strong>解線性方程組</strong>：$\mathbf{A}\mathbf{x}=\mathbf{b}$，det ≠ 0 有唯一解、det = 0 無解或無限多（克拉瑪公式直接用 det 解）。</li>
+<li><strong>求特徵值</strong>：$\det(\mathbf{A}-\lambda\mathbf{I})=0$（見 1.6，PCA／譜分析入口）。</li>
+<li><strong>幾何</strong>：三角形／多邊形面積、體積、判斷共線共面（det = 0）、方向（det 正負＝有無翻轉／鏡射）。</li>
+<li><strong>機率／ML</strong>：多元高斯分布的協方差 $\det\boldsymbol{\Sigma}$（機率密度歸一化常數）；換座標的 <strong>Jacobian 行列式</strong>（多重積分換元、生成模型 normalizing flows 用 $\log\lvert\det\mathbf{J}\rvert$）。</li>
+</ul>
 
 <h3 id="layer-output">1.3.1 一層的輸出在幾何上是什麼？（換座標系＋非線性摺疊）</h3>
 <p>前面談的是「一層的線性部分 $\mathbf{W}\mathbf{x}+\mathbf{b}$」。但真正餵給下一層的，是再經過激活 $\mathbf{a}=\sigma(\mathbf{z})$ 的輸出。<strong>那個輸出向量 $\mathbf{a}$ 在幾何上代表什麼？</strong>由淺到深有四層意義：</p>
