@@ -372,6 +372,14 @@ mjx-container[display="true"]{margin:.9em 0}
 </table></div>
 <p><strong>最常見的入口是 PCA</strong>：網路遙測常有數十個彼此相關的特徵，PCA 用特徵分解找出「真正有變化的少數主方向」，把維度降下來、去掉冗餘 — 這就是特徵值 / 向量在 ML 的日常用途，也和主題 8 Embedding 的「用少數維度表徵資料」一脈相承。</p>
 
+<p><strong>先搞懂「共變異數矩陣 (covariance matrix)」是什麼。</strong> 它由兩個更基本的量組成：</p>
+<ul>
+<li><strong>變異數</strong> $\text{Var}(x)=\frac{1}{n-1}\sum_i(x_i-\bar x)^2$：單一特徵「散多開」。</li>
+<li><strong>共變異數</strong> $\text{Cov}(x,y)=\frac{1}{n-1}\sum_i(x_i-\bar x)(y_i-\bar y)$：兩特徵「是否一起動」。關鍵看乘積的正負 — 某點的 $x,y$ 同在各自平均的<strong>同一側</strong>（都偏大或都偏小）→ 正；<strong>不同側</strong> → 負。平均後：<strong>Cov $\gt$ 0 正相關</strong>（一起漲）、<strong>Cov $\lt$ 0 負相關</strong>（此消彼長）、<strong>$\approx$ 0 無關</strong>。</li>
+</ul>
+<p>把它們排成表就是<strong>共變異數矩陣</strong>（$d$ 個特徵 → $d\times d$）：<strong>對角線 = 各特徵的變異數、非對角線 = 兩兩共變異數</strong>；因 $\text{Cov}(x,y)=\text{Cov}(y,x)$ 而<strong>對稱</strong>：</p>
+<p>$$\mathbf{C}=\begin{bmatrix}\text{Var}(x) & \text{Cov}(x,y)\\ \text{Cov}(x,y) & \text{Var}(y)\end{bmatrix}$$</p>
+<p>它把<strong>資料雲的形狀與傾斜</strong>編碼成一個矩陣（對角線 = 各方向散多開、非對角線 = 往哪個斜方向相關）；對它做特徵分解就得到雲的主軸 — 這就是下面的 PCA。</p>
 <p><strong>動手做一次 PCA（數字例子）。</strong> 用 5 個 2D 點示範「共變異數矩陣做特徵分解」的完整流程。資料：$(5,4),(4,5),(3,3),(2,1),(1,2)$。</p>
 <ol>
 <li><strong>中心化</strong>：平均 $=(3,3)$，減掉後得 $(2,1),(1,2),(0,0),(-1,-2),(-2,-1)$。</li>
