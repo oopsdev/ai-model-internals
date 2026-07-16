@@ -211,7 +211,7 @@ mjx-container[display="true"]{margin:.9em 0}
 <li><strong>列視角（特徵偵測）</strong>：每一列是一個權重向量，$z_j=\mathbf{w}_{j,:}^\top\mathbf{x}$ 是內積＝$\mathbf{x}$ 對第 $j$ 個樣式的對齊分數 → 一層＝一排特徵偵測器（接回 1.2 神經元）。</li>
 </ul>
 <p><strong>矩陣相乘＝變換的合成</strong>：$\mathbf{A}(\mathbf{B}\mathbf{x})$ 是「先做 B 再做 A」。特殊情形：對角矩陣＝沿各軸縮放（接回 1.6 特徵值）、旋轉矩陣＝轉一個角度、行列式＝面積 / 體積被放大的倍率。</p>
-<p><strong>行列式 (determinant)：</strong>如果矩陣是<strong>方陣</strong>，「行列式」就是可以把方陣轉變成<strong>一個數</strong>的運算：2×2 時 $\det\begin{bmatrix}a&b\\c&d\end{bmatrix}=ad-bc$。<strong>幾何意義：$|\det|$ ＝這個變換把 2D 面積 / 3D 體積 / n 維體積放大的固定倍數</strong> — 由基底張成的單位正方形被矩陣拉成平行四邊形，其面積就是 $|\det|$。特例：$\det=1$ 面積不變、$\det\lt0$ 方向被翻轉（鏡射）、<strong>$\det=0$ 代表把空間「壓扁」到更低維（面積歸零）、矩陣不可逆</strong>。這個「$\det=0$＝壓扁空間」在 1.6 解特徵值時會關鍵地用到。</p>
+<p><strong>行列式 (determinant)：</strong>如果矩陣是<strong>方陣</strong>，「行列式」就是可以把方陣轉變成<strong>一個數</strong>的運算：2×2 時 $\det\begin{bmatrix}a&b\\c&d\end{bmatrix}=ad-bc$。<strong>幾何意義：$|\det|$ 就是這個變換把「大小」放大的固定倍數</strong>（2D 的大小是面積、3D 是體積、n 維是 n 維體積）。以 2D 為例：基底張成的單位正方形（面積 1）經矩陣拉成一個平行四邊形，這個平行四邊形的面積就是 $|\det|$。特例：$\det=1$ 面積不變、$\det\lt0$ 方向被翻轉（鏡射）、<strong>$\det=0$ 代表把空間「壓扁」到更低維（面積歸零）、矩陣不可逆</strong>。這個「$\det=0$＝壓扁空間」在 1.6 解特徵值時會關鍵地用到。</p>
 <figure><svg viewBox="0 0 660 210" role="img" aria-label="行列式幾何意義：單位正方形經矩陣變換後面積放大 det 倍，det=0 時壓扁成線">
   <text x="67" y="30" fill="#e5e7eb" font-size="12.5" text-anchor="middle" font-weight="700">單位正方形</text>
   <polygon points="50,175 85,175 85,140 50,140" fill="#64748b" fill-opacity="0.18" stroke="#64748b" stroke-width="1"/>
