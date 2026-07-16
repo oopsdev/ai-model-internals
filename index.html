@@ -240,7 +240,15 @@ mjx-container[display="true"]{margin:.9em 0}
 <p><strong>一句話總結：</strong>前一層的輸出＝<strong>同一個資料點被重新表達成「在一組學到的方向上各投影多少」的新座標，而且整個空間已被非線性摺過一次</strong>，好讓下一層的超平面更容易把類別切開。這就是「深度」的意義——每多一層，就多摺一次、換一次更有利的座標系（接回 1.2 神經元、前接主題 8 前向傳播）。</p>
 
 <h3>1.4 常用範數與相似度</h3>
-<p><strong>範數 (norm)</strong> $\lVert\cdot\rVert$ 是把向量映到<strong>非負實數</strong>的函數，量「向量有多大／多長」。它憑三條公理才夠格叫「長度」：</p>
+<p><strong>先從「長度」與「距離」的幾何直覺講起。</strong> 一個向量可看成從原點指向某點的箭頭。最自然的兩個量是：<strong>長度</strong>＝這支箭頭有多長（原點到那個點多遠）；<strong>距離</strong>＝兩個點相隔多遠，也就是差向量 $\mathbf{a}-\mathbf{b}$ 的長度。日常算長度用的是<strong>直線距離</strong>（畢氏定理）$\sqrt{x_1^2+x_2^2+\dots}$ — 鳥飛的最短直線，幾何上是一條直線段。</p>
+<p><strong>但「直線距離」不是唯一合理的量法。</strong> 在某些情況，用直線距離來比較並不恰當或不方便，需要換一種「怎麼算長度」的規則：</p>
+<ul>
+<li>市區棋盤格街道<strong>不能走對角線</strong>、只能沿街轉直角 → 實際距離是走過的<strong>格子總長</strong>，不是直線。</li>
+<li>有時<strong>只在乎變化最大的那一維</strong>（例如「每個規格都不能超標」）→ 該用「取最大那一維」當距離。</li>
+<li>資料有<strong>離群值</strong>，或想<strong>只看方向不看長短</strong>（比主題像不像）→ 直線距離都不是最好的選擇。</li>
+</ul>
+<p>也就是說，<strong>「長度／距離」其實是一種可以選擇的定義</strong> — 依你想比較什麼、在乎什麼而不同。為了能在後面<strong>公平地比較、挑到適合的度量</strong>，數學家把「一種合理的長度量法」抽象出來，取名叫<strong>範數 (norm)</strong>；同一組向量換一個範數，就換一種「怎麼算長度／距離」的規則。</p>
+<p><strong>範數的定義。</strong> 一種「長度量法」 $\lVert\cdot\rVert$（把向量映到<strong>非負實數</strong>）要夠格叫範數，必須滿足三條公理：</p>
 <ul>
 <li><strong>非負性</strong>：$\lVert\mathbf{x}\rVert\ge 0$，且 $=0\iff\mathbf{x}=\mathbf{0}$（只有零向量長度為 0）。</li>
 <li><strong>齊次性</strong>：$\lVert\alpha\mathbf{x}\rVert=|\alpha|\,\lVert\mathbf{x}\rVert$（放大幾倍、長度就幾倍）。</li>
