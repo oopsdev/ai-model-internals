@@ -537,6 +537,45 @@ mjx-container[display="true"]{margin:.9em 0}
 <blockquote><p><strong>工程意涵。</strong> <strong>Softmax 是所有分類器與 LLM 輸出層的共同終點</strong> — 網路流量分類輸出「各類別機率」、LLM 輸出「下一個 token 的機率分布」用的都是它。懂 softmax + 交叉熵，等於掌握判別式分類與生成式取樣（主題 17）的共同基座。</p></blockquote>
 
 <hr>
+<h2 id="7">7. 正則化 (Regularization) — 對抗過擬合</h2>
+<p class="note" style="border:0;margin:0 0 1em">主題 6（梯度下降／優化器）待補；本節先建立正則化要對付的問題 — 過擬合。</p>
+<h3>7.1 過擬合 vs 欠擬合</h3>
+<p><strong>過擬合 (overfitting)</strong>：模型把訓練資料「背過頭」，連資料裡的<strong>雜訊、巧合</strong>都學進去 → <strong>訓練集分數超高、但遇到沒看過的新資料就差</strong>。它學到的是「這批資料的特例」，不是「通則」。就像學生死背考古題，換個題目就不會。</p>
+<p><strong>欠擬合 (underfitting)</strong>：反過來，模型<strong>太簡單</strong>，連訓練資料的趨勢都抓不到 → 訓練、測試都差。</p>
+<figure><svg viewBox="0 0 660 250" role="img" aria-label="欠擬合、剛好、過擬合三種模型對同一批帶雜訊資料的擬合對照">
+  <text x="118" y="28" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">欠擬合（太簡單）</text>
+  <line x1="30" y1="205" x2="205" y2="205" stroke="#475569" stroke-width="1"/><line x1="30" y1="45" x2="30" y2="205" stroke="#475569" stroke-width="1"/>
+  <line x1="40" y1="118" x2="200" y2="118" stroke="#38bdf8" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="45" cy="83" r="4"/><circle cx="70" cy="117" r="4"/><circle cx="95" cy="135" r="4"/><circle cx="120" cy="146" r="4"/><circle cx="145" cy="133" r="4"/><circle cx="170" cy="113" r="4"/><circle cx="195" cy="75" r="4"/></g>
+  <text x="118" y="230" fill="#94a3b8" font-size="11" text-anchor="middle">直線抓不到彎曲趨勢</text>
+  <text x="336" y="28" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">剛好（抓到通則）</text>
+  <line x1="248" y1="205" x2="423" y2="205" stroke="#475569" stroke-width="1"/><line x1="248" y1="45" x2="248" y2="205" stroke="#475569" stroke-width="1"/>
+  <path d="M263,80 Q336,182 418,72" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="263" cy="83" r="4"/><circle cx="288" cy="117" r="4"/><circle cx="313" cy="135" r="4"/><circle cx="338" cy="146" r="4"/><circle cx="363" cy="133" r="4"/><circle cx="388" cy="113" r="4"/><circle cx="413" cy="75" r="4"/></g>
+  <text x="336" y="230" fill="#94a3b8" font-size="11" text-anchor="middle">平滑曲線貼合趨勢</text>
+  <text x="554" y="28" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">過擬合（太複雜）</text>
+  <line x1="466" y1="205" x2="641" y2="205" stroke="#475569" stroke-width="1"/><line x1="466" y1="45" x2="466" y2="205" stroke="#475569" stroke-width="1"/>
+  <polyline points="481,83 506,117 531,135 556,146 581,133 606,113 631,75" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="481" cy="83" r="4"/><circle cx="506" cy="117" r="4"/><circle cx="531" cy="135" r="4"/><circle cx="556" cy="146" r="4"/><circle cx="581" cy="133" r="4"/><circle cx="606" cy="113" r="4"/><circle cx="631" cy="75" r="4"/></g>
+  <text x="554" y="230" fill="#94a3b8" font-size="11" text-anchor="middle">硬穿每個點、連雜訊都學</text>
+</svg><figcaption>同一批帶雜訊的資料：欠擬合（直線）連趨勢都沒抓到；剛好（平滑曲線）抓到通則、容許每點有點誤差；過擬合（扭曲折線）硬穿每個點、把雜訊也學進去 → 訓練完美但預測新點差。</figcaption></figure>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>模型複雜度</th><th>幾何</th><th>訓練</th><th>測試</th></tr></thead>
+<tbody>
+<tr><td><strong>欠擬合</strong></td><td>太簡單</td><td>直線硬套彎曲資料、抓不到趨勢</td><td>差</td><td>差</td></tr>
+<tr><td><strong>剛好</strong></td><td>適中</td><td>平滑曲線貼合趨勢、容許每點有點誤差</td><td>好</td><td>好</td></tr>
+<tr><td><strong>過擬合</strong></td><td>太複雜</td><td>扭曲曲線硬穿每個點、連雜訊都學</td><td>極好</td><td>差</td></tr>
+</tbody>
+</table></div>
+<p><strong>怎麼判斷</strong>：訓練誤差低、但<strong>驗證／測試誤差高</strong>，兩者落差 (gap) 大 = 過擬合的信號。<strong>原因</strong>通常是模型太複雜（參數太多）、資料太少、或訓練太久。</p>
+<p><strong>怎麼防（＝正則化的任務）</strong>：讓模型「別把訊號記太死」——</p>
+<ul>
+<li><strong>L1 / L2 正則化</strong>：懲罰權重大小 $\lVert\mathbf{w}\rVert$（用 1.4 的範數球限制權重），逼模型用更小／更少的權重。</li>
+<li><strong>其他</strong>：更多資料、early stopping（早點停）、dropout、簡化模型、交叉驗證。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> Demo 時「訓練準確率 99%」可能只是<strong>背了那批樣本</strong>，換真實流量就失效——這就是過擬合。驗收邊緣模型要用<strong>按時間切、含真實比例惡意樣本</strong>的測試集，看它對「沒看過的資料」還準不準。</p></blockquote>
+
+<hr>
 <h2 id="a1">附錄 A — 餘弦定律 (Law of Cosines)</h2>
 <p>內積的代數定義與幾何定義為何相等 (主題 1.1)？關鍵是餘弦定律。本附錄先給餘弦定律的敘述 (A.1) 與<strong>自足推導</strong> (A.2，不使用內積)，再用它證明內積兩種定義等價 (A.3)。</p>
 
