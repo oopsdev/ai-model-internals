@@ -383,8 +383,9 @@ mjx-container[display="true"]{margin:.9em 0}
 <p><strong>動手做一次 PCA（數字例子）。</strong> 用 5 個 2D 點示範「共變異數矩陣做特徵分解」的完整流程。資料：$(5,4),(4,5),(3,3),(2,1),(1,2)$。</p>
 <ol>
 <li><strong>中心化</strong>：平均 $=(3,3)$，減掉後得 $(2,1),(1,2),(0,0),(-1,-2),(-2,-1)$。</li>
-<li><strong>共變異數矩陣</strong> $\mathbf{C}=\frac{1}{n-1}\sum(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^\top$（$n=5$，除以 4）：$\text{Var}(x)=\text{Var}(y)=\frac{10}{4}=2.5$、$\text{Cov}=\frac{8}{4}=2$：
-$$\mathbf{C}=\begin{bmatrix}2.5 & 2\\ 2 & 2.5\end{bmatrix}$$</li>
+<li><strong>共變異數矩陣</strong>：分別算 $\text{Var}(x)$、$\text{Var}(y)$、$\text{Cov}(x,y)$ 再填進矩陣（用中心化後的 $x,y$，除以 $n-1=4$）：$\text{Var}(x)=\frac{2^2+1^2+0+(-1)^2+(-2)^2}{4}=\frac{10}{4}=2.5$；$\text{Var}(y)=\frac{1^2+2^2+0+(-2)^2+(-1)^2}{4}=2.5$；$\text{Cov}(x,y)=\frac{(2)(1)+(1)(2)+0+(-1)(-2)+(-2)(-1)}{4}=\frac{8}{4}=2$（← 這裡才<strong>同時用到 $x$ 與 $y$</strong>）：
+$$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\text{Var}(y)\end{bmatrix}=\begin{bmatrix}2.5 & 2\\ 2 & 2.5\end{bmatrix}$$
+<span style="color:#94a3b8">（緊湊寫法：$\mathbf{C}=\frac{1}{n-1}\sum_i(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^\top$，其中 $\mathbf{x}_i=(x_i,y_i)^\top$ 是<strong>整筆資料的向量</strong>、兩邊是同一個向量；外積時乘法會把 $x$ 分量配 $y$ 分量，自動在非對角線生出 $x{\cdot}y$ 共變異數項 — 所以「兩邊都是 $\mathbf{x}$」是對的，$y$ 藏在向量裡。）</span></li>
 <li><strong>特徵分解</strong>：解特徵方程得 $\lambda_1=4.5,\ \lambda_2=0.5$，對應特徵向量 $\mathbf{v}_1=\frac{1}{\sqrt2}(1,1)$、$\mathbf{v}_2=\frac{1}{\sqrt2}(1,-1)$（計算細部見下）。</li>
 <li><strong>解讀</strong>：$\mathbf{v}_1=(1,1)$ 是變化最大的主軸（變異 $\lambda_1=4.5$），佔總變異 $\frac{4.5}{4.5+0.5}=90\%$；$\mathbf{v}_2$ 垂直於它、變異僅 0.5。</li>
 <li><strong>投影降維</strong>：把中心化點投影到 $\mathbf{v}_1$（做內積，1.1）得 1D 座標 $\approx 2.12,\ 2.12,\ 0,\ -2.12,\ -2.12$ — 原本每點 2 個數字，現在 <strong>1 個數字</strong>就抓住 90% 的變化。</li>
