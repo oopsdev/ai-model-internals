@@ -80,6 +80,31 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p>這份是 <strong>ai-background-knowledge</strong> 的<strong>深入版</strong>：前者講「是什麼、用在哪」（中深、無數學），本文講「<strong>為什麼會動</strong>」— 含數學式、運算展開、神經網路內部推導。目標是讓工程師看懂模型內部運作，而不只是會呼叫 API。</p>
 <blockquote>
 <p><strong>符號約定。</strong> 純量用斜體 $x$；向量用粗體小寫 $\mathbf{x}$（預設欄向量）；矩陣用粗體大寫 $\mathbf{W}$；$\hat{y}$ 為預測、$y$ 為真值；$\eta$ 為學習率；$\theta$ 為參數集合。數學式以 MathJax 渲染。（「欄」＝直的 column、「列」＝橫的 row；本文一律用欄/列，避開兩岸定義相反的「行」。）</p>
+<p><strong>常用縮寫對照</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>縮寫</th><th>全名</th><th>意義</th></tr></thead>
+<tbody>
+<tr><td>matmul / GEMM</td><td>matrix multiply / General Matrix Multiply</td><td>矩陣乘法（GEMM 是函式庫/硬體術語）</td></tr>
+<tr><td>MSE</td><td>Mean Squared Error</td><td>均方誤差（回歸損失）</td></tr>
+<tr><td>MLE</td><td>Maximum Likelihood Estimation</td><td>最大似然估計</td></tr>
+<tr><td>CE / BCE</td><td>(Binary) Cross-Entropy</td><td>交叉熵 / 二元交叉熵（分類損失）</td></tr>
+<tr><td>PCA</td><td>Principal Component Analysis</td><td>主成分分析（降維）</td></tr>
+<tr><td>SVD</td><td>Singular Value Decomposition</td><td>奇異值分解</td></tr>
+<tr><td>FFN</td><td>Feed-Forward Network</td><td>前饋層（Transformer 內）</td></tr>
+<tr><td>LLM</td><td>Large Language Model</td><td>大型語言模型</td></tr>
+<tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>檢索增強生成（知識庫）</td></tr>
+<tr><td>ReLU</td><td>Rectified Linear Unit</td><td>修正線性單元（激活函數）</td></tr>
+<tr><td>argmax</td><td>argument of the maximum</td><td>取「分數最大」的類別</td></tr>
+<tr><td>autodiff</td><td>Automatic Differentiation</td><td>自動微分</td></tr>
+<tr><td>epoch</td><td>—</td><td>一輪（整份訓練資料跑一遍）</td></tr>
+<tr><td>Jacobian</td><td>—</td><td>雅可比矩陣（偏導組成的矩陣）</td></tr>
+<tr><td>GPU / NPU / TPU</td><td>Graphics / Neural / Tensor Processing Unit</td><td>圖形／神經／張量處理器</td></tr>
+<tr><td>MAC</td><td>Multiply-Accumulate</td><td>乘加（硬體基本運算單元）</td></tr>
+<tr><td>FLOPs</td><td>Floating-Point Operations</td><td>浮點運算次數（算力衡量）</td></tr>
+<tr><td>HBM / SRAM</td><td>High Bandwidth Memory / Static RAM</td><td>高頻寬記憶體 / 片上快取</td></tr>
+<tr><td>FP16 / BF16 / INT8 / INT4</td><td>—</td><td>數值精度格式（浮點16 / 腦浮點16 / 整數8 / 整數4）</td></tr>
+</tbody>
+</table></div>
 </blockquote>
 
 <p>閱讀順序由地基往上：</p>
