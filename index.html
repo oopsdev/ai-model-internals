@@ -620,12 +620,27 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h3>2.1 機率、隨機變數與分布</h3>
 <p><strong>機率 (probability)</strong> — 介於 0～1 的數，衡量某事「有多可能」：0 不可能、1 必然、所有結果機率總和 = 1。<span class="geo">直覺：</span>長期做很多次時該事件出現的比例（公平硬幣正面 0.5）。<span class="geo">用途：</span>分類器輸出「這封信是垃圾郵件的機率 = 0.92」就是它。</p>
 <p><strong>隨機變數 (random variable) $X$</strong> — 一個「值還不確定、依機率取值」的量：<strong>離散</strong>（可數，如骰子點數、類別）或<strong>連續</strong>（任意實數，如身高、流量 bytes）。</p>
-<p><strong>機率分布 (distribution)</strong> — 描述「$X$ 的每個值各佔多少機率」的整體樣貌：</p>
+<p><strong>機率分布 (distribution)</strong> — 「機率怎麼分配到 $X$ 各個值」的<strong>概念</strong>。要把它具體寫下來，依變數型態用不同的<strong>描述函數</strong>：</p>
 <ul>
-<li><strong>離散 → 機率質量函數 (PMF)</strong> $P(X=x)$：每個值一個機率，加總 = 1（像長條圖）。</li>
-<li><strong>連續 → 機率密度函數 (PDF)</strong> $p(x)$：連續值有無限多、單點機率為 0，改看「密度」；某區間的機率 = 曲線下<strong>面積</strong> $\int_a^b p(x)\,dx$，全部面積 = 1（像一條曲線）。</li>
+<li><strong>離散 → PMF（機率質量函數）</strong> $P(X=x)$：給每個值一個機率，加總 = 1（像長條圖）。</li>
+<li><strong>連續 → PDF（機率密度函數）</strong> $p(x)$：連續值有無限多、單點機率為 0，改看「密度」；某區間的機率 = 曲線下<strong>面積</strong> $\int_a^b p(x)\,dx$，全部面積 = 1（像一條曲線）。</li>
+<li><strong>通用 → CDF（累積分布函數）</strong> $F(x)=P(X\le x)$：「小於等於某值的機率」，離散、連續都適用。</li>
 </ul>
-<p><span class="geo">直覺：</span>分布就是「機率怎麼分配到各個值」的地圖，曲線越高處、值越常出現。</p>
+<p><span class="geo">直覺：</span>PMF、PDF、CDF 都是描述<strong>同一個分布</strong>的不同表達；分布就是「機率怎麼分配到各個值」的地圖，越高處值越常出現。下圖是離散分布用 PMF 描述的例子（公平骰子）：</p>
+<figure><svg viewBox="0 0 360 200" role="img" aria-label="公平骰子的機率質量函數 PMF：六個值各 1/6">
+  <line x1="40" y1="160" x2="330" y2="160" stroke="#475569" stroke-width="1.2" marker-end="url(#ar-s)"/>
+  <line x1="40" y1="30" x2="40" y2="160" stroke="#475569" stroke-width="1.2" marker-end="url(#ar-s)"/>
+  <line x1="40" y1="72" x2="300" y2="72" stroke="#64748b" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="34" y="76" fill="#94a3b8" font-size="10" text-anchor="end">1/6</text>
+  <g fill="#38bdf8" fill-opacity="0.5" stroke="#38bdf8" stroke-width="1.2">
+    <rect x="57" y="72" width="26" height="88"/><rect x="97" y="72" width="26" height="88"/><rect x="137" y="72" width="26" height="88"/><rect x="177" y="72" width="26" height="88"/><rect x="217" y="72" width="26" height="88"/><rect x="257" y="72" width="26" height="88"/>
+  </g>
+  <g fill="#94a3b8" font-size="11" text-anchor="middle">
+    <text x="70" y="174">1</text><text x="110" y="174">2</text><text x="150" y="174">3</text><text x="190" y="174">4</text><text x="230" y="174">5</text><text x="270" y="174">6</text>
+  </g>
+  <text x="318" y="174" fill="#94a3b8" font-size="11">x</text>
+  <text x="30" y="42" fill="#94a3b8" font-size="11">P</text>
+</svg><figcaption>離散分布用 PMF 描述：公平骰子每個點數機率都是 1/6（六根等高長條），全部加起來 = 1。連續分布則用 PDF（曲線、面積 = 機率，見下方鐘形圖）。</figcaption></figure>
 <p><strong>期望值 $\mathbb{E}[X]$ — 分布的「中心／平均」：</strong></p>
 <p>$$\mathbb{E}[X]=\sum_x x\,P(x)\ (\text{離散})\qquad \mathbb{E}[X]=\int x\,p(x)\,dx\ (\text{連續})$$</p>
 <p><span class="geo">物理意義：</span>分布的<strong>重心</strong>（把機率當質量，期望＝平衡點），也是「長期平均值」。<span class="geo">用途：</span>平均損失、平均獎勵 (RL)、平均表現都是期望。</p>
