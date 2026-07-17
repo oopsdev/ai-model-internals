@@ -126,6 +126,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p><strong>附錄</strong></p>
 <ol style="list-style:none;margin-left:0">
 <li><a href="#a1">A. 餘弦定律 (Law of Cosines)</a></li>
+<li><a href="#b1">B. 貝氏定理推導</a></li>
 </ol>
 <blockquote><p>本版 v0.1 先完成主題 1–5，主題編號維持穩定。</p></blockquote>
 
@@ -752,7 +753,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$P(A\mid B)=\frac{P(A\cap B)}{P(B)}$$</p>
 <p><span class="geo">直覺：</span>多了一個已知條件，把考慮範圍<strong>縮小到「B 發生的世界」</strong>裡再看 A 的比例。例：「已知信裡有『中獎』兩字，它是垃圾郵件的機率」遠高於「隨便一封信是垃圾郵件」——條件改變了機率。<span class="geo">用途：</span>分類器算的就是 $P(\text{類別}\mid\text{特徵})$。</p>
 <p><strong>獨立 (independence)。</strong> 若 $P(A\mid B)=P(A)$（知不知道 B 都不影響 A），則 A、B 獨立、$P(A\cap B)=P(A)P(B)$。<span class="geo">用途：</span>樸素貝氏 (Naive Bayes) 假設特徵彼此獨立來簡化計算。</p>
-<p><strong>貝氏定理 (Bayes) — 用證據更新信念：</strong></p>
+<p><strong>貝氏定理 (Bayes) — 用證據更新信念</strong>（推導見附錄 B）<strong>：</strong></p>
 <p>$$P(y\mid x)=\frac{P(x\mid y)\,P(y)}{P(x)}$$</p>
 <p><span class="geo">直覺：</span>$P(y)$ 是「看資料前的<strong>先驗</strong>信念」，看到證據 $x$ 後更新成「<strong>後驗</strong>」$P(y\mid x)$。例：某病盛行率低（先驗低），檢測陽性後患病機率被往上修，但仍受先驗牽制——這就是罕見病偽陽性要小心的原因。</p>
 <ul>
@@ -1150,6 +1151,27 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>兩式左邊同為 $\lVert\mathbf{a}-\mathbf{b}\rVert^2$，右邊相等；消去 $\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2$ 得：</p>
 <p>$$\boxed{\;\sum_i a_ib_i=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi\;}$$</p>
 <p>即<strong>「分量乘積之和」恰等於「兩向量長度 × 夾角餘弦」</strong> — 代數與幾何兩種內積定義其實是同一件事，這也解釋了為什麼「分量硬乘相加」會等於「量測方向對齊程度」。</p>
+
+<hr>
+<h2 id="b1">附錄 B — 貝氏定理推導</h2>
+<p>貝氏定理（§2.2）可由<strong>條件機率的定義</strong>直接推出，不需額外假設。</p>
+<h3>B.1 從條件機率定義出發</h3>
+<p>條件機率的定義：</p>
+<p>$$P(A\mid B)=\frac{P(A\cap B)}{P(B)}\quad\Rightarrow\quad P(A\cap B)=P(A\mid B)\,P(B)$$</p>
+<p>交集是對稱的（$A\cap B=B\cap A$），所以同一個聯合機率也能從另一邊寫：</p>
+<p>$$P(A\cap B)=P(B\mid A)\,P(A)$$</p>
+<p>兩式左邊相同、右邊相等：</p>
+<p>$$P(A\mid B)\,P(B)=P(B\mid A)\,P(A)$$</p>
+<p>兩邊除以 $P(B)$：</p>
+<p>$$\boxed{\;P(A\mid B)=\frac{P(B\mid A)\,P(A)}{P(B)}\;}$$</p>
+<p>換符號 $A\to y$（類別）、$B\to x$（證據 / 特徵）即得 §2.2 的貝氏定理：</p>
+<p>$$P(y\mid x)=\frac{P(x\mid y)\,P(y)}{P(x)}$$</p>
+<h3>B.2 分母 $P(x)$ — 全機率公式（歸一化常數）</h3>
+<p>分母 $P(x)$ 可用<strong>全機率公式</strong>攤開成各類別的貢獻：</p>
+<p>$$P(x)=\sum_{y} P(x\mid y)\,P(y)\quad(\text{離散})\qquad P(x)=\int P(x\mid y)\,P(y)\,dy\quad(\text{連續})$$</p>
+<p>它的角色是<strong>歸一化常數</strong>：確保所有後驗 $P(y\mid x)$ 加起來 = 1。因此貝氏常寫成「後驗 $\propto$ 似然 × 先驗」：</p>
+<p>$$P(y\mid x)\ \propto\ \underbrace{P(x\mid y)}_{\text{似然}}\;\underbrace{P(y)}_{\text{先驗}}$$</p>
+<p>直覺回顧：先驗 $P(y)$ 是看資料前的信念，乘上似然 $P(x\mid y)$、再歸一化，就更新成後驗 $P(y\mid x)$（見 §2.2）。</p>
 
 <div class="note">
 本版 v0.1 完成 Part I（主題 1–3）與 Part II 起手（4–5）。後續批次：6 梯度下降/優化器、7 正則化、8–11 神經網路（前向/激活/反向/初始化）、12 CNN、13 RNN/LSTM、14 注意力與 Transformer、15 Embedding、16–18 LLM（tokenization/生成/LoRA）、19 評估指標數學、20 浮點與量化。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
