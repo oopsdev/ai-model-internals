@@ -692,6 +692,33 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <blockquote><p><strong>工程意涵。</strong> Demo 時「訓練準確率 99%」可能只是<strong>背了那批樣本</strong>，換真實流量就失效——這就是過擬合。驗收邊緣模型要用<strong>按時間切、含真實比例惡意樣本</strong>的測試集，看它對「沒看過的資料」還準不準。</p></blockquote>
 
 <hr>
+<h2 id="20">20. 浮點、量化與硬體加速</h2>
+<p class="note" style="border:0;margin:0 0 1em">本節先補「硬體如何加速矩陣運算與反向傳播」；浮點格式與量化 (INT8/INT4) 之後補。</p>
+<h3>20.1 GPU/NPU 為什麼能加速 AI 計算</h3>
+<p>核心一句話：神經網路的<strong>前向</strong>與<strong>反向（微積分）</strong>幾乎全部化約成<strong>矩陣乘法 (matmul) + 逐元素運算</strong>，這兩種運算「大量、獨立、可同時做」——GPU/NPU 就是為此而生。</p>
+<p><strong>為什麼矩陣運算天生可平行。</strong> 矩陣乘法 $\mathbf{C}=\mathbf{A}\mathbf{B}$，每個輸出 $C_{ij}=$（A 第 $i$ 列）$\cdot$（B 第 $j$ 欄）是一個獨立內積，彼此不相干 → 可同時算。CPU 少數強核心偏序列；GPU 有<strong>數千個小核心</strong>，一次做數千個「乘加 (MAC)」，把大量獨立內積塞滿。</p>
+<p><strong>GPU 的加速手段：</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>手段</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td>數千個 ALU</td><td>同時做數千個乘加</td></tr>
+<tr><td>Tensor Cores</td><td>專用硬體，一個時脈算完一小塊矩陣乘</td></tr>
+<tr><td>高頻寬記憶體 HBM</td><td>TB/s 級頻寬餵大量矩陣資料</td></tr>
+<tr><td>分塊 (tiling) + 片上 SRAM</td><td>切小塊放快取重複用，少去慢速主記憶體</td></tr>
+<tr><td>低精度 FP16/BF16/INT8</td><td>每時脈算更多、頻寬省 → 吞吐倍增</td></tr>
+</tbody>
+</table></div>
+<p><strong>NPU/TPU 更專精、更省電：</strong></p>
+<ul>
+<li><strong>脈動陣列 (systolic array)</strong>：一整片 MAC 單元排成網格，資料像水流過、每個單元邊流邊乘加 → 一次吞一大塊矩陣乘，能效比 GPU 更高。</li>
+<li>幾乎整顆晶片都是乘加器、多以 <strong>INT8/INT4</strong> 定點運算為主 → 低功耗高吞吐，<strong>正適合邊緣設備</strong>（代價是通用性低）。</li>
+</ul>
+<p><strong>反向傳播的「微積分」也是矩陣乘法。</strong> 以一層 $\mathbf{z}=\mathbf{W}\mathbf{x}$ 為例（鏈鎖律，3.2）：</p>
+<p>$$\text{前向：}\ \mathbf{z}=\mathbf{W}\mathbf{x}\qquad \text{反向：}\ \frac{\partial L}{\partial \mathbf{x}}=\mathbf{W}^\top\frac{\partial L}{\partial \mathbf{z}},\quad \frac{\partial L}{\partial \mathbf{W}}=\frac{\partial L}{\partial \mathbf{z}}\,\mathbf{x}^\top$$</p>
+<p>反向兩式<strong>又都是 matmul</strong>；激活函數的導數是逐元素運算。所以「訓練 = 前向 matmul + 反向 matmul + 逐元素」，全是 GPU/NPU 的強項；<strong>自動微分 (autodiff)</strong> 就是把微分自動拆成這串可平行運算。</p>
+<blockquote><p><strong>工程意涵。</strong> ① <strong>訓練算力 ≫ 推論</strong>：推論只做前向一遍，訓練要前向＋反向（再一整套 matmul）＋重複多輪 → 對應「邊緣做推論、再訓練放中央」。② <strong>參數量 → matmul 次數 (FLOPs) → 算力與記憶體需求</strong>（幾 B 模型為何吃資源）。③ <strong>量化 (INT8/INT4)</strong> 讓 NPU 吞吐↑、記憶體↓ → 邊緣落地的關鍵。</p></blockquote>
+
+<hr>
 <h2 id="a1">附錄 A — 餘弦定律 (Law of Cosines)</h2>
 <p>內積的代數定義與幾何定義為何相等 (主題 1.1)？關鍵是餘弦定律。本附錄先給餘弦定律的敘述 (A.1) 與<strong>自足推導</strong> (A.2，不使用內積)，再用它證明內積兩種定義等價 (A.3)。</p>
 
