@@ -970,9 +970,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>影像若用「全連接」硬做：一張 224×224×3 的圖攤平就是 15 萬維，第一層每個神經元就要 15 萬個權重——參數爆炸，還把「相鄰像素才相關」「同物件換位置仍是同物件」這些影像特性全丟了。<strong>卷積 (convolution)</strong> 就是為影像量身打造的解法。</p>
 
 <h3>12.1 卷積在做什麼（定義）</h3>
-<p>一個<strong>卷積核 (filter / kernel)</strong> 是一個小方陣（如 3×3）的權重。它<strong>滑過</strong>整張影像，在每個位置把 filter 蓋在對齊的小塊上，做<strong>逐元素相乘再加總（＝一次內積，§1.1）</strong>得到<strong>一個數</strong>；所有位置的數排起來就是一張<strong>特徵圖 (feature map)</strong>：</p>
-<p>$$\text{特徵圖}(i,j)=\sum_{u,v}\text{filter}(u,v)\cdot\text{影像}(i{+}u,\,j{+}v)$$</p>
+<p>一個<strong>卷積核 (filter / kernel)</strong> 是一個小方陣（如 3×3）的權重。它<strong>滑過</strong>整張影像，在每個位置把 filter 蓋在對齊的小塊上，做<strong>逐元素相乘再加總（＝一次內積，§1.1）</strong>得到<strong>一個數</strong>；所有位置的數排起來就是一張<strong>特徵圖 (feature map)</strong>。</p>
+<p>以符號寫（輸入影像 $I$、卷積核 $K$ 大小 $F\times F$、偏置 $b$、輸出特徵圖 $O$）：</p>
+<p>$$O(i,j)=\underbrace{\sum_{u=0}^{F-1}\sum_{v=0}^{F-1} K(u,v)\,I(i{+}u,\,j{+}v)}_{\text{filter 與小塊逐元素相乘加總}}\;+\;b$$</p>
+<p>這正是卷積核 $K$ 與該位置小塊 $P_{ij}$（$I$ 在 $(i,j)$ 的 $F\times F$ 區域）的 <strong>Frobenius 內積</strong>（＝把兩者攤平做內積，§1.1）：</p>
+<p>$$O(i,j)=\langle K,\,P_{ij}\rangle + b=\sum_{u,v}K_{uv}\,(P_{ij})_{uv}+b$$</p>
+<p>多通道（輸入有 $C$ 個通道，如 RGB $C=3$）時，再對通道加總：</p>
+<p>$$O(i,j)=\sum_{c=1}^{C}\sum_{u=0}^{F-1}\sum_{v=0}^{F-1} K_c(u,v)\,I_c(i{+}u,\,j{+}v)+b$$</p>
 <p><strong>注意：一步卷積 = 內積（一個數），不是矩陣×矩陣</strong>（後者結果是矩陣）。</p>
+<blockquote><p><strong>小註（名詞精確性）。</strong> 嚴格數學的「卷積」會把核翻轉；深度學習慣稱的「卷積」其實是<strong>不翻轉</strong>的<strong>互相關 (cross-correlation)</strong>（上式即是）。因為核是學出來的、翻不翻轉學到的權重會自動吸收，效果等價，所以沿用「卷積」這個名字。</p></blockquote>
 <figure><svg viewBox="0 0 600 185" role="img" aria-label="卷積運算：filter 與影像小塊做內積得一個數放入特徵圖">
   <rect x="25" y="25" width="120" height="120" fill="none" stroke="#475569" stroke-width="1"/>
   <rect x="25" y="25" width="72" height="72" fill="#38bdf8" fill-opacity="0.22"/>
