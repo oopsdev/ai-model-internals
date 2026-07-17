@@ -90,6 +90,9 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>CE / BCE</td><td>(Binary) Cross-Entropy</td><td>交叉熵 / 二元交叉熵（分類損失）</td></tr>
 <tr><td>PCA</td><td>Principal Component Analysis</td><td>主成分分析（降維）</td></tr>
 <tr><td>SVD</td><td>Singular Value Decomposition</td><td>奇異值分解</td></tr>
+<tr><td>CNN</td><td>Convolutional Neural Network</td><td>卷積神經網路（影像/序列，主題 12）</td></tr>
+<tr><td>RNN / LSTM</td><td>Recurrent Neural Network / Long Short-Term Memory</td><td>循環神經網路 / 長短期記憶（序列）</td></tr>
+<tr><td>Transformer</td><td>—</td><td>注意力為主的架構（LLM 骨幹）</td></tr>
 <tr><td>FFN</td><td>Feed-Forward Network</td><td>前饋層（Transformer 內）</td></tr>
 <tr><td>LLM</td><td>Large Language Model</td><td>大型語言模型</td></tr>
 <tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>檢索增強生成（知識庫）</td></tr>
@@ -1042,6 +1045,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="460" y="162" fill="#94a3b8" font-size="9.5" text-anchor="middle">特徵圖：只有邊處變亮</text>
 </svg><figcaption>卷積的幾何意義：filter 是「垂直邊樣板」；特徵圖只在有垂直邊的位置變亮（＝該樣板出現的地方），其餘接近 0。所以特徵圖是「樣板在影像各處的對齊強度圖」。</figcaption></figure>
 <p>淺層 filter 學到邊緣 / 角 / 紋理等<strong>低階樣板</strong>，多層堆疊後組合成部件、物件等<strong>高階樣板</strong>——就是「在越來越抽象的樣板空間裡量對齊」（呼應 §1.3.1 逐層換座標）。</p>
+<blockquote><p><strong>filter 是「學出來」的，不是人設計的。</strong> filter 的數值就是<strong>權重</strong>：一開始隨機初始化，再用梯度下降＋反向傳播訓練（§1.2、§3、§4.2）。資料與損失會自動逼它長成有用的樣板——淺層自己學成邊緣/角、深層組合成部件/物件，沒有人手動設定「去學邊緣」。（本節與 §12.1 示意圖的 filter 數字是<strong>為講解手填</strong>的；只有傳統影像處理才用人工設計的固定 filter，如 Sobel、高斯模糊。）</p></blockquote>
 
 <h3>12.3 三個關鍵性質（為什麼卷積適合影像）</h3>
 <ul>
