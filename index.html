@@ -616,12 +616,20 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <hr>
 <h2 id="2">2. 機率與統計 — 分布、條件機率、最大似然</h2>
-<p>判別式模型輸出「機率」，生成式模型學「分布」，都建立在這裡。</p>
-<h3>2.1 機率分布與期望</h3>
-<p>隨機變數 $X$ 的分布描述各結果的可能性。<strong>期望值 (平均)</strong>：</p>
+<p>判別式模型輸出「機率」、生成式模型學「分布」、訓練的損失又來自「最大似然」——所以這章是 AI 的統計地基。以下每個概念都給「<strong>定義 → 直覺/物理意義 → 在 AI 的用途</strong>」。</p>
+<h3>2.1 機率、隨機變數與分布</h3>
+<p><strong>機率 (probability)</strong> — 介於 0～1 的數，衡量某事「有多可能」：0 不可能、1 必然、所有結果機率總和 = 1。<span class="geo">直覺：</span>長期做很多次時該事件出現的比例（公平硬幣正面 0.5）。<span class="geo">用途：</span>分類器輸出「這封信是垃圾郵件的機率 = 0.92」就是它。</p>
+<p><strong>隨機變數 (random variable) $X$</strong> — 一個「值還不確定、依機率取值」的量：<strong>離散</strong>（可數，如骰子點數、類別）或<strong>連續</strong>（任意實數，如身高、流量 bytes）。</p>
+<p><strong>機率分布 (distribution)</strong> — 描述「$X$ 的每個值各佔多少機率」的整體樣貌：</p>
+<ul>
+<li><strong>離散 → 機率質量函數 (PMF)</strong> $P(X=x)$：每個值一個機率，加總 = 1（像長條圖）。</li>
+<li><strong>連續 → 機率密度函數 (PDF)</strong> $p(x)$：連續值有無限多、單點機率為 0，改看「密度」；某區間的機率 = 曲線下<strong>面積</strong> $\int_a^b p(x)\,dx$，全部面積 = 1（像一條曲線）。</li>
+</ul>
+<p><span class="geo">直覺：</span>分布就是「機率怎麼分配到各個值」的地圖，曲線越高處、值越常出現。</p>
+<p><strong>期望值 $\mathbb{E}[X]$ — 分布的「中心／平均」：</strong></p>
 <p>$$\mathbb{E}[X]=\sum_x x\,P(x)\ (\text{離散})\qquad \mathbb{E}[X]=\int x\,p(x)\,dx\ (\text{連續})$$</p>
-<p><strong>變異數</strong> $\mathrm{Var}(X)=\mathbb{E}[(X-\mathbb{E}[X])^2]$ 衡量離散程度。</p>
-<p><span class="geo">幾何意義。</span> 一個分布就是一條「機率密度曲線」，$\mu$ 是它的中心、$\sigma$ 是胖瘦。最大似然 (MLE) 就是<strong>移動並縮放這條曲線，讓觀測到的資料點盡量落在高的地方</strong>。</p>
+<p><span class="geo">物理意義：</span>分布的<strong>重心</strong>（把機率當質量，期望＝平衡點），也是「長期平均值」。<span class="geo">用途：</span>平均損失、平均獎勵 (RL)、平均表現都是期望。</p>
+<p><strong>變異數 $\mathrm{Var}(X)=\mathbb{E}[(X-\mathbb{E}[X])^2]$、標準差 $\sigma=\sqrt{\mathrm{Var}(X)}$ — 「散開程度」：</strong> <span class="geo">物理意義</span>是資料離中心多遠（平方後平均）；$\sigma$ 小＝擠在平均附近、大＝散得開（與 1.6 的變異數同一件事）。<span class="geo">用途：</span>衡量不確定性、資料尺度（正規化 1.5）、風險。下圖以最常見的<strong>常態（高斯）分布</strong>示意：</p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="常態分布與最大似然">
   <line x1="40" y1="160" x2="350" y2="160" stroke="#475569" marker-end="url(#ar-s)"/>
   <path d="M60,158 C120,158 150,48 192,48 C234,48 264,158 324,158" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
@@ -631,16 +639,39 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <circle cx="215" cy="160" r="3.5" fill="#fbbf24"/><circle cx="250" cy="160" r="3.5" fill="#fbbf24"/>
   <text x="332" y="176" fill="#94a3b8" font-size="12">x</text>
 </svg><figcaption>常態分布：中心 μ、寬窄 σ。MLE = 調 μ, σ 讓黃點（資料）落在曲線高處 → 損失即負對數似然</figcaption></figure>
-<h3>2.2 條件機率與貝氏</h3>
+<p><strong>常見分布（記長相與用途）：</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>分布</th><th>長相</th><th>用在哪</th></tr></thead>
+<tbody>
+<tr><td>常態 / 高斯 Normal</td><td>鐘形曲線（μ 中心、σ 胖瘦）</td><td>最常見；MSE 損失背後的假設、雜訊模型</td></tr>
+<tr><td>伯努利 Bernoulli</td><td>兩個結果（0/1，機率 p）</td><td>二元分類（是/否、正常/惡意）</td></tr>
+<tr><td>類別 Categorical</td><td>K 個結果各一機率</td><td>多元分類、LLM 下一個 token（softmax 輸出）</td></tr>
+</tbody>
+</table></div>
+
+<h3>2.2 條件機率、獨立與貝氏定理</h3>
+<p><strong>條件機率 $P(A\mid B)$ — 「已知 B 發生，A 的機率」：</strong></p>
+<p>$$P(A\mid B)=\frac{P(A\cap B)}{P(B)}$$</p>
+<p><span class="geo">直覺：</span>多了一個已知條件，把考慮範圍<strong>縮小到「B 發生的世界」</strong>裡再看 A 的比例。例：「已知信裡有『中獎』兩字，它是垃圾郵件的機率」遠高於「隨便一封信是垃圾郵件」——條件改變了機率。<span class="geo">用途：</span>分類器算的就是 $P(\text{類別}\mid\text{特徵})$。</p>
+<p><strong>獨立 (independence)。</strong> 若 $P(A\mid B)=P(A)$（知不知道 B 都不影響 A），則 A、B 獨立、$P(A\cap B)=P(A)P(B)$。<span class="geo">用途：</span>樸素貝氏 (Naive Bayes) 假設特徵彼此獨立來簡化計算。</p>
+<p><strong>貝氏定理 (Bayes) — 用證據更新信念：</strong></p>
 <p>$$P(y\mid x)=\frac{P(x\mid y)\,P(y)}{P(x)}$$</p>
+<p><span class="geo">直覺：</span>$P(y)$ 是「看資料前的<strong>先驗</strong>信念」，看到證據 $x$ 後更新成「<strong>後驗</strong>」$P(y\mid x)$。例：某病盛行率低（先驗低），檢測陽性後患病機率被往上修，但仍受先驗牽制——這就是罕見病偽陽性要小心的原因。</p>
 <ul>
-<li><strong>判別式模型</strong>直接學 $P(y\mid x)$（給定特徵，類別的機率）— 分類器就在估這個。</li>
-<li><strong>生成式模型</strong>學 $P(x)$ 或 $P(x\mid\text{prompt})$（資料如何產生）— 所以能「生成」。</li>
+<li><strong>判別式模型</strong>直接學 $P(y\mid x)$ — 分類器就在估這個。</li>
+<li><strong>生成式模型</strong>學 $P(x)$、$P(x\mid y)$（資料如何產生）— 所以能「生成」，也可用貝氏反推分類。</li>
 </ul>
-<h3>2.3 最大似然估計 (MLE)</h3>
-<p>「訓練」在統計上多半是<strong>最大似然</strong>：找 $\theta$ 讓觀測資料出現機率最大。</p>
+<p>這正是主題 0 判別 vs 生成分野的數學根。</p>
+
+<h3>2.3 似然與最大似然估計 (MLE)</h3>
+<p><strong>先分清「機率」與「似然」（同一式子、兩種看法）：</strong></p>
+<ul>
+<li><strong>機率</strong>：<strong>固定參數</strong>，問「資料出現的可能性」。</li>
+<li><strong>似然 (likelihood)</strong>：<strong>固定觀測到的資料</strong>，問「哪組參數最能解釋這些資料」。把 $P(\text{資料}\mid\theta)$ 看成 $\theta$ 的函數，就叫似然。</li>
+</ul>
+<p><strong>最大似然 (MLE)</strong> — 「訓練」在統計上多半就是：找一組 $\theta$ 讓<strong>實際觀測到的資料出現機率最大</strong>（＝最能解釋資料的參數）。</p>
 <p>$$\theta^\star=\arg\max_\theta \prod_{i=1}^{N} P(y_i\mid x_i;\theta)$$</p>
-<p>連乘不好算，取對數變連加、加負號變最小化：</p>
+<p><span class="geo">直覺：</span>調整模型旋鈕，直到「模型覺得真實資料很正常、很可能出現」。連乘不好算 → 取對數變連加（log 單調、不改最大點）、加負號變最小化：</p>
 <p>$$\theta^\star=\arg\min_\theta\; -\sum_{i=1}^{N}\log P(y_i\mid x_i;\theta)$$</p>
 <p>這個 $-\sum\log P$ 就是<strong>負對數似然</strong>，也就是分類最常用的<strong>交叉熵損失</strong>（主題 5）。<strong>損失函數多半是負對數似然的化身，不是憑空設計。</strong></p>
 <blockquote><p><strong>工程意涵。</strong> 分類器輸出的是<strong>機率/信心分數</strong>而非硬標籤；資安可用它調「靈敏度 vs 誤報」門檻（主題 19 ROC）。懂 MLE 就懂為什麼交叉熵是預設損失。</p></blockquote>
