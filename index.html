@@ -54,6 +54,10 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 .t-train thead th{background:rgba(56,189,248,.20);color:#e0f2fe}
 .t-infer thead th{background:rgba(52,211,153,.20);color:#dcfce7}
 .t-gen thead th{background:rgba(167,139,250,.22);color:#ede9fe}
+.t-train,.t-infer,.t-gen{table-layout:fixed}
+.t-train th:nth-child(1),.t-infer th:nth-child(1),.t-gen th:nth-child(1){width:26%}
+.t-train th:nth-child(2),.t-infer th:nth-child(2),.t-gen th:nth-child(2){width:54%}
+.t-train th:nth-child(3),.t-infer th:nth-child(3),.t-gen th:nth-child(3){width:20%}
 @media print{body{background:#fff;color:#111}.wrap{max-width:none}a{color:#06c}h2{color:#06c}h3{color:#080}
   strong,b{color:#b45309}code{background:#f4f4f4}blockquote{background:#f4faf7}
   th,td{border-color:#bbb}thead th,.t-train thead th,.t-infer thead th,.t-gen thead th{background:#eee;color:#111}}
