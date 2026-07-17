@@ -996,6 +996,27 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <g stroke="#fbbf24" stroke-width="0.6" stroke-opacity="0.5"><line x1="484" y1="37" x2="484" y2="109"/><line x1="508" y1="37" x2="508" y2="109"/><line x1="460" y1="61" x2="532" y2="61"/><line x1="460" y1="85" x2="532" y2="85"/></g>
   <text x="496" y="126" fill="#94a3b8" font-size="10" text-anchor="middle">特徵圖 (3×3)</text>
 </svg><figcaption>卷積一步：filter 蓋在影像的一個小塊上，逐元素相乘再加總（＝內積）得一個數，放進特徵圖對應位置；filter 滑過全圖就得到整張特徵圖。</figcaption></figure>
+<p><strong>用數字算一次（3×3 卷積 = 9 維向量的內積）。</strong> 你的理解對：$(1\times3)\cdot(3\times1)$ 就是內積、輸出一個數。3×3 卷積只是把「3 個數配對相乘相加」升級成「<strong>9 個數配對相乘相加</strong>」—— 把 filter 與小塊各<strong>攤平成 9 維向量</strong>做內積：</p>
+<figure><svg viewBox="0 0 600 165" role="img" aria-label="3x3 卷積數字範例：filter 與小塊逐格相乘再加總得 25">
+  <rect x="20" y="22" width="102" height="102" fill="#38bdf8" fill-opacity="0.08" stroke="#38bdf8" stroke-width="1.2"/>
+  <g stroke="#38bdf8" stroke-width="0.6" stroke-opacity="0.5"><line x1="54" y1="22" x2="54" y2="124"/><line x1="88" y1="22" x2="88" y2="124"/><line x1="20" y1="56" x2="122" y2="56"/><line x1="20" y1="90" x2="122" y2="90"/></g>
+  <g fill="#e5e7eb" font-size="14" text-anchor="middle"><text x="37" y="44">1</text><text x="71" y="44">2</text><text x="105" y="44">3</text><text x="37" y="78">4</text><text x="71" y="78">5</text><text x="105" y="78">6</text><text x="37" y="112">7</text><text x="71" y="112">8</text><text x="105" y="112">9</text></g>
+  <text x="71" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">卷積核 K</text>
+  <text x="148" y="83" fill="#cbd5e1" font-size="18" text-anchor="middle">⊙</text>
+  <rect x="175" y="22" width="102" height="102" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.2"/>
+  <g stroke="#34d399" stroke-width="0.6" stroke-opacity="0.5"><line x1="209" y1="22" x2="209" y2="124"/><line x1="243" y1="22" x2="243" y2="124"/><line x1="175" y1="56" x2="277" y2="56"/><line x1="175" y1="90" x2="277" y2="90"/></g>
+  <g fill="#e5e7eb" font-size="14" text-anchor="middle"><text x="192" y="44">1</text><text x="226" y="44">0</text><text x="260" y="44">1</text><text x="192" y="78">0</text><text x="226" y="78">1</text><text x="260" y="78">0</text><text x="192" y="112">1</text><text x="226" y="112">0</text><text x="260" y="112">1</text></g>
+  <text x="226" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">影像小塊 P</text>
+  <text x="308" y="83" fill="#cbd5e1" font-size="18" text-anchor="middle">=</text>
+  <rect x="340" y="22" width="102" height="102" fill="#fbbf24" fill-opacity="0.08" stroke="#fbbf24" stroke-width="1.2"/>
+  <g stroke="#fbbf24" stroke-width="0.6" stroke-opacity="0.5"><line x1="374" y1="22" x2="374" y2="124"/><line x1="408" y1="22" x2="408" y2="124"/><line x1="340" y1="56" x2="442" y2="56"/><line x1="340" y1="90" x2="442" y2="90"/></g>
+  <g fill="#e5e7eb" font-size="14" text-anchor="middle"><text x="357" y="44">1</text><text x="391" y="44">0</text><text x="425" y="44">3</text><text x="357" y="78">0</text><text x="391" y="78">5</text><text x="425" y="78">0</text><text x="357" y="112">7</text><text x="391" y="112">0</text><text x="425" y="112">9</text></g>
+  <text x="391" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">逐格相乘</text>
+  <text x="470" y="76" fill="#94a3b8" font-size="13" text-anchor="middle">Σ →</text>
+  <text x="525" y="82" fill="#fcd34d" font-size="20" font-weight="700" text-anchor="middle">25</text>
+  <text x="525" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">全部加總</text>
+</svg><figcaption>3×3 卷積一步：filter K 與小塊 P <strong>對應位置相乘</strong>（中間格）、再<strong>全部加起來</strong> = 25（一個數）。</figcaption></figure>
+<p>攤平來看：$K=(1,2,3,4,5,6,7,8,9)$、$P=(1,0,1,0,1,0,1,0,1)$，內積 $=1{\cdot}1+2{\cdot}0+3{\cdot}1+4{\cdot}0+5{\cdot}1+6{\cdot}0+7{\cdot}1+8{\cdot}0+9{\cdot}1=1+3+5+7+9=25$——和上圖一模一樣。所以 <strong>3×3 卷積一步 = 9 維向量的內積 = 一個數</strong>；跟 $(1\times3)\cdot(3\times1)$ 同一回事，只是元素從 3 個變成 9 個。</p>
 
 <h3>12.2 幾何意義：filter 是「樣板」、特徵圖是「對齊強度圖」</h3>
 <p>接回 §1.1（內積＝對齊程度）與 §1.2（神經元＝特徵偵測器）：</p>
