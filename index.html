@@ -645,6 +645,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>期望值 $\mathbb{E}[X]$ — 分布的「中心／平均」：</strong></p>
 <p>$$\mathbb{E}[X]=\sum_x x\,P(x)\ (\text{離散})\qquad \mathbb{E}[X]=\int x\,p(x)\,dx\ (\text{連續})$$</p>
 <p><span class="geo">物理意義：</span>分布的<strong>重心</strong>（把機率當質量，期望＝平衡點），也是「長期平均值」。<span class="geo">用途：</span>平均損失、平均獎勵 (RL)、平均表現都是期望。</p>
+<p><span class="geo">例（等機率就是算術平均）：</span>公平骰子 $\mathbb{E}[X]=\frac{1+2+3+4+5+6}{6}=3.5$——注意 <strong>3.5 不是骰子會出現的值</strong>；期望是「長期平均／重心」，不必是某個可能結果。</p>
+<p><strong>期望的線性性（超好用）</strong>：$\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]$（<strong>不論 X、Y 是否獨立</strong>）。配合<strong>指示變數</strong> $\mathbb{1}_A$（事件 A 發生記 1、否則 0，$\mathbb{E}[\mathbb{1}_A]=P(A)$），就能把「數某種東西的期望個數」拆成一堆機率相加——這是組合數學/機率計算的核心技巧。<span class="geo">在 AI：</span>整批資料的<strong>平均損失</strong>就是逐筆損失期望的線性相加，所以能用小批次 (mini-batch) 估計整體損失。</p>
 <p><strong>變異數 $\mathrm{Var}(X)=\mathbb{E}[(X-\mathbb{E}[X])^2]$、標準差 $\sigma=\sqrt{\mathrm{Var}(X)}$ — 「散開程度」：</strong> <span class="geo">物理意義</span>是資料離中心多遠（平方後平均）；$\sigma$ 小＝擠在平均附近、大＝散得開（與 1.6 的變異數同一件事）。<span class="geo">用途：</span>衡量不確定性、資料尺度（正規化 1.5）、風險。下圖以最常見的<strong>常態（高斯）分布</strong>示意：</p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="常態分布與最大似然">
   <line x1="40" y1="160" x2="350" y2="160" stroke="#475569" marker-end="url(#ar-s)"/>
