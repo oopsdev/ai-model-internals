@@ -623,8 +623,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <blockquote><p><strong>符號提醒。</strong> <strong>大寫 $X$</strong> = 隨機變數本身；<strong>小寫 $x$</strong> = 它可能取到的某個具體值。$X=x$ 是一個<strong>事件</strong>（「$X$ 取到值 $x$」），所以 <strong>$P(X=x)$</strong> 讀成「$X$ 等於 $x$ 的機率」——整個 "$X=x$" 是括號內描述的事件（<strong>不是</strong> $P(X)=x$）。例：公平骰子 $P(X=3)=\frac16$。</p></blockquote>
 <p><strong>機率分布 (distribution)</strong> — 「機率怎麼分配到 $X$ 各個值」的<strong>概念</strong>。要把它具體寫下來，依變數型態用不同的<strong>描述函數</strong>：</p>
 <ul>
-<li><strong>離散 → PMF（機率質量函數）</strong> $P(X=x)$：給每個值一個機率，加總 = 1（像長條圖）。</li>
-<li><strong>連續 → PDF（機率密度函數）</strong> $p(x)$：連續值有無限多、單點機率為 0，改看「密度」；某區間的機率 = 曲線下<strong>面積</strong> $\int_a^b p(x)\,dx$，全部面積 = 1（像一條曲線）。</li>
+<li><strong>離散 → PMF（機率質量函數）</strong> $P(X=x)$：給每個值一個機率，且<strong>所有值機率加總 = 1</strong>：$\sum_x P(X=x)=1$（像長條圖）。</li>
+<li><strong>連續 → PDF（機率密度函數）</strong> $p(x)$：連續值有無限多、單點機率為 0，改看「密度」；某區間的機率 = 曲線下<strong>面積</strong> $\int_a^b p(x)\,dx$，且<strong>全部面積 = 1</strong>：$\int_{-\infty}^{\infty} p(x)\,dx=1$（像一條曲線）。</li>
 <li><strong>通用 → CDF（累積分布函數）</strong> $F(x)=P(X\le x)$：「小於等於某值的機率」，離散、連續都適用。</li>
 </ul>
 <p><span class="geo">直覺：</span>PMF、PDF、CDF 都是描述<strong>同一個分布</strong>的不同表達；分布就是「機率怎麼分配到各個值」的地圖，越高處值越常出現。下圖是離散分布用 PMF 描述的例子（公平骰子）：</p>
