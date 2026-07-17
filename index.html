@@ -620,6 +620,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h3>2.1 機率、隨機變數與分布</h3>
 <p><strong>機率 (probability)</strong> — 介於 0～1 的數，衡量某事「有多可能」：0 不可能、1 必然、所有結果機率總和 = 1。<span class="geo">直覺：</span>長期做很多次時該事件出現的比例（公平硬幣正面 0.5）。<span class="geo">用途：</span>分類器輸出「這封信是垃圾郵件的機率 = 0.92」就是它。</p>
 <p><strong>隨機變數 (random variable) $X$</strong> — 一個「值還不確定、依機率取值」的量：<strong>離散</strong>（可數，如骰子點數、類別）或<strong>連續</strong>（任意實數，如身高、流量 bytes）。</p>
+<blockquote><p><strong>符號提醒。</strong> <strong>大寫 $X$</strong> = 隨機變數本身；<strong>小寫 $x$</strong> = 它可能取到的某個具體值。$X=x$ 是一個<strong>事件</strong>（「$X$ 取到值 $x$」），所以 <strong>$P(X=x)$</strong> 讀成「$X$ 等於 $x$ 的機率」——整個 "$X=x$" 是括號內描述的事件（<strong>不是</strong> $P(X)=x$）。例：公平骰子 $P(X=3)=\frac16$。</p></blockquote>
 <p><strong>機率分布 (distribution)</strong> — 「機率怎麼分配到 $X$ 各個值」的<strong>概念</strong>。要把它具體寫下來，依變數型態用不同的<strong>描述函數</strong>：</p>
 <ul>
 <li><strong>離散 → PMF（機率質量函數）</strong> $P(X=x)$：給每個值一個機率，加總 = 1（像長條圖）。</li>
