@@ -656,7 +656,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <circle cx="128" cy="160" r="3.5" fill="#fbbf24"/><circle cx="160" cy="160" r="3.5" fill="#fbbf24"/>
   <circle cx="215" cy="160" r="3.5" fill="#fbbf24"/><circle cx="250" cy="160" r="3.5" fill="#fbbf24"/>
   <text x="332" y="176" fill="#94a3b8" font-size="12">x</text>
-</svg><figcaption>常態分布：中心 μ、寬窄 σ。MLE = 調 μ, σ 讓黃點（資料）落在曲線高處 → 損失即負對數似然</figcaption></figure>
+</svg><figcaption>常態分布的 <strong>PDF</strong>：中心 μ、寬窄 σ。<strong>曲線高度＝密度（非機率）；機率＝曲線下面積；密度可 &gt;1，但總面積 = 1</strong>。黃點是資料觀測值；MLE = 調 μ, σ 讓黃點落在密度高處 → 損失即負對數似然。</figcaption></figure>
+<blockquote><p><strong>為什麼連續要用「密度」？</strong> 連續變數單點機率 = 0（值有無限多個），無法逐點給機率；改用<strong>密度</strong>（單位長度的機率），區間機率 = 密度積分 $\int_a^b p(x)\,dx$。就像一根棒「某一點的質量 = 0」，但用<strong>線密度</strong>（每公分幾克）就能算某段的質量。所以密度是「濃度」、不是機率，可以 &gt;1，只要總面積 $\int p=1$。</p></blockquote>
 <p><strong>常見分布（記長相與用途）：</strong></p>
 <div class="tablewrap"><table>
 <thead><tr><th>分布</th><th>長相</th><th>用在哪</th></tr></thead>
