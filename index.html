@@ -792,6 +792,26 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> Demo 時「訓練準確率 99%」可能只是<strong>背了那批樣本</strong>，換真實流量就失效——這就是過擬合。驗收邊緣模型要用<strong>按時間切、含真實比例惡意樣本</strong>的測試集，看它對「沒看過的資料」還準不準。</p></blockquote>
 
+<h3>7.2 要訓練幾輪 (epoch)？看驗證損失</h3>
+<p>一個 <strong>epoch = 把整份訓練資料完整跑一遍</strong>（前向→損失→反向→更新）。一遍學不會——梯度下降每次只走一小步，要<strong>重複多輪</strong>損失才逐步降下來、模型收斂。但<strong>不是越多輪越好</strong>：<strong>訓練損失</strong>隨 epoch 一路下降；<strong>驗證損失</strong>（沒看過的資料）先降後升——<strong>觸底那一輪就是最佳輪數</strong>，之後再練就開始過擬合。</p>
+<figure><svg viewBox="0 0 470 300" role="img" aria-label="學習曲線：訓練損失持續下降、驗證損失先降後升，最低點為 early stopping 最佳輪數">
+  <rect x="235" y="40" width="205" height="212" fill="#fbbf24" fill-opacity="0.06"/>
+  <line x1="52" y1="252" x2="445" y2="252" stroke="#475569" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <line x1="52" y1="252" x2="52" y2="34" stroke="#475569" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <line x1="235" y1="40" x2="235" y2="252" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>
+  <path d="M60,90 C150,155 220,192 300,208 C370,216 410,219 435,221" fill="none" stroke="#34d399" stroke-width="2.5"/>
+  <path d="M60,80 C140,150 205,184 235,185 C300,186 380,148 435,108" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
+  <circle cx="235" cy="185" r="4.5" fill="#fbbf24"/>
+  <text x="235" y="28" fill="#fcd34d" font-size="12" font-weight="700" text-anchor="middle">最佳輪數 (early stopping)</text>
+  <text x="120" y="52" fill="#94a3b8" font-size="11" text-anchor="middle">欠擬合</text>
+  <text x="358" y="52" fill="#fcd34d" font-size="11" text-anchor="middle">過擬合</text>
+  <text x="388" y="235" fill="#34d399" font-size="11.5" font-weight="700">訓練損失</text>
+  <text x="360" y="98" fill="#fbbf24" font-size="11.5" font-weight="700">驗證損失</text>
+  <text x="250" y="277" fill="#94a3b8" font-size="11" text-anchor="middle">訓練輪數 (epoch) →</text>
+  <text x="28" y="46" fill="#94a3b8" font-size="11">損失</text>
+</svg><figcaption>學習曲線：<strong>訓練損失</strong>（綠）隨 epoch 一路下降；<strong>驗證損失</strong>（黃）先降後升，<strong>最低點</strong>就是最佳輪數 — 用 early stopping 在此停住。再往右訓練，訓練損失雖續降但驗證損失回升、兩者落差變大＝過擬合。</figcaption></figure>
+<p><strong>怎麼決定 — Early stopping（早停）</strong>：一邊訓練一邊監看驗證損失，連續 N 輪（patience）沒進步就停、並保留「驗證損失最低」的存檔。它<strong>自動決定輪數</strong>，本身也是一種正則化。太少 epoch 欠擬合、太多 epoch 過擬合。</p>
+
 <hr>
 <h2 id="20">20. 浮點、量化與硬體加速</h2>
 <p class="note" style="border:0;margin:0 0 1em">本節先補「硬體如何加速矩陣運算與反向傳播」；浮點格式與量化 (INT8/INT4) 之後補。</p>
