@@ -1069,6 +1069,17 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li>關鍵區分：<strong>filter 的「數值」是訓練學出來的（參數）；filter 的「數量（通道數）」是人設定的（超參數）</strong>（接 §7 參數 vs 超參數）。</li>
 <li>慣例：<strong>越深、通道越多、空間尺寸越小</strong>（池化省下的算力換更多通道）；實務多<strong>沿用經典架構</strong>（VGG、ResNet）再微調，不會每次從零猜。</li>
 </ul>
+<p><strong>filter 的三個維度（大小、深度、數量）。</strong> 設計一層卷積時，你決定 filter 的「大小」與「數量」，深度自動跟著輸入：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>維度</th><th>是什麼</th><th>誰決定</th></tr></thead>
+<tbody>
+<tr><td><strong>大小 $F\times F$</strong></td><td>每個 filter 蓋多大一塊（感受野）</td><td>你選（超參數）：3×3、5×5…</td></tr>
+<tr><td><strong>深度 $C_{in}$</strong></td><td>每個 filter 的厚度</td><td>被決定 = 輸入通道數</td></tr>
+<tr><td><strong>數量 $C_{out}$</strong></td><td>這層有幾個 filter</td><td>你選（超參數）= 輸出通道數</td></tr>
+</tbody>
+</table></div>
+<p>每個 filter 其實是 $F\times F\times C_{in}$ 的<strong>立體塊</strong>（只有輸入單通道時才剛好是一片 2D 方陣）。</p>
+<p>例：輸入 RGB（$C_{in}=3$），設計「這層放 <strong>64 個 5×5 filter</strong>」：每個 filter = $5\times5\times3$、共 64 個 → 輸出 64 張特徵圖（$C_{out}=64$）；參數量 $=(5\times5\times3+1)\times64=(75+1)\times64=76\times64=4864$。</p>
 <blockquote><p><strong>訓練後留下什麼。</strong> CNN 訓練的淨結果 = <strong>所有卷積 filter（＋偏置）＋ 全連接分類頭的權重（＋偏置）</strong>（可能還有 BatchNorm 參數）——這一整包就是<strong>模型參數</strong>（幾 B 參數的那個參數），存進模型檔、推論時固定使用。前半是「特徵抽取器」、後半是「分類頭」。</p></blockquote>
 
 <h3>12.4 stride、padding 與輸出尺寸</h3>
