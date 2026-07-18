@@ -1062,6 +1062,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li>每個 filter 的<strong>深度 = 輸入通道數</strong>：filter 其實是 $F\times F\times C_{in}$，會<strong>跨所有輸入通道一起做內積、加總成一張</strong>特徵圖。</li>
 </ul>
 <p>例：輸入 RGB（$C_{in}=3$）、這層 64 個 filter（每個 $3\times3\times3$）→ 輸出 64 張特徵圖（$C_{out}=64$）；<strong>下一層的輸入通道就變成 64</strong>。層層相接：<strong>上一層的輸出通道 = 下一層的輸入通道</strong>。</p>
+<p><strong>通道數怎麼決定？</strong></p>
+<ul>
+<li><strong>輸入通道</strong>：被決定的——第一層由<strong>資料</strong>定（RGB=3、灰階=1），中間層 = <strong>上一層的輸出通道</strong>。</li>
+<li><strong>輸出通道（= 這層 filter 數）</strong>：由你<strong>設計</strong>，是<strong>超參數</strong>（常見 32/64/128/256/512，越深通常越多）。</li>
+<li>關鍵區分：<strong>filter 的「數值」是訓練學出來的（參數）；filter 的「數量（通道數）」是人設定的（超參數）</strong>（接 §7 參數 vs 超參數）。</li>
+<li>慣例：<strong>越深、通道越多、空間尺寸越小</strong>（池化省下的算力換更多通道）；實務多<strong>沿用經典架構</strong>（VGG、ResNet）再微調，不會每次從零猜。</li>
+</ul>
 <blockquote><p><strong>訓練後留下什麼。</strong> CNN 訓練的淨結果 = <strong>所有卷積 filter（＋偏置）＋ 全連接分類頭的權重（＋偏置）</strong>（可能還有 BatchNorm 參數）——這一整包就是<strong>模型參數</strong>（幾 B 參數的那個參數），存進模型檔、推論時固定使用。前半是「特徵抽取器」、後半是「分類頭」。</p></blockquote>
 
 <h3>12.4 stride、padding 與輸出尺寸</h3>
