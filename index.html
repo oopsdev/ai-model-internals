@@ -1055,6 +1055,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>平移不變</strong>：物件移到別處，同一 filter 仍抓得到 → 認得出「換位置的同一物件」。</li>
 <li><strong>多通道</strong>：輸入 RGB 有 3 通道、filter 也有對應深度；用<strong>多個 filter</strong> 就得<strong>多張特徵圖</strong>（每張抓一種樣式）。</li>
 </ul>
+<p><strong>輸入通道 vs 輸出通道。</strong> 「通道 (channel)」是影像／特徵圖的<strong>深度層數</strong>（同一位置疊了幾張圖）：</p>
+<ul>
+<li><strong>輸入通道 $C_{in}$</strong>：這一層拿到幾張圖疊著。原始 RGB 影像 = 3、灰階 = 1；中間層則 = <strong>上一層輸出的特徵圖張數</strong>。</li>
+<li><strong>輸出通道 $C_{out}$</strong>：這一層<strong>有幾個 filter 就輸出幾張特徵圖</strong>（一個 filter → 一張），故 $C_{out}$ = filter 數。</li>
+<li>每個 filter 的<strong>深度 = 輸入通道數</strong>：filter 其實是 $F\times F\times C_{in}$，會<strong>跨所有輸入通道一起做內積、加總成一張</strong>特徵圖。</li>
+</ul>
+<p>例：輸入 RGB（$C_{in}=3$）、這層 64 個 filter（每個 $3\times3\times3$）→ 輸出 64 張特徵圖（$C_{out}=64$）；<strong>下一層的輸入通道就變成 64</strong>。層層相接：<strong>上一層的輸出通道 = 下一層的輸入通道</strong>。</p>
+<blockquote><p><strong>訓練後留下什麼。</strong> CNN 訓練的淨結果 = <strong>所有卷積 filter（＋偏置）＋ 全連接分類頭的權重（＋偏置）</strong>（可能還有 BatchNorm 參數）——這一整包就是<strong>模型參數</strong>（幾 B 參數的那個參數），存進模型檔、推論時固定使用。前半是「特徵抽取器」、後半是「分類頭」。</p></blockquote>
 
 <h3>12.4 stride、padding 與輸出尺寸</h3>
 <ul>
