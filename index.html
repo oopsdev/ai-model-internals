@@ -1099,6 +1099,23 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li>$P=1$（same，四周各補一圈 0 → 變 7×7）：$\frac{5-3+2}{1}+1=5$ → 輸出 <strong>5×5</strong>（<strong>保持原尺寸</strong>、邊界也能當中心被掃到）。</li>
 </ul>
 <p>直覺：<strong>stride</strong> 控「掃多快」（越大輸出越小、下採樣）；<strong>padding</strong> 主要用來<strong>保持尺寸</strong>（same padding 取 $P=\frac{F-1}{2}$）並照顧邊界像素。</p>
+<figure><svg viewBox="0 0 580 230" role="img" aria-label="padding 與 stride 的數字矩陣圖例">
+  <text x="100" y="22" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">padding=1（3×3 → 5×5）</text>
+  <rect x="25" y="38" width="150" height="150" fill="none" stroke="#475569" stroke-width="1"/>
+  <rect x="25" y="38" width="150" height="30" fill="#0f172a"/><rect x="25" y="158" width="150" height="30" fill="#0f172a"/><rect x="25" y="68" width="30" height="90" fill="#0f172a"/><rect x="145" y="68" width="30" height="90" fill="#0f172a"/>
+  <rect x="55" y="68" width="90" height="90" fill="#38bdf8" fill-opacity="0.10"/>
+  <g stroke="#475569" stroke-width="0.7"><line x1="55" y1="38" x2="55" y2="188"/><line x1="85" y1="38" x2="85" y2="188"/><line x1="115" y1="38" x2="115" y2="188"/><line x1="145" y1="38" x2="145" y2="188"/><line x1="25" y1="68" x2="175" y2="68"/><line x1="25" y1="98" x2="175" y2="98"/><line x1="25" y1="128" x2="175" y2="128"/><line x1="25" y1="158" x2="175" y2="158"/></g>
+  <g fill="#475569" font-size="12" text-anchor="middle"><text x="40" y="62">0</text><text x="70" y="62">0</text><text x="100" y="62">0</text><text x="130" y="62">0</text><text x="160" y="62">0</text><text x="40" y="182">0</text><text x="70" y="182">0</text><text x="100" y="182">0</text><text x="130" y="182">0</text><text x="160" y="182">0</text><text x="40" y="92">0</text><text x="40" y="122">0</text><text x="40" y="152">0</text><text x="160" y="92">0</text><text x="160" y="122">0</text><text x="160" y="152">0</text></g>
+  <g fill="#e5e7eb" font-size="12" text-anchor="middle"><text x="70" y="92">1</text><text x="100" y="92">2</text><text x="130" y="92">3</text><text x="70" y="122">4</text><text x="100" y="122">5</text><text x="130" y="122">6</text><text x="70" y="152">7</text><text x="100" y="152">8</text><text x="130" y="152">9</text></g>
+  <text x="100" y="206" fill="#94a3b8" font-size="9.5" text-anchor="middle">亮=原 3×3 圖、暗 0=補的邊</text>
+  <text x="435" y="22" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">stride=2（3×3 窗跳 2 格）</text>
+  <rect x="360" y="38" width="150" height="150" fill="none" stroke="#475569" stroke-width="1"/>
+  <g stroke="#475569" stroke-width="0.7"><line x1="390" y1="38" x2="390" y2="188"/><line x1="420" y1="38" x2="420" y2="188"/><line x1="450" y1="38" x2="450" y2="188"/><line x1="480" y1="38" x2="480" y2="188"/><line x1="360" y1="68" x2="510" y2="68"/><line x1="360" y1="98" x2="510" y2="98"/><line x1="360" y1="128" x2="510" y2="128"/><line x1="360" y1="158" x2="510" y2="158"/></g>
+  <g fill="#cbd5e1" font-size="11" text-anchor="middle"><text x="375" y="62">1</text><text x="405" y="62">2</text><text x="435" y="62">3</text><text x="465" y="62">4</text><text x="495" y="62">5</text><text x="375" y="92">6</text><text x="405" y="92">7</text><text x="435" y="92">8</text><text x="465" y="92">9</text><text x="495" y="92">10</text><text x="375" y="122">11</text><text x="405" y="122">12</text><text x="435" y="122">13</text><text x="465" y="122">14</text><text x="495" y="122">15</text><text x="375" y="152">16</text><text x="405" y="152">17</text><text x="435" y="152">18</text><text x="465" y="152">19</text><text x="495" y="152">20</text><text x="375" y="182">21</text><text x="405" y="182">22</text><text x="435" y="182">23</text><text x="465" y="182">24</text><text x="495" y="182">25</text></g>
+  <rect x="360" y="38" width="90" height="90" fill="#fbbf24" fill-opacity="0.14" stroke="#fbbf24" stroke-width="2"/>
+  <rect x="420" y="38" width="90" height="90" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="435" y="206" fill="#94a3b8" font-size="9.5" text-anchor="middle">窗1(黃)→跳2格→窗2(綠虛)；橫2窗×直2窗 → 輸出 2×2</text>
+</svg><figcaption>左：<strong>padding=1</strong> 把原 3×3 圖（亮）四周補一圈 0（暗）→ 變 5×5（用來保尺寸）。右：<strong>stride=2</strong>，3×3 窗每次橫跳 2 格（黃→綠虛線）；5×5 只放得下 2×2 個窗 → 輸出 2×2。</figcaption></figure>
 
 <h3>12.5 整張卷積 = 一次矩陣乘法（im2col）</h3>
 <p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（§20）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
