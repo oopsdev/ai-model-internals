@@ -141,10 +141,10 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p><strong>Part IV · 模型架構（CNN / 序列 / LLM）</strong></p>
 <ol start="12">
 <li><a href="#12">CNN 卷積</a></li>
-<li><a href="#13">RNN / LSTM — 序列建模</a></li>
-<li><a href="#14">注意力與 Transformer</a></li>
-<li><a href="#15">Embedding 與向量表示</a></li>
-<li><a href="#16">Tokenization — 把文字變成 token</a></li>
+<li><a href="#13">Tokenization — 把文字變成 token</a></li>
+<li><a href="#14">Embedding 與向量表示</a></li>
+<li><a href="#15">RNN / LSTM — 序列建模</a></li>
+<li><a href="#16">注意力與 Transformer</a></li>
 <li><a href="#17">自回歸生成與取樣</a></li>
 <li><a href="#18">訓練目標與微調 (Fine-tuning / LoRA)</a></li>
 </ol>
@@ -600,7 +600,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>$\mathbf{a}=(2,0),\ \mathbf{c}=(0,2)$（垂直）</td><td>$0$</td><td>$0$（不相關）</td></tr>
 </tbody>
 </table></div>
-<p><strong>為什麼檢索要這樣：</strong>長文件與短文件若講同一主題，embedding <strong>方向相近</strong>但<strong>長度差很多</strong>；語意檢索要判斷「同不同主題」，不該被長短干擾 → 用只看方向的餘弦相似度，而非會被長度灌水的原始內積（Embedding 語意檢索的核心，主題 15）。</p>
+<p><strong>為什麼檢索要這樣：</strong>長文件與短文件若講同一主題，embedding <strong>方向相近</strong>但<strong>長度差很多</strong>；語意檢索要判斷「同不同主題」，不該被長短干擾 → 用只看方向的餘弦相似度，而非會被長度灌水的原始內積（Embedding 語意檢索的核心，主題 14）。</p>
 
 <p><strong>範數的用途（不只正則化）。</strong> 範數是「量大小／長度／距離」的通用地基，貫穿整個教材：</p>
 <div class="tablewrap"><table>
@@ -609,7 +609,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>距離 / 相似度</td><td>兩點距離 $\lVert\mathbf{a}-\mathbf{b}\rVert$ → KNN、分群、異常偵測</td></tr>
 <tr><td><strong>正則化</strong> (regularization)</td><td>懲罰權重 $\lVert\mathbf{w}\rVert$ 防過擬合（L1 稀疏／L2 平滑，主題 7）</td></tr>
 <tr><td><strong>正規化</strong> (normalization)</td><td>$\mathbf{x}/\lVert\mathbf{x}\rVert$ 做單位向量、Layer/Batch Norm（1.5、主題 11）</td></tr>
-<tr><td>餘弦相似度</td><td>除以範數消掉長度 → Embedding 語意檢索（主題 15）</td></tr>
+<tr><td>餘弦相似度</td><td>除以範數消掉長度 → Embedding 語意檢索（主題 14）</td></tr>
 <tr><td>損失函數</td><td>MSE ＝殘差的 L2 範數平方 $\lVert\hat{\mathbf{y}}-\mathbf{y}\rVert^2$（主題 4）</td></tr>
 <tr><td>梯度裁剪 (gradient clipping)</td><td>限制梯度大小 $\lVert\nabla\rVert$ 穩定訓練（主題 6）</td></tr>
 </tbody>
@@ -672,7 +672,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>最佳化</td><td>Hessian 特徵值＝損失曲面<strong>曲率</strong>；條件數影響梯度下降收斂速度</td></tr>
 </tbody>
 </table></div>
-<p><strong>最常見的入口是 PCA</strong>：網路遙測常有數十個彼此相關的特徵，PCA 用特徵分解找出「真正有變化的少數主方向」，把維度降下來、去掉冗餘 — 這就是特徵值 / 向量在 ML 的日常用途，也和主題 8 Embedding 的「用少數維度表徵資料」一脈相承。</p>
+<p><strong>最常見的入口是 PCA</strong>：網路遙測常有數十個彼此相關的特徵，PCA 用特徵分解找出「真正有變化的少數主方向」，把維度降下來、去掉冗餘 — 這就是特徵值 / 向量在 ML 的日常用途，也和主題 14 Embedding 的「用少數維度表徵資料」一脈相承。</p>
 
 <p><strong>先搞懂「共變異數矩陣 (covariance matrix)」是什麼。</strong> 它由兩個更基本的量組成（符號：$x_i,y_i$＝第 $i$ 筆資料在兩個特徵（feature）上的<strong>值</strong>，非 eigenvalue；$\bar x,\bar y$＝兩特徵的<strong>平均</strong>，$\bar x=\frac1n\sum_i x_i$；$n$＝<strong>資料點數／樣本數</strong>）：</p>
 <ul>
@@ -1202,7 +1202,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$\hat{\mathbf{a}}=\frac{\mathbf{a}-\mu}{\sqrt{\sigma^2+\epsilon}},\qquad \text{輸出}=\gamma\hat{\mathbf{a}}+\beta$$</p>
 <ul>
 <li><strong>好處</strong>：穩定各層數值分布、可用<strong>更大學習率</strong>、加速收斂，也有輕微正則化效果。</li>
-<li><strong>BatchNorm</strong>（沿 batch 統計）常用於 CNN；<strong>LayerNorm</strong>（沿特徵統計）是 <strong>Transformer 標配</strong>（§14）。</li>
+<li><strong>BatchNorm</strong>（沿 batch 統計）常用於 CNN；<strong>LayerNorm</strong>（沿特徵統計）是 <strong>Transformer 標配</strong>（§16）。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 沒有好的初始化 + 正規化，深層網路常常訓練不起來（發散或不動）。LayerNorm 幾乎出現在每個 Transformer 區塊裡。</p></blockquote>
 
@@ -1361,8 +1361,38 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="13">13. RNN / LSTM — 序列建模</h2>
-<p>序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
+<h2 id="13">13. Tokenization — 把文字變成 token</h2>
+<p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token（多為子詞 subword）</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（§14）：</p>
+<p>$$\text{文字}\to\text{tokens}\to\text{ids}\to\text{embeddings}\to\text{模型}$$</p>
+<ul>
+<li><strong>為什麼用子詞（BPE 等）</strong>：整詞當單位 → 詞表爆炸又處理不了新詞；單字元 → 太細。<strong>子詞</strong>折衷：常見詞當一個 token、罕見詞拆成片段，兼顧詞表大小與未知詞。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> <strong>token 數 = 成本單位</strong>——LLM API 計費、context 長度限制都以 token 計。中文常一字 ≈ 1～2 token，估算成本要留意。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="14">14. Embedding 與向量表示</h2>
+<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。承接 §13：token 拿到 id 後，就靠 embedding 查表變成向量餵進模型。</p>
+<ul>
+<li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $V\times d$，$V$ 詞表大小、$d$ 維度）——訓練學出來（參數）；或取模型某層輸出當表示。</li>
+<li><strong>幾何意義</strong>：向量活在一個<strong>語意空間</strong>裡，<strong>方向與距離 = 語意關係</strong>；比「像不像」用<strong>餘弦相似度</strong>（§1.4）。經典例：<code>king − man + woman ≈ queen</code>。</li>
+<li><strong>用途（你的 RAG 產品線核心）</strong>：把<strong>文件段落與查詢都 embed 成向量</strong>，用餘弦相似度找<strong>最相關的段落</strong>（語意檢索）→ 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
+</ul>
+<figure><svg viewBox="0 0 380 200" role="img" aria-label="Embedding 語意空間：相近意思的詞向量靠在一起">
+  <ellipse cx="110" cy="72" rx="72" ry="46" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-dasharray="4 3"/>
+  <ellipse cx="285" cy="140" rx="72" ry="42" fill="#38bdf8" fill-opacity="0.08" stroke="#38bdf8" stroke-dasharray="4 3"/>
+  <g fill="#34d399"><circle cx="90" cy="60" r="4"/><circle cx="128" cy="82" r="4"/><circle cx="102" cy="98" r="4"/></g>
+  <g fill="#38bdf8"><circle cx="270" cy="150" r="4"/><circle cx="302" cy="130" r="4"/><circle cx="288" cy="162" r="4"/></g>
+  <g font-size="11" fill="#e5e7eb"><text x="98" y="56">cat</text><text x="136" y="86">dog</text><text x="66" y="101">rabbit</text><text x="278" y="150">car</text><text x="310" y="128">bus</text><text x="252" y="174">truck</text></g>
+  <text x="110" y="130" fill="#34d399" font-size="10" text-anchor="middle">動物</text>
+  <text x="285" y="192" fill="#38bdf8" font-size="10" text-anchor="middle">車輛</text>
+</svg><figcaption>Embedding 語意空間：意思相近的詞（動物 cat/dog/rabbit）向量靠在一起、不同類（車輛）離得遠。比相似度用餘弦（§1.4）——RAG 檢索就靠這個找最相關的段落。</figcaption></figure>
+<blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="15">15. RNN / LSTM — 序列建模</h2>
+<p>有了 token 的向量序列（§13、§14），接著要有能處理<strong>序列</strong>的模型。序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
 <p>$$\mathbf{h}_t=\sigma(\mathbf{W}_h\mathbf{h}_{t-1}+\mathbf{W}_x\mathbf{x}_t+\mathbf{b})$$</p>
 <p>每一步把「上一刻的記憶 $\mathbf{h}_{t-1}$」和「這一刻輸入 $\mathbf{x}_t$」混合成新記憶，可再輸出。</p>
 <ul>
@@ -1373,8 +1403,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="14">14. 注意力與 Transformer</h2>
-<p>RNN 逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
+<h2 id="16">16. 注意力與 Transformer</h2>
+<p>RNN（§15）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
 <p><strong>注意力機制</strong>：每個位置產生 query $\mathbf{q}$、key $\mathbf{k}$、value $\mathbf{v}$。用 query 跟所有 key 做<strong>內積</strong>（＝對齊程度，§1.1）得分數，過 <strong>softmax</strong>（§5）變權重，再對 value 加權平均：</p>
 <p>$$\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d}}\Big)V$$</p>
 <p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（§1.1）＋ softmax（§5）＋ 矩陣乘法（§1.3）</strong>；除以 $\sqrt{d}$ 是為了數值穩定。</p>
@@ -1397,36 +1427,6 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>自注意力：query 用內積跟每個 token 的 key 比對齊、softmax 成權重（線越粗＝權重越高），再把各 token 的 value 加權平均。此例「it」最關注「cat」。</figcaption></figure>
 <p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（§11）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
 <blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心；但注意力對序列長度是 <strong>$O(n^2)$</strong>（每個位置看所有位置），長 context 很吃記憶體與算力（KV cache）——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
-
-<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
-<hr>
-<h2 id="15">15. Embedding 與向量表示</h2>
-<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。</p>
-<ul>
-<li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $V\times d$，$V$ 詞表大小、$d$ 維度）——訓練學出來（參數）；或取模型某層輸出當表示。</li>
-<li><strong>幾何意義</strong>：向量活在一個<strong>語意空間</strong>裡，<strong>方向與距離 = 語意關係</strong>；比「像不像」用<strong>餘弦相似度</strong>（§1.4）。經典例：<code>king − man + woman ≈ queen</code>。</li>
-<li><strong>用途（你的 RAG 產品線核心）</strong>：把<strong>文件段落與查詢都 embed 成向量</strong>，用餘弦相似度找<strong>最相關的段落</strong>（語意檢索）→ 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
-</ul>
-<figure><svg viewBox="0 0 380 200" role="img" aria-label="Embedding 語意空間：相近意思的詞向量靠在一起">
-  <ellipse cx="110" cy="72" rx="72" ry="46" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-dasharray="4 3"/>
-  <ellipse cx="285" cy="140" rx="72" ry="42" fill="#38bdf8" fill-opacity="0.08" stroke="#38bdf8" stroke-dasharray="4 3"/>
-  <g fill="#34d399"><circle cx="90" cy="60" r="4"/><circle cx="128" cy="82" r="4"/><circle cx="102" cy="98" r="4"/></g>
-  <g fill="#38bdf8"><circle cx="270" cy="150" r="4"/><circle cx="302" cy="130" r="4"/><circle cx="288" cy="162" r="4"/></g>
-  <g font-size="11" fill="#e5e7eb"><text x="98" y="56">cat</text><text x="136" y="86">dog</text><text x="66" y="101">rabbit</text><text x="278" y="150">car</text><text x="310" y="128">bus</text><text x="252" y="174">truck</text></g>
-  <text x="110" y="130" fill="#34d399" font-size="10" text-anchor="middle">動物</text>
-  <text x="285" y="192" fill="#38bdf8" font-size="10" text-anchor="middle">車輛</text>
-</svg><figcaption>Embedding 語意空間：意思相近的詞（動物 cat/dog/rabbit）向量靠在一起、不同類（車輛）離得遠。比相似度用餘弦（§1.4）——RAG 檢索就靠這個找最相關的段落。</figcaption></figure>
-<blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
-
-<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
-<hr>
-<h2 id="16">16. Tokenization — 把文字變成 token</h2>
-<p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token（多為子詞 subword）</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（§15）：</p>
-<p>$$\text{文字}\to\text{tokens}\to\text{ids}\to\text{embeddings}\to\text{模型}$$</p>
-<ul>
-<li><strong>為什麼用子詞（BPE 等）</strong>：整詞當單位 → 詞表爆炸又處理不了新詞；單字元 → 太細。<strong>子詞</strong>折衷：常見詞當一個 token、罕見詞拆成片段，兼顧詞表大小與未知詞。</li>
-</ul>
-<blockquote><p><strong>工程意涵。</strong> <strong>token 數 = 成本單位</strong>——LLM API 計費、context 長度限制都以 token 計。中文常一字 ≈ 1～2 token，估算成本要留意。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
