@@ -1242,6 +1242,80 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <blockquote><p><strong>工程意涵。</strong> 卷積不只用在影像：<strong>1D 卷積</strong>掃封包大小/方向序列，可抓「加密流量的局部指紋」（網路 AI 常用、輕量、適合邊緣 NPU）。多數邊緣 NPU 本來就為 CNN 卷積最佳化，所以 1D/2D-CNN 在邊緣跑很划算。</p></blockquote>
 
 <hr>
+<h2 id="13">13. RNN / LSTM — 序列建模</h2>
+<p>序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
+<p>$$\mathbf{h}_t=\sigma(\mathbf{W}_h\mathbf{h}_{t-1}+\mathbf{W}_x\mathbf{x}_t+\mathbf{b})$$</p>
+<p>每一步把「上一刻的記憶 $\mathbf{h}_{t-1}$」和「這一刻輸入 $\mathbf{x}_t$」混合成新記憶，可再輸出。</p>
+<ul>
+<li><strong>問題：長距依賴</strong>。序列一長，沿時間展開就像很深的網路 → <strong>梯度消失/爆炸</strong>，記不住遠處資訊。</li>
+<li><strong>LSTM / GRU</strong>：加<strong>閘門 (gate)</strong> 控制「記住 / 遺忘 / 輸出」多少 → 能記更久，是長序列的主力（Transformer 出現前）。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 網路 AI 的序列任務（封包序列、時序 metrics）用 <strong>1D-CNN / LSTM</strong> 就夠、輕量適合邊緣；長序列與語言則已被 Transformer 取代。</p></blockquote>
+
+<hr>
+<h2 id="14">14. 注意力與 Transformer</h2>
+<p>RNN 逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
+<p><strong>注意力機制</strong>：每個位置產生 query $\mathbf{q}$、key $\mathbf{k}$、value $\mathbf{v}$。用 query 跟所有 key 做<strong>內積</strong>（＝對齊程度，§1.1）得分數，過 <strong>softmax</strong>（§5）變權重，再對 value 加權平均：</p>
+<p>$$\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d}}\Big)V$$</p>
+<p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（§1.1）＋ softmax（§5）＋ 矩陣乘法（§1.3）</strong>；除以 $\sqrt{d}$ 是為了數值穩定。</p>
+<figure><svg viewBox="0 0 480 160" role="img" aria-label="自注意力：query「it」對各 token 的注意力權重">
+  <g font-size="12" text-anchor="middle">
+    <rect x="25" y="100" width="60" height="30" rx="5" fill="#243449" stroke="#64748b"/><text x="55" y="120" fill="#e5e7eb">The</text>
+    <rect x="110" y="100" width="60" height="30" rx="5" fill="#38bdf8" fill-opacity="0.25" stroke="#38bdf8"/><text x="140" y="120" fill="#e5e7eb">cat</text>
+    <rect x="195" y="100" width="60" height="30" rx="5" fill="#243449" stroke="#64748b"/><text x="225" y="120" fill="#e5e7eb">sat</text>
+    <rect x="280" y="100" width="60" height="30" rx="5" fill="#243449" stroke="#64748b"/><text x="310" y="120" fill="#e5e7eb">on</text>
+    <rect x="365" y="100" width="60" height="30" rx="5" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="395" y="120" fill="#fcd34d" font-weight="700">it</text>
+  </g>
+  <g fill="none" stroke="#38bdf8" stroke-linecap="round">
+    <path d="M390,100 C330,55 200,55 140,98" stroke-width="5"/>
+    <path d="M388,100 C340,70 90,70 55,98" stroke-width="1.2"/>
+    <path d="M392,100 C360,72 250,72 225,98" stroke-width="1.2"/>
+    <path d="M394,100 C380,78 330,78 310,98" stroke-width="1.2"/>
+  </g>
+  <text x="240" y="28" fill="#94a3b8" font-size="11" text-anchor="middle">query「it」問「該關注誰」→ 對 key 內積算對齊 → softmax 成權重</text>
+  <text x="150" y="150" fill="#38bdf8" font-size="10" text-anchor="middle">最關注「cat」（權重最高＝線最粗）</text>
+</svg><figcaption>自注意力：query 用內積跟每個 token 的 key 比對齊、softmax 成權重（線越粗＝權重越高），再把各 token 的 value 加權平均。此例「it」最關注「cat」。</figcaption></figure>
+<p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（§11）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
+<blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心；但注意力對序列長度是 <strong>$O(n^2)$</strong>（每個位置看所有位置），長 context 很吃記憶體與算力（KV cache）——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
+
+<hr>
+<h2 id="15">15. Embedding 與向量表示</h2>
+<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。</p>
+<ul>
+<li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $V\times d$，$V$ 詞表大小、$d$ 維度）——訓練學出來（參數）；或取模型某層輸出當表示。</li>
+<li><strong>幾何意義</strong>：向量活在一個<strong>語意空間</strong>裡，<strong>方向與距離 = 語意關係</strong>；比「像不像」用<strong>餘弦相似度</strong>（§1.4）。經典例：<code>king − man + woman ≈ queen</code>。</li>
+<li><strong>用途（你的 RAG 產品線核心）</strong>：把<strong>文件段落與查詢都 embed 成向量</strong>，用餘弦相似度找<strong>最相關的段落</strong>（語意檢索）→ 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
+</ul>
+<figure><svg viewBox="0 0 380 200" role="img" aria-label="Embedding 語意空間：相近意思的詞向量靠在一起">
+  <ellipse cx="110" cy="72" rx="72" ry="46" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-dasharray="4 3"/>
+  <ellipse cx="285" cy="140" rx="72" ry="42" fill="#38bdf8" fill-opacity="0.08" stroke="#38bdf8" stroke-dasharray="4 3"/>
+  <g fill="#34d399"><circle cx="90" cy="60" r="4"/><circle cx="128" cy="82" r="4"/><circle cx="102" cy="98" r="4"/></g>
+  <g fill="#38bdf8"><circle cx="270" cy="150" r="4"/><circle cx="302" cy="130" r="4"/><circle cx="288" cy="162" r="4"/></g>
+  <g font-size="11" fill="#e5e7eb"><text x="98" y="56">cat</text><text x="136" y="86">dog</text><text x="66" y="101">rabbit</text><text x="278" y="150">car</text><text x="310" y="128">bus</text><text x="252" y="174">truck</text></g>
+  <text x="110" y="130" fill="#34d399" font-size="10" text-anchor="middle">動物</text>
+  <text x="285" y="192" fill="#38bdf8" font-size="10" text-anchor="middle">車輛</text>
+</svg><figcaption>Embedding 語意空間：意思相近的詞（動物 cat/dog/rabbit）向量靠在一起、不同類（車輛）離得遠。比相似度用餘弦（§1.4）——RAG 檢索就靠這個找最相關的段落。</figcaption></figure>
+<blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
+
+<hr>
+<h2 id="16">16. Tokenization — 把文字變成 token</h2>
+<p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token（多為子詞 subword）</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（§15）：</p>
+<p>$$\text{文字}\to\text{tokens}\to\text{ids}\to\text{embeddings}\to\text{模型}$$</p>
+<ul>
+<li><strong>為什麼用子詞（BPE 等）</strong>：整詞當單位 → 詞表爆炸又處理不了新詞；單字元 → 太細。<strong>子詞</strong>折衷：常見詞當一個 token、罕見詞拆成片段，兼顧詞表大小與未知詞。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> <strong>token 數 = 成本單位</strong>——LLM API 計費、context 長度限制都以 token 計。中文常一字 ≈ 1～2 token，估算成本要留意。</p></blockquote>
+
+<hr>
+<h2 id="17">17. 自回歸生成與取樣</h2>
+<p>LLM 怎麼「生成」？——<strong>逐字接龍（自回歸）</strong>：每步用前文預測<strong>下一個 token 的機率分布</strong>（對整個詞表做 softmax，§5.2），選一個、接回輸入、再預測下一個，重複。</p>
+<ul>
+<li>本質：<strong>生成 = 一連串「對詞表的分類」</strong>（見 ai-background-knowledge §1.1）。</li>
+<li><strong>取樣策略</strong>（怎麼從機率分布選字）：<strong>greedy</strong>（取最高＝argmax，穩定但單調）、<strong>temperature（溫度）</strong>（高溫發散有創意、低溫保守穩定）、<strong>top-k / top-p (nucleus)</strong>（只從前 $k$ 個 / 累積到 $p$ 的候選取樣，兼顧品質與多樣）。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 生成是<strong>逐 token 串行</strong>（每個 token 一次前向）→ 慢；用 <strong>KV cache</strong> 避免重算前文。context 長度有上限（受 $O(n^2)$ 注意力與記憶體限制）。</p></blockquote>
+
+<hr>
 <h2 id="20">20. 浮點、量化與硬體加速</h2>
 <p class="note" style="border:0;margin:0 0 1em">本節先補「硬體如何加速矩陣運算與反向傳播」；浮點格式與量化 (INT8/INT4) 之後補。</p>
 <h3>20.1 GPU/NPU 為什麼能加速 AI 計算</h3>
