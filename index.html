@@ -97,6 +97,8 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>LLM</td><td>Large Language Model</td><td>大型語言模型</td></tr>
 <tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>檢索增強生成（知識庫）</td></tr>
 <tr><td>ReLU</td><td>Rectified Linear Unit</td><td>修正線性單元（激活函數）</td></tr>
+<tr><td>Sigmoid</td><td>非縮寫（sigma σ／S ＋ -oid 像…形）</td><td>S 型函數（乙狀函數）；壓到 (0,1) 當單一機率（§5.1）</td></tr>
+<tr><td>Softmax</td><td>非縮寫（soft 柔性 ＋ max 最大）</td><td>柔性最大值／歸一化指數函數；轉成機率分布（§5.2）</td></tr>
 <tr><td>argmax</td><td>argument of the maximum</td><td>取「分數最大」的類別</td></tr>
 <tr><td>autodiff</td><td>Automatic Differentiation</td><td>自動微分</td></tr>
 <tr><td>epoch</td><td>—</td><td>一輪（整份訓練資料跑一遍）</td></tr>
@@ -933,12 +935,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="338" y="145" fill="#94a3b8" font-size="12">z</text>
   <text x="152" y="38" fill="#38bdf8" font-size="12">σ(z)</text>
 </svg><figcaption>Sigmoid 把任意實數壓進 (0,1) 當機率；z=0 → 0.5，兩端趨近 0 與 1</figcaption></figure>
+<p><strong>名稱。</strong> Sigmoid <strong>非縮寫</strong>：希臘字母 sigma（σ，即字母 S）＋ -oid（像…形狀）＝「<strong>S 形函數</strong>」，中譯亦稱<strong>乙狀函數</strong>（「乙」形似 S）。$\sigma(z)=\frac{1}{1+e^{-z}}$ 這條特別叫<strong>邏輯函數（logistic function）</strong>。</p>
 <p>$\hat y=\sigma(z)$ 解讀為 $P(y=1\mid x)$。損失用<strong>二元交叉熵 (BCE)</strong>（即負對數似然）：</p>
 <p>$$L=-\frac{1}{N}\sum_{i=1}^{N}\big[y_i\log\hat y_i+(1-y_i)\log(1-\hat y_i)\big]$$</p>
 <p>漂亮處：$\sigma'(z)=\sigma(z)(1-\sigma(z))$，且 BCE 對 $z$ 的梯度化簡成 $\frac{\partial L}{\partial z}=\hat y-y$ — 又是「預測減真值」，乾淨、數值穩定。</p>
 <h3>5.2 多元分類：Softmax + 交叉熵</h3>
 <p>$C$ 類時，輸出層給 $C$ 個分數 (logits) $\mathbf{z}=(z_1,\dots,z_C)$，用 <strong>softmax</strong> 轉成機率分布：</p>
 <p>$$\text{softmax}(\mathbf{z})_k=\frac{e^{z_k}}{\sum_{j=1}^{C} e^{z_j}}$$</p>
+<p><strong>名稱。</strong> Softmax <strong>非縮寫</strong>：soft（柔性、平滑可微）＋ max（最大值）＝「<strong>柔性最大值</strong>」——它是 argmax（贏者全拿、給最大項 1 其餘 0、不可微）的<strong>平滑可微版</strong>，中譯亦稱<strong>歸一化指數函數</strong>（中文文獻常直接寫 Softmax）。</p>
 <p>各項 0~1 且總和為 1。損失用<strong>類別交叉熵</strong>（$y$ 為 one-hot、真類為 $t$）：</p>
 <p>$$L=-\sum_{k=1}^{C} y_k\log\hat y_k=-\log\hat y_t$$</p>
 <p>即「真類機率的負對數」— 越確信正確類、損失越小。梯度同樣化簡為 $\frac{\partial L}{\partial z_k}=\hat y_k-y_k$。</p>
