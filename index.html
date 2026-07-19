@@ -96,6 +96,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>FFN</td><td>Feed-Forward Network</td><td>前饋層（Transformer 內）</td></tr>
 <tr><td>LLM</td><td>Large Language Model</td><td>大型語言模型</td></tr>
 <tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>檢索增強生成（知識庫）</td></tr>
+<tr><td>BPE</td><td>Byte Pair Encoding</td><td>位元組對編碼（子詞切分演算法，§13）</td></tr>
 <tr><td>ReLU</td><td>Rectified Linear Unit</td><td>修正線性單元（激活函數）</td></tr>
 <tr><td>Sigmoid</td><td>非縮寫（sigma σ／S ＋ -oid 像…形）</td><td>S 型函數（乙狀函數）；壓到 (0,1) 當單一機率（§5.1）</td></tr>
 <tr><td>Softmax</td><td>非縮寫（soft 柔性 ＋ max 最大）</td><td>柔性最大值／歸一化指數函數；轉成機率分布（§5.2）</td></tr>
@@ -1367,6 +1368,27 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ul>
 <li><strong>為什麼用子詞（BPE 等）</strong>：整詞當單位 → 詞表爆炸又處理不了新詞；單字元 → 太細。<strong>子詞</strong>折衷：常見詞當一個 token、罕見詞拆成片段，兼顧詞表大小與未知詞。</li>
 </ul>
+<p><strong>英文 token（子詞）例子。</strong> 英文一個常見「詞」通常就是 1 個 token；長詞 / 罕見詞才拆成子詞：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>英文</th><th>切成 token</th><th>個數</th><th>為什麼</th></tr></thead>
+<tbody>
+<tr><td><code>cat</code>、<code>the</code></td><td><code>cat</code>／<code>the</code></td><td>1</td><td>常見詞 → 整塊</td></tr>
+<tr><td><code>tokenization</code></td><td><code>token</code> + <code>ization</code></td><td>2</td><td>拆詞根 + 詞綴</td></tr>
+<tr><td><code>unhappiness</code></td><td><code>un</code> + <code>happi</code> + <code>ness</code></td><td>3</td><td>前綴 + 詞根 + 後綴</td></tr>
+<tr><td><code>lowest</code></td><td><code>low</code> + <code>est</code></td><td>2</td><td>共用詞綴 <code>est</code></td></tr>
+<tr><td><code>ChatGPT</code></td><td><code>Chat</code> + <code>G</code> + <code>PT</code></td><td>3</td><td>罕見詞拆碎</td></tr>
+</tbody></table></div>
+<p><strong>中文 token 例子。</strong> 中文沒有空白斷詞，常以<strong>字</strong>為基礎；常見字/詞多為 1 token，生僻字可能被拆成多個（UTF-8 位元組層級）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>中文</th><th>切成 token（示意）</th><th>個數</th><th>為什麼</th></tr></thead>
+<tbody>
+<tr><td><code>的</code>、<code>我</code></td><td><code>的</code>／<code>我</code></td><td>1</td><td>高頻字 → 1 token</td></tr>
+<tr><td><code>我們</code></td><td><code>我們</code>（或 <code>我</code>+<code>們</code>）</td><td>1~2</td><td>常見詞可能整塊</td></tr>
+<tr><td><code>深度學習</code></td><td><code>深度</code> + <code>學習</code>（或逐字）</td><td>2~4</td><td>詞/字混合</td></tr>
+<tr><td><code>龘</code>（生僻字）</td><td>多個位元組片段</td><td>2~3</td><td>罕見 → 拆 UTF-8 位元組</td></tr>
+</tbody></table></div>
+<p><strong>關鍵差異：</strong> 英文一個「詞」常 ≈ 1 token；中文一個「字」常 ≈ 1~2 token。所以<strong>表達同樣語意，中文通常比英文吃更多 token</strong> → 呼叫 LLM 時<strong>成本更高、也更快撞到 context 上限</strong>。</p>
+<p><strong>BPE（Byte Pair Encoding，位元組對編碼）怎麼切。</strong> 從<strong>單一字元</strong>開始，反覆把「<strong>出現頻率最高的相鄰配對</strong>」合併成新單位，直到詞表達到設定大小。以語料 <code>low, lower, lowest, newest, widest…</code> 為例：① 最常見對 <code>e</code>+<code>s</code> → <code>es</code>；② <code>es</code>+<code>t</code> → <code>est</code>；③ <code>l</code>+<code>o</code> → <code>lo</code>、<code>lo</code>+<code>w</code> → <code>low</code>。學出的子詞 <code>low</code>、<code>est</code>、<code>new</code>… 於是 <code>lowest</code>=<code>low</code>+<code>est</code>。好處：常見詞→短序列、罕見/新詞→可組合片段（不會變 OOV 未知詞）。</p>
 <blockquote><p><strong>工程意涵。</strong> <strong>token 數 = 成本單位</strong>——LLM API 計費、context 長度限制都以 token 計。中文常一字 ≈ 1～2 token，估算成本要留意。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
