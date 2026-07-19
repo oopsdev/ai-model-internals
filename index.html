@@ -1389,6 +1389,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td><strong>網格結構</strong></td><td>資料在<strong>規則網格</strong>上、<strong>鄰近相關</strong></td><td>卷積定義在網格鄰域</td><td>1D 序列、2D 影像、3D 影音</td></tr>
 </tbody></table></div>
 <p><strong>適合的應用</strong>：影像分類 / 物件偵測 / 分割、瑕疵檢測、OCR、音訊（轉頻譜圖當影像）、醫療影像；<strong>1D-CNN</strong> 掃時序 / 封包序列（抓局部指紋）。</p>
+<blockquote><p><strong>關於「長度不定」的序列（如封包流）。</strong> 要先分清兩種「不定」：① 封包<strong>大小</strong>（bytes 數）當特徵值 → 只是輸入數字不同，CNN 本來就吃任意值，無妨；② 封包<strong>數量（序列長度）不定</strong> → 才是重點，而 CNN <strong>有解</strong>：卷積本身<strong>不限長度</strong>（同 filter 滑過任意長度、輸出跟著變），只有最後接全連接分類頭才需固定大小 → 用 <strong>global pooling（全域池化，對整條時間軸取 max/avg）</strong> 把不定長特徵圖壓成<strong>固定向量</strong>，或取<strong>固定窗口</strong>（前 N 個 / 滑動窗）即可。<strong>原生吃不定長是 RNN 的先天優勢（§15）</strong>；1D-CNN 則靠 global pooling / 固定窗達成。實務常<strong>串接</strong>：CNN 抽局部特徵 → pooling 或 RNN 聚合。</p></blockquote>
 <p><strong>不適合的情況（對照）</strong>：</p>
 <ul>
 <li><strong>表格資料</strong>（欄位無空間鄰近、順序可任意打亂）→ 局部性/平移不變假設失效，用<strong>樹模型（GBDT）或 MLP</strong> 更好。</li>
