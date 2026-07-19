@@ -871,7 +871,21 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h2 id="4">4. 線性回歸與損失函數</h2>
 <p>最小的「會學習」模型，把前三章串起來。</p>
 <h3>4.1 模型與損失</h3>
-<p>線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$。用<strong>均方誤差 (MSE)</strong> 當損失：</p>
+<p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（§4.2 用梯度下降往低處走）。</p>
+<p><strong>損失的意義。</strong></p>
+<ul>
+<li><strong>一把量尺</strong>：把整批資料的「對錯」量化成一個純量，可比較、可最佳化。</li>
+<li><strong>梯度的來源</strong>：對損失取梯度（§3、§4.2）才知道「參數往哪調會變好」——<strong>沒有損失就沒有方向</strong>。</li>
+<li><strong>內含機率假設</strong>：選哪種損失＝對資料做哪種假設（MSE ↔ 高斯誤差、交叉熵 ↔ 類別分布），這正是最大似然（§2.3）。</li>
+</ul>
+<p><strong>損失的應用（用在哪）。</strong></p>
+<ul>
+<li><strong>訓練</strong>：最小化損失＝學參數（§4.2 梯度下降、§10）。</li>
+<li><strong>挑損失＝挑任務</strong>：回歸用 MSE、分類用交叉熵（§5）——選錯損失會學不動。</li>
+<li><strong>監控與早停</strong>：比較訓練集 vs 驗證集的損失曲線，判斷過擬合、決定訓練幾輪（§7）。</li>
+<li><strong>正則化</strong>：在損失上加懲罰項（L1/L2，§1.4）控制模型複雜度、抑制過擬合。</li>
+</ul>
+<p><strong>具體例子：線性回歸 + MSE。</strong> 線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
 <p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（主題 2）— 再次印證損失來自機率假設。</p>
 <p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$；平方是為了懲罰大誤差、且對應高斯假設。</p>
