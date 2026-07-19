@@ -1361,6 +1361,22 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（§20）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
 <blockquote><p><strong>工程意涵。</strong> 卷積不只用在影像：<strong>1D 卷積</strong>掃封包大小/方向序列，可抓「加密流量的局部指紋」（網路 AI 常用、輕量、適合邊緣 NPU）。多數邊緣 NPU 本來就為 CNN 卷積最佳化，所以 1D/2D-CNN 在邊緣跑很划算。</p></blockquote>
 
+<h3>12.6 各種「維度」誰決定（對照 embedding 的向量維度）</h3>
+<p>CNN 沒有 embedding 那種單一「向量維度 $d$」，而是<strong>多種尺寸並存、來源不同</strong>：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>維度 / 尺寸</th><th>是什麼</th><th>誰決定</th></tr></thead>
+<tbody>
+<tr><td>輸入 $H\times W\times C$</td><td>影像 高×寬×通道（RGB=3）</td><td><strong>資料</strong>（常 resize 到固定值＝預處理，人設）</td></tr>
+<tr><td>filter 大小 $F\times F$</td><td>卷積核尺寸（3×3…）</td><td><strong>人為</strong>（超參數）</td></tr>
+<tr><td>filter 數量 ＝ 輸出通道 $C_{out}$</td><td>這層學幾種特徵</td><td><strong>人為</strong>（超參數）</td></tr>
+<tr><td>stride / padding</td><td>滑動步長 / 補邊</td><td><strong>人為</strong>（超參數）</td></tr>
+<tr><td>輸出特徵圖 $H'\times W'$</td><td>每張特徵圖尺寸</td><td><strong>計算推導</strong>（§12.4 公式）</td></tr>
+<tr><td>filter 裡的權重值</td><td>每個核的數字</td><td><strong>訓練學</strong>（參數）</td></tr>
+<tr><td>flatten 後向量長度</td><td>進全連接層的維度</td><td><strong>計算推導</strong>（$H'\times W'\times C'$）</td></tr>
+<tr><td>FC 輸出 ＝ 類別數</td><td>最後輸出幾類</td><td><strong>任務決定</strong></td></tr>
+</tbody></table></div>
+<p><strong>最類比 embedding「向量維度 $d$」的是「通道數 $C$」</strong>：CNN 中<strong>每個空間位置 $(h,w)$ 跨所有通道，就是一個長度 = 通道數的向量</strong>（那個位置的「特徵向量」）。這個通道數（＝上一層 filter 數 $C_{out}$）跟 embedding 的 $d$ 一樣，是<strong>訓練前定好、固定的超參數</strong>（§14、§7）。差別：CNN 還多了<strong>空間尺寸 $H'\times W'$</strong> 這種<strong>由公式算出來</strong>的維度（embedding 沒有）；訓練學的一樣只是<strong>值</strong>（filter 權重），不是維度。</p>
+
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="13">13. Tokenization — 把文字變成 token</h2>
