@@ -1438,6 +1438,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>學習信號來自任務</strong>：Word2vec 用「預測上下文詞」、LLM 用「預測下一個 token」。<strong>常出現在相似語境的詞（貓/狗），為了預測得準，向量會被學得相近</strong>——「意思近 → 向量近」是訓練的副產品，不是人為設定。</li>
 <li><strong>重要澄清</strong>：前面「是動物 / 是交通工具」只是<strong>示意</strong>。真實 embedding 每一維<strong>沒有人為指定意義</strong>，是訓練中自己長出來的抽象方向；單看一維通常無法解讀，是<strong>整個向量的方向與組合</strong>承載語意（某些方向事後才被發現對應如「性別」，屬湧現而非預先定義）。</li>
 </ul>
+<p><strong>維度 $d$（向量有幾格）怎麼定？是超參數，訓練前就固定。</strong> 訓練學的是向量裡的<strong>值</strong>（$V\times d$ 個數字），但<strong>維度 $d$ 本身固定不變</strong>，不是訓練中長出來、也不是最後才決定的。這是「參數 vs 超參數」的區別：</p>
+<ul>
+<li><strong>參數 (parameters)</strong>：訓練時<strong>自動學</strong>的（embedding 的值、各層權重）。</li>
+<li><strong>超參數 (hyperparameters)</strong>：訓練<strong>前人為設定</strong>的（維度 $d$、學習率 $\eta$、層數、batch size…）。</li>
+<li><strong>$d$ 怎麼挑</strong>：靠經驗 + 實驗（調參）。常見 Word2vec / 小模型 100~300、BERT 768、大型 LLM 上千~上萬（GPT-3 達 12288）。太小 → 裝不下語意、表達力不足；太大 → 參數暴增、算力/記憶體貴、易過擬合、邊際效益遞減。實務是試幾個值、看<strong>驗證集</strong>（§7）選 CP 值最好的——屬<strong>外層調超參數的實驗迴圈</strong>（訓練好幾次比較），不是單次訓練內學出來的。</li>
+</ul>
 <blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
