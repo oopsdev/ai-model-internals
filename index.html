@@ -1430,6 +1430,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>語意可做向量加減</strong>（維度取「皇室程度, 女性程度」示意）：</p>
 <p>$$\underbrace{(0.9,\,0)}_{\text{king}}-\underbrace{(0.1,\,0)}_{\text{man}}+\underbrace{(0.1,\,1)}_{\text{woman}}=(0.9,\,1)\approx\underbrace{(0.9,\,1)}_{\text{queen}}$$</p>
 <p>把「man → woman」的方向（＝加上「女性」）平移到 king 上，結果就落在 queen 附近——這說明<strong>語意關係被編碼成向量方向</strong>。</p>
+<p><strong>這些向量的值怎麼來（怎麼算出來的）？</strong> 不是用公式算的，而是<strong>訓練學出來的參數</strong>：</p>
+<ul>
+<li><strong>一張查表矩陣</strong> $E$（大小 $V\times d$，$V$＝詞表大小、$d$＝維度）；token 的 id 就是「取第 id 列」，那一列就是它的向量。這 $V\times d$ 個數字全是參數。</li>
+<li><strong>隨機初始化 → 梯度下降更新</strong>：一開始是小亂數；之後跟模型其他權重一樣，前向「token → 查 $E$ → 進模型 → 算損失」，反向把 $\partial L/\partial E$ 回傳、往降低損失的方向調每個值（§10 反向傳播、§6 梯度下降）。幾百萬次更新後收斂成有意義的向量。</li>
+<li><strong>學習信號來自任務</strong>：Word2vec 用「預測上下文詞」、LLM 用「預測下一個 token」。<strong>常出現在相似語境的詞（貓/狗），為了預測得準，向量會被學得相近</strong>——「意思近 → 向量近」是訓練的副產品，不是人為設定。</li>
+<li><strong>重要澄清</strong>：前面「是動物 / 是交通工具」只是<strong>示意</strong>。真實 embedding 每一維<strong>沒有人為指定意義</strong>，是訓練中自己長出來的抽象方向；單看一維通常無法解讀，是<strong>整個向量的方向與組合</strong>承載語意（某些方向事後才被發現對應如「性別」，屬湧現而非預先定義）。</li>
+</ul>
 <blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
