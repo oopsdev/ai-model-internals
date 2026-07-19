@@ -110,7 +110,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </table></div>
 </blockquote>
 
-<p><strong>目錄</strong>（點章節可跳轉）：</p>
+<p id="toc"><strong>目錄</strong>（點章節可跳轉）：</p>
 <p><strong>導覽</strong></p>
 <ul style="list-style:none;margin-left:0">
 <li><a href="#map">數學觀念 × 網路階段 映射</a></li>
@@ -158,6 +158,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </ol>
 <blockquote><p>主題 1–20 與附錄 A/B 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="map">導覽：數學觀念 × 網路階段 映射</h2>
 <p>先建立全景 — 把本教材的數學觀念，對應到<strong>學習／推論／生成</strong>三種網路流程的各階段（方框內為該階段用到的數學與章節）：</p>
@@ -245,6 +246,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </tbody>
 </table></div>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="example">綜合範例：影像辨識模型內部怎麼運作</h2>
 <p>用一個小型 <strong>CNN 影像分類器</strong>（判斷「這張圖是什麼」）把前面的數學串成一條實際流程。<strong>上排是辨識（推論）主軸</strong>：一張圖如何一步步變成「貓 0.92」；<strong>下排是訓練迴圈</strong>：它當初怎麼被學出來。（卷積/池化細節見主題 12，這裡先看每一步的數學落點。）</p>
@@ -304,6 +306,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，§1.1）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元的權重樣板</strong>（§1.2）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 §20。<strong>完整定義與幾何意義見主題 12。</strong>）</p>
 <p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（§5，即負對數似然 §2）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（§3）→ <strong>梯度下降</strong>更新每個 filter 與權重（§4.2）→ 重複多輪（epoch，§7.2）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="1">1. 線性代數 — 向量、矩陣、內積</h2>
 <p>神經網路的每一層，本質就是<strong>矩陣乘法 + 非線性轉換</strong>。先把語言備齊。</p>
@@ -705,6 +708,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <blockquote><p><strong>工程意涵。</strong> 「模型推論」在數學上 ≈ 一串矩陣乘法。模型大小（參數量）≈ 所有 $\mathbf{W}$ 的元素數；推論算力 ≈ 矩陣乘法次數 (FLOPs)。這直接對應「模型越大越吃 VRAM 與算力」。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="2">2. 機率與統計 — 分布、條件機率、最大似然</h2>
 <p>判別式模型輸出「機率」、生成式模型學「分布」、訓練的損失又來自「最大似然」——所以這章是 AI 的統計地基。以下每個概念都給「<strong>定義 → 直覺/物理意義 → 在 AI 的用途</strong>」。</p>
@@ -803,6 +807,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>這個 $-\sum\log P$ 就是<strong>負對數似然</strong>，也就是分類最常用的<strong>交叉熵損失</strong>（主題 5）。<strong>損失函數多半是負對數似然的化身，不是憑空設計。</strong></p>
 <blockquote><p><strong>工程意涵。</strong> 分類器輸出的是<strong>機率/信心分數</strong>而非硬標籤；資安可用它調「靈敏度 vs 誤報」門檻（主題 19 ROC）。懂 MLE 就懂為什麼交叉熵是預設損失。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="3">3. 微積分與梯度 — 導數、偏導、鏈鎖律</h2>
 <p>訓練 = 最小化損失 $L(\theta)$。怎麼往更小走？靠<strong>梯度</strong>。</p>
@@ -833,6 +838,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>反向傳播就是把鏈鎖律由輸出往輸入逐層套用</strong>（主題 10 完整推導）。局部導數在前向時記下、反向時相乘，讓百萬參數的梯度一次算出。</p>
 <blockquote><p><strong>工程意涵。</strong> 「訓練吃算力遠大於推論」的數學原因：推論只做前向（一遍矩陣乘法）；訓練要前向 + 反向（再算梯度）+ 更新，且重複很多輪。對應「邊緣做推論、再訓練放中央」。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="4">4. 線性回歸與損失函數</h2>
 <p>最小的「會學習」模型，把前三章串起來。</p>
@@ -880,6 +886,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>再用梯度下降 $\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}L$。<strong>「預測誤差 $(\hat y-y)$ 乘輸入 $\mathbf{x}$」的形式會在神經網路反覆出現</strong> — backprop 最外層永遠是誤差項。</p>
 <blockquote><p><strong>工程意涵。</strong> 網路 AI 的「頻寬/健康預測」本質就是回歸；線性回歸是理解一切的起點。MSE 適合連續值，<strong>不適合分類</strong>（下節換損失）。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="5">5. 邏輯回歸、Sigmoid、Softmax 與交叉熵</h2>
 <p>分類模型的數學核心 — 幾乎所有分類器（含神經網路輸出層）都用這套。</p>
@@ -938,6 +945,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$\text{softmax}(\mathbf{z})_k=\frac{e^{z_k-\max_j z_j}}{\sum_j e^{z_j-\max_j z_j}}$$</p>
 <blockquote><p><strong>工程意涵。</strong> <strong>Softmax 是所有分類器與 LLM 輸出層的共同終點</strong> — 網路流量分類輸出「各類別機率」、LLM 輸出「下一個 token 的機率分布」用的都是它。懂 softmax + 交叉熵，等於掌握判別式分類與生成式取樣（主題 17）的共同基座。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="6">6. 梯度下降與優化器 (SGD / Adam)</h2>
 <p>主題 3 說「往 $-\nabla L$ 走」；這章講<strong>實務上怎麼走</strong>：用多少資料算梯度、步伐多大、怎麼走得又快又穩。</p>
@@ -975,6 +983,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>狹長山谷裡：純 SGD（黃）左右來回抖、走得慢；動量（綠）累積速度、路徑平滑、更快到谷底。</figcaption></figure>
 <blockquote><p><strong>工程意涵。</strong> 訓練調不動或損失爆掉，最常見元兇是<strong>學習率</strong>：先從小 $\eta$（如 $10^{-3}$）＋ <strong>Adam</strong> 試起。批次大小受<strong>記憶體</strong>限制（邊緣設備小 → 只能小批次）——這也是「訓練放中央（大批次、大記憶體）、邊緣只做推論」的實務原因之一。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="7">7. 正則化 (Regularization) — 對抗過擬合</h2>
 <p class="note" style="border:0;margin:0 0 1em">主題 6（梯度下降／優化器）待補；本節先建立正則化要對付的問題 — 過擬合。</p>
@@ -1034,6 +1043,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>學習曲線：<strong>訓練損失</strong>（綠）隨 epoch 一路下降；<strong>驗證損失</strong>（黃）先降後升，<strong>最低點</strong>就是最佳輪數 — 用 early stopping 在此停住。再往右訓練，訓練損失雖續降但驗證損失回升、兩者落差變大＝過擬合。</figcaption></figure>
 <p><strong>怎麼決定 — Early stopping（早停）</strong>：一邊訓練一邊監看驗證損失，連續 N 輪（patience）沒進步就停、並保留「驗證損失最低」的存檔。它<strong>自動決定輪數</strong>，本身也是一種正則化。太少 epoch 欠擬合、太多 epoch 過擬合。</p>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="8">8. 前向傳播 (Forward Propagation)</h2>
 <p><strong>前向傳播 = 資料從輸入層流到輸出層、逐層算出預測</strong>——就是把「矩陣乘法 + 激活」一層層串起來。記第 $l$ 層權重 $\mathbf{W}^{(l)}$、偏置 $\mathbf{b}^{(l)}$、激活 $\sigma$：</p>
@@ -1045,6 +1055,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 推論成本 ≈ 前向一遍的矩陣乘法量（FLOPs，§20）；記憶體要放參數 ＋（訓練時）各層激活值。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="9">9. 激活函數 (Activation Functions)</h2>
 <p><strong>為什麼一定要非線性？</strong> 沒有激活，多層只是矩陣連乘＝一個矩陣（§1.3.1），再多層也只能學線性邊界。激活 $\sigma$ 提供<strong>非線性轉換</strong>，讓多層能逼近任意複雜函數、把空間摺開（§1.2、§1.3.1）。</p>
@@ -1071,6 +1082,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>梯度消失</strong>：sigmoid/tanh 在兩端很平（導數 → 0），深層堆疊會讓梯度越傳越小、學不動——這是 ReLU 勝出的主因（正區導數恆為 1）。</p>
 <blockquote><p><strong>工程意涵。</strong> 隱藏層預設 <strong>ReLU</strong>（快、少梯度消失）；<strong>輸出層看任務</strong>：回歸用線性（不加激活）、二元分類 sigmoid、多元分類 softmax。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="10">10. 反向傳播推導 (Backpropagation)</h2>
 <p>§3.2 給了鏈鎖律；反向傳播就是<strong>把鏈鎖律有系統地、由輸出往輸入逐層套用</strong>，一次算出所有參數的梯度。</p>
@@ -1099,6 +1111,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 訓練 = 前向 + 反向，所以<strong>訓練算力 ≈ 推論的 2–3 倍</strong>、且要<strong>額外記憶體存各層激活</strong>（activation memory，大模型訓練的記憶體瓶頸）。這對應「邊緣推論、中央訓練」。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="11">11. 初始化與正規化層 (Init / BatchNorm)</h2>
 <p>兩個讓「深層網路訓練得起來」的關鍵技巧。</p>
@@ -1117,6 +1130,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 沒有好的初始化 + 正規化，深層網路常常訓練不起來（發散或不動）。LayerNorm 幾乎出現在每個 Transformer 區塊裡。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="12">12. CNN 卷積</h2>
 <p>影像若用「全連接」硬做：一張 224×224×3 的圖攤平就是 15 萬維，第一層每個神經元就要 15 萬個權重——參數爆炸，還把「相鄰像素才相關」「同物件換位置仍是同物件」這些影像特性全丟了。<strong>卷積 (convolution)</strong> 就是為影像量身打造的解法。</p>
@@ -1269,6 +1283,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（§20）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
 <blockquote><p><strong>工程意涵。</strong> 卷積不只用在影像：<strong>1D 卷積</strong>掃封包大小/方向序列，可抓「加密流量的局部指紋」（網路 AI 常用、輕量、適合邊緣 NPU）。多數邊緣 NPU 本來就為 CNN 卷積最佳化，所以 1D/2D-CNN 在邊緣跑很划算。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="13">13. RNN / LSTM — 序列建模</h2>
 <p>序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
@@ -1280,6 +1295,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 網路 AI 的序列任務（封包序列、時序 metrics）用 <strong>1D-CNN / LSTM</strong> 就夠、輕量適合邊緣；長序列與語言則已被 Transformer 取代。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="14">14. 注意力與 Transformer</h2>
 <p>RNN 逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
@@ -1306,6 +1322,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（§11）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
 <blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心；但注意力對序列長度是 <strong>$O(n^2)$</strong>（每個位置看所有位置），長 context 很吃記憶體與算力（KV cache）——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="15">15. Embedding 與向量表示</h2>
 <p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。</p>
@@ -1325,6 +1342,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>Embedding 語意空間：意思相近的詞（動物 cat/dog/rabbit）向量靠在一起、不同類（車輛）離得遠。比相似度用餘弦（§1.4）——RAG 檢索就靠這個找最相關的段落。</figcaption></figure>
 <blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="16">16. Tokenization — 把文字變成 token</h2>
 <p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token（多為子詞 subword）</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（§15）：</p>
@@ -1334,6 +1352,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> <strong>token 數 = 成本單位</strong>——LLM API 計費、context 長度限制都以 token 計。中文常一字 ≈ 1～2 token，估算成本要留意。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="17">17. 自回歸生成與取樣</h2>
 <p>LLM 怎麼「生成」？——<strong>逐字接龍（自回歸）</strong>：每步用前文預測<strong>下一個 token 的機率分布</strong>（對整個詞表做 softmax，§5.2），選一個、接回輸入、再預測下一個，重複。</p>
@@ -1343,6 +1362,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 生成是<strong>逐 token 串行</strong>（每個 token 一次前向）→ 慢；用 <strong>KV cache</strong> 避免重算前文。context 長度有上限（受 $O(n^2)$ 注意力與記憶體限制）。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="18">18. 訓練目標與微調 (Fine-tuning / LoRA)</h2>
 <p>大模型分兩階段：</p>
@@ -1364,6 +1384,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> LoRA 讓你<strong>用小算力把大模型客製化</strong>（自家資料微調）。實務取捨：<strong>RAG</strong>（不改模型、外掛知識庫，知識即時可更新）vs <strong>微調/LoRA</strong>（把知識/風格烙進模型）——你的產品線兩者可並用。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="19">19. 評估指標數學</h2>
 <p>「準確率高」不一定好——挑對指標比挑模型更關鍵。</p>
@@ -1398,6 +1419,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> <strong>資安場景高度不平衡</strong>——別看 accuracy，要看 <strong>recall（抓到多少真威脅）與誤報率</strong>；門檻可用機率分數調（見 §2 工程意涵）。RAG 檢索品質看 <strong>Recall@k</strong>。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="20">20. 浮點、量化與硬體加速</h2>
 <p class="note" style="border:0;margin:0 0 1em">本節談硬體如何加速（20.1）、數字用什麼格式存（20.2）、以及如何用量化壓縮模型（20.3）。</p>
@@ -1457,6 +1479,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>——INT4 讓 7B 模型從 14GB 壓到 ~3.5GB，才塞得進邊緣設備（換算見 ai-background-knowledge §3.1）。這也是為什麼你的邊緣 NPU 產品線以 INT8/INT4 為主。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="a1">附錄 A — 餘弦定律 (Law of Cosines)</h2>
 <p>內積的代數定義與幾何定義為何相等 (主題 1.1)？關鍵是餘弦定律。本附錄先給餘弦定律的敘述 (A.1) 與<strong>自足推導</strong> (A.2，不使用內積)，再用它證明內積兩種定義等價 (A.3)。</p>
@@ -1515,6 +1538,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$\boxed{\;\sum_i a_ib_i=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi\;}$$</p>
 <p>即<strong>「分量乘積之和」恰等於「兩向量長度 × 夾角餘弦」</strong> — 代數與幾何兩種內積定義其實是同一件事，這也解釋了為什麼「分量硬乘相加」會等於「量測方向對齊程度」。</p>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="b1">附錄 B — 貝氏定理推導</h2>
 <p>貝氏定理（§2.2）可由<strong>條件機率的定義</strong>直接推出，不需額外假設。</p>
@@ -1535,6 +1559,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>它的角色是<strong>歸一化常數</strong>：確保所有後驗 $P(y\mid x)$ 加起來 = 1。因此貝氏常寫成「後驗 $\propto$ 似然 × 先驗」：</p>
 <p>$$P(y\mid x)\ \propto\ \underbrace{P(x\mid y)}_{\text{似然}}\;\underbrace{P(y)}_{\text{先驗}}$$</p>
 <p>直覺回顧：先驗 $P(y)$ 是看資料前的信念，乘上似然 $P(x\mid y)$、再歸一化，就更新成後驗 $P(y\mid x)$（見 §2.2）。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
 主題 1–20 與附錄 A/B 均已完成初稿：線代、機率統計、微積分、線性/邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、RNN/LSTM、注意力與 Transformer、Embedding、Tokenization、自回歸生成、LoRA、評估指標、浮點與量化。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
