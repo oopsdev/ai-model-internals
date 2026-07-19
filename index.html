@@ -1088,6 +1088,17 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>padding（補邊）</strong>：在影像邊緣補 0，用來保住尺寸或照顧邊界像素。</li>
 <li>輸出邊長 $=\dfrac{W-F+2P}{S}+1$（$W$ 輸入邊長、$F$ filter 邊長、$P$ padding、$S$ stride）。</li>
 </ul>
+<p><strong>例（stride 的影響）</strong> 輸入 5×5、filter 3×3、$P=0$：</p>
+<ul>
+<li>$S=1$：$\frac{5-3+0}{1}+1=3$ → 輸出 <strong>3×3</strong>（每格都掃、重疊最多）。</li>
+<li>$S=2$：$\frac{5-3}{2}+1=2$ → 輸出 <strong>2×2</strong>（跳著掃、尺寸砍半 ＝ 下採樣；常用來取代池化）。</li>
+</ul>
+<p><strong>例（padding 的影響）</strong> 輸入 5×5、filter 3×3、$S=1$：</p>
+<ul>
+<li>$P=0$（valid，不補）：$\frac{5-3}{1}+1=3$ → 輸出 <strong>3×3</strong>（每層縮小、邊界像素被掃到少）。</li>
+<li>$P=1$（same，四周各補一圈 0 → 變 7×7）：$\frac{5-3+2}{1}+1=5$ → 輸出 <strong>5×5</strong>（<strong>保持原尺寸</strong>、邊界也能當中心被掃到）。</li>
+</ul>
+<p>直覺：<strong>stride</strong> 控「掃多快」（越大輸出越小、下採樣）；<strong>padding</strong> 主要用來<strong>保持尺寸</strong>（same padding 取 $P=\frac{F-1}{2}$）並照顧邊界像素。</p>
 
 <h3>12.5 整張卷積 = 一次矩陣乘法（im2col）</h3>
 <p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（§20）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
