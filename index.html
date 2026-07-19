@@ -824,6 +824,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><span class="geo">直覺：</span>調整模型旋鈕，直到「模型覺得真實資料很正常、很可能出現」。連乘不好算 → 取對數變連加（log 單調、不改最大點）、加負號變最小化：</p>
 <p>$$\theta^\star=\arg\min_\theta\; -\sum_{i=1}^{N}\log P(y_i\mid x_i;\theta)$$</p>
 <p>這個 $-\sum\log P$ 就是<strong>負對數似然</strong>，也就是分類最常用的<strong>交叉熵損失</strong>（主題 5）。<strong>損失函數多半是負對數似然的化身，不是憑空設計。</strong></p>
+<p><strong>訓練 ↔ 推論的閉環（MLE 找到的 θ 之後怎麼用）。</strong> MLE 找到的 $\theta^\star$ 就是<strong>模型的全部權重</strong>（所有 $\mathbf{W},\mathbf{b}$、filter、embedding…），訓練完<strong>固定下來、存成模型檔</strong>。推論時對<strong>新輸入 $x$</strong> 用同一組 $\theta^\star$ 跑<strong>前向傳播（§8）</strong>、算出：</p>
+<ul>
+<li><strong>分類</strong> → $P(y\mid x;\theta^\star)$ 各類機率（softmax，§5）→ argmax 取類別、或當信心分數調門檻；</li>
+<li><strong>回歸</strong> → 預測數值 $\hat y=f(x;\theta^\star)$；</li>
+<li><strong>生成 / LLM</strong> → $P(\text{下一個 token}\mid \text{context};\theta^\star)$ → 取樣生成（§17）。</li>
+</ul>
+<p>所以<strong>訓練學參數、推論用參數，兩邊是同一個 $P(y\mid x;\theta)$</strong>——訓練時在<strong>訓練資料</strong>上把它調到最能解釋，推論時把它套到<strong>沒看過的 $x$</strong>；套得準不準就是<strong>泛化</strong>（§7）。</p>
 <blockquote><p><strong>工程意涵。</strong> 分類器輸出的是<strong>機率/信心分數</strong>而非硬標籤；資安可用它調「靈敏度 vs 誤報」門檻（主題 19 ROC）。懂 MLE 就懂為什麼交叉熵是預設損失。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
