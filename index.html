@@ -1492,7 +1492,25 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>問題：長距依賴</strong>。序列一長，沿時間展開就像很深的網路 → <strong>梯度消失/爆炸</strong>，記不住遠處資訊。</li>
 <li><strong>LSTM / GRU</strong>：加<strong>閘門 (gate)</strong> 控制「記住 / 遺忘 / 輸出」多少 → 能記更久，是長序列的主力（Transformer 出現前）。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 網路 AI 的序列任務（封包序列、時序 metrics）用 <strong>1D-CNN / LSTM</strong> 就夠、輕量適合邊緣；長序列與語言則已被 Transformer 取代。</p></blockquote>
+<h3>15.1 哪些應用適合用 RNN（為什麼）</h3>
+<p>跟 CNN 一樣，RNN 適不適合取決於<strong>資料是否符合它的內建假設</strong>——RNN 假設資料是<strong>有順序的序列</strong>，且<strong>當下輸出依賴歷史</strong>。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>RNN 的內建假設</th><th>適合的資料 / 問題特徵</th><th>為什麼</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><strong>順序性</strong>（逐步吃輸入）</td><td>資料<strong>有時間 / 先後順序</strong>，順序有意義</td><td>隱藏狀態沿時間傳遞</td><td>時序、文字、語音、封包序列</td></tr>
+<tr><td><strong>可變長度</strong>（同參數跑到底）</td><td>輸入<strong>長度不定</strong></td><td>每步共用同一組權重</td><td>長短不一的句子、連線 session</td></tr>
+<tr><td><strong>時間上參數共享</strong></td><td>同一種規律<strong>不分位置都成立</strong></td><td>每個時刻用同一 $\mathbf{W}$</td><td>週期性訊號、重複語法</td></tr>
+<tr><td><strong>狀態 / 記憶</strong></td><td>當下輸出<strong>依賴前文脈絡</strong></td><td>$\mathbf{h}$ 累積歷史資訊</td><td>依上下文預測下一字 / 值</td></tr>
+<tr><td><strong>因果 / 串流</strong></td><td>資料<strong>逐步到達、要邊來邊反應</strong></td><td>由左到右一步步算</td><td>即時語音、線上異常偵測</td></tr>
+</tbody></table></div>
+<p><strong>適合的應用</strong>：時序預測（感測器、網路流量 metrics、股價）、語音辨識、手寫辨識、log / 封包序列異常偵測、<strong>串流 / 即時</strong>逐步處理；文字生成（早期，現多被 Transformer 取代）。</p>
+<p><strong>不適合 / 侷限（對照）</strong>：</p>
+<ul>
+<li><strong>很長的序列、需長距依賴</strong> → 梯度消失（即使 LSTM 也有極限）、記不住遠處 → 用 <strong>Transformer / 注意力</strong>（§16）。</li>
+<li><strong>需大量平行訓練</strong> → RNN <strong>逐步串行、難平行</strong>、訓練慢 → Transformer 可整段平行。</li>
+<li><strong>無順序關係的資料</strong>（表格、影像空間結構）→ 順序假設失效 → 用 <strong>MLP / 樹模型 / CNN</strong>。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 網路 AI 的序列任務（封包序列、時序 metrics）用 <strong>1D-CNN / LSTM</strong> 就夠、輕量、又<strong>天生串流友好</strong>，適合<strong>邊緣即時</strong>；但一旦需要長距依賴或大規模平行，語言與長序列已被 <strong>Transformer</strong> 取代（留中央）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
