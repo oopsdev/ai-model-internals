@@ -1377,6 +1377,26 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </tbody></table></div>
 <p><strong>最類比 embedding「向量維度 $d$」的是「通道數 $C$」</strong>：CNN 中<strong>每個空間位置 $(h,w)$ 跨所有通道，就是一個長度 = 通道數的向量</strong>（那個位置的「特徵向量」）。這個通道數（＝上一層 filter 數 $C_{out}$）跟 embedding 的 $d$ 一樣，是<strong>訓練前定好、固定的超參數</strong>（§14、§7）。差別：CNN 還多了<strong>空間尺寸 $H'\times W'$</strong> 這種<strong>由公式算出來</strong>的維度（embedding 沒有）；訓練學的一樣只是<strong>值</strong>（filter 權重），不是維度。</p>
 
+<h3>12.7 哪些應用適合用 CNN（為什麼）</h3>
+<p>CNN 適不適合，取決於<strong>資料與問題是否符合它的「內建假設」（inductive bias）</strong>。符合 → 事半功倍、參數少又準；不符合 → 換別的架構更好。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>CNN 的內建假設</th><th>適合的資料 / 問題特徵</th><th>為什麼</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><strong>局部性</strong>（filter 只看小窗）</td><td>有意義的特徵是<strong>局部</strong>的</td><td>filter 專抓局部樣式（§12.2）</td><td>影像的邊/紋理；封包序列的局部指紋</td></tr>
+<tr><td><strong>平移不變</strong>（同 filter 到處滑）</td><td>特徵<strong>可能出現在任何位置、意義相同</strong></td><td>權重共享 → 位置無關偵測</td><td>貓在畫面任何角落都認得</td></tr>
+<tr><td><strong>權重共享</strong>（參數少）</td><td>輸入<strong>維度高</strong>、需省算力/抗過擬合</td><td>一個小 filter 重複用遍全圖</td><td>百萬像素影像</td></tr>
+<tr><td><strong>階層組合</strong>（堆疊）</td><td>資料有<strong>由小組大</strong>的組合結構</td><td>低階特徵疊成高階</td><td>像素→邊→形狀→物件</td></tr>
+<tr><td><strong>網格結構</strong></td><td>資料在<strong>規則網格</strong>上、<strong>鄰近相關</strong></td><td>卷積定義在網格鄰域</td><td>1D 序列、2D 影像、3D 影音</td></tr>
+</tbody></table></div>
+<p><strong>適合的應用</strong>：影像分類 / 物件偵測 / 分割、瑕疵檢測、OCR、音訊（轉頻譜圖當影像）、醫療影像；<strong>1D-CNN</strong> 掃時序 / 封包序列（抓局部指紋）。</p>
+<p><strong>不適合的情況（對照）</strong>：</p>
+<ul>
+<li><strong>表格資料</strong>（欄位無空間鄰近、順序可任意打亂）→ 局部性/平移不變假設失效，用<strong>樹模型（GBDT）或 MLP</strong> 更好。</li>
+<li><strong>長距離、任意位置的關聯</strong>（語言長依賴）→ CNN 感受野有限，用 <strong>Transformer / 注意力</strong>（§16）。</li>
+<li><strong>非規則圖結構</strong>（社群網路、分子）→ 沒有網格，用 <strong>GNN</strong>。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 判別式 ML 邊緣線很吃 CNN 的特性：<strong>1D-CNN</strong> 掃封包大小 / 方向序列抓「加密流量局部指紋」、<strong>2D-CNN</strong> 做影像瑕疵 / 監控——都因<strong>參數少、平移不變、邊緣 NPU 為卷積最佳化</strong>而輕量好落地。反之，需長依賴或無網格結構的任務要換架構。</p></blockquote>
+
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="13">13. Tokenization — 把文字變成 token</h2>
