@@ -248,6 +248,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td>5, 2</td></tr>
 </tbody>
 </table></div>
+<blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（§14）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1394,7 +1395,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="14">14. Embedding 與向量表示</h2>
-<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。承接 §13：token 拿到 id 後，就靠 embedding 查表變成向量餵進模型。</p>
+<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。承接 §13：token 拿到 id 後，就靠 embedding 查表變成向量餵進模型。凡是<strong>輸入為離散符號</strong>的模型都需要 embedding，且<strong>訓練、推論、生成三階段都用到</strong>（不是只有生成才需要）；輸入本來就是連續數字的模型（如影像）則不需要。</p>
 <p><strong>名稱（中譯）。</strong> Embedding 中譯為<strong>嵌入</strong>（完整常說<strong>詞嵌入 word embedding</strong>、<strong>嵌入向量</strong>），也意譯為<strong>向量表示</strong>。取 embed（鑲嵌、把東西放進某結構）之意——把離散符號<strong>嵌入</strong>一個連續的向量空間：原本像「貓」「狗」這種符號彼此無法算距離，嵌入後各變成空間中的一個點（向量），就能量距離、比相似度。這也呼應數學上的<strong>嵌入映射</strong>（把一個空間嵌進另一個、並保留原有關係）。</p>
 <ul>
 <li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $V\times d$，$V$ 詞表大小、$d$ 維度）——訓練學出來（參數）；或取模型某層輸出當表示。</li>
