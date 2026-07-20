@@ -1047,6 +1047,17 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>小批次的合理性接回 §2.1：整體損失是「逐筆損失的<strong>期望</strong>」，一小批的平均就是它的<strong>無偏估計</strong>——用一小批估整體梯度，省時又夠準。（跑完全部小批 = 一個 epoch，§7.2）</p>
 <h3>6.2 學習率 η — 步伐大小</h3>
 <p>$$\theta \leftarrow \theta - \eta\,\nabla_\theta L$$</p>
+<p><strong>逐符號拆解。</strong></p>
+<ul>
+<li><strong>$\theta$</strong>：模型的<strong>所有參數</strong>（權重＋偏置的集合）——要學、要調的東西。</li>
+<li><strong>$\leftarrow$</strong>：<strong>更新</strong>（把右邊算出的新值存回 $\theta$、取代舊值；不是等號）。</li>
+<li><strong>$L$</strong>：<strong>損失</strong>（模型現在錯多少）。</li>
+<li><strong>$\nabla_\theta L$</strong>：損失對參數的<strong>梯度</strong>（向量），指向損失<strong>上升</strong>最快的方向；每個分量＝「該參數對損失的影響（斜率）」。</li>
+<li><strong>$\eta$</strong>：<strong>學習率</strong>（小正數，步伐大小）。</li>
+</ul>
+<p><strong>加乘後的意義。</strong> $\eta\,\nabla_\theta L$（乘）＝把「方向＋陡度」<strong>縮放</strong>成「這一步實際移動多少」；$\theta-\eta\nabla_\theta L$（減）＝從舊參數<strong>減掉</strong>移動量 → 往梯度<strong>反方向（下坡）</strong> 走、讓損失下降。<strong>整句白話：把每個參數往「能讓損失下降最快」的方向移動一小步（步長由 $\eta$ 控），反覆做 → 損失越來越小。</strong></p>
+<p><strong>為什麼減號能自動走對方向（逐參數看）。</strong> $\theta_i \leftarrow \theta_i - \eta\frac{\partial L}{\partial\theta_i}$：$\frac{\partial L}{\partial\theta_i}>0$（調大它→損失變大）→ 減正數 → $\theta_i$ 變小；$\frac{\partial L}{\partial\theta_i}<0$（調大它→損失變小）→ 減負數＝加 → $\theta_i$ 變大。<strong>不管斜率正負，更新都自動往「降低損失」調。</strong></p>
+<p><strong>數字例（$\eta=0.1$）。</strong> $\theta=2.0$、$\frac{\partial L}{\partial\theta}=0.5$ → $\theta\leftarrow 2.0-0.1\times0.5=1.95$（調小）；若 $\frac{\partial L}{\partial\theta}=-0.5$ → $\theta\leftarrow 2.0+0.05=2.05$（調大）。</p>
 <ul>
 <li>$\eta$ <strong>太大</strong>：衝過頭、在谷壁間來回彈、甚至<strong>發散</strong>（損失爆掉變 NaN）。</li>
 <li>$\eta$ <strong>太小</strong>：每步太保守、<strong>收斂很慢</strong>。</li>
