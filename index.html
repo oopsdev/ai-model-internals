@@ -249,6 +249,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </tbody>
 </table></div>
 <blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（§14）。</p></blockquote>
+<blockquote><p><strong>註：表中的「參數」是什麼?</strong> ①「更新參數」更新的，就是<strong>模型參數</strong>——<strong>訓練學出、推論時固定的所有權重＋偏置</strong>（各架構的參數組成見 <a href="#params">§12.3 各架構的參數組成</a>）；訓練前人為設定、不屬於模型權重的「超參數」則見 <a href="#7">§7 正則化</a>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -308,7 +309,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </tbody>
 </table></div>
 <p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，§1.1）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元的權重樣板</strong>（§1.2）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 §20。<strong>完整定義與幾何意義見主題 12。</strong>）</p>
-<p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（§5，即負對數似然 §2）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（§3）→ <strong>梯度下降</strong>更新每個 filter 與權重（§4.2）→ 重複多輪（epoch，§7.2）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
+<p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（§5，即負對數似然 §2）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（§3）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§12.3 各架構的參數組成</a>；§4.2）→ 重複多輪（epoch，§7.2）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1321,7 +1322,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>每個 filter 其實是 $F\times F\times C_{in}$ 的<strong>立體塊</strong>（只有輸入單通道時才剛好是一片 2D 方陣）。</p>
 <p>例：輸入 RGB（$C_{in}=3$），設計「這層放 <strong>64 個 5×5 filter</strong>」：每個 filter = $5\times5\times3$、共 64 個 → 輸出 64 張特徵圖（$C_{out}=64$）；參數量 $=(5\times5\times3+1)\times64=(75+1)\times64=76\times64=4864$。</p>
 <blockquote><p><strong>訓練後留下什麼。</strong> CNN 訓練的淨結果 = <strong>所有卷積 filter（＋偏置）＋ 全連接分類頭的權重（＋偏置）</strong>（可能還有 BatchNorm 參數）——這一整包就是<strong>模型參數</strong>（幾 B 參數的那個參數），存進模型檔、推論時固定使用。前半是「特徵抽取器」、後半是「分類頭」。</p></blockquote>
-<p><strong>各架構的參數組成（本質相同、種類不同）。</strong> 「模型參數」的本質一致——凡是<strong>訓練時被梯度下降更新的數字</strong>都算；但<strong>組成因架構而異</strong>，CNN 的 filter 只是其中一種形式：</p>
+<p id="params"><strong>各架構的參數組成（本質相同、種類不同）。</strong> 「模型參數」的本質一致——凡是<strong>訓練時被梯度下降更新的數字</strong>都算；但<strong>組成因架構而異</strong>，CNN 的 filter 只是其中一種形式：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>架構</th><th>主要參數</th></tr></thead>
 <tbody>
