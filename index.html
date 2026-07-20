@@ -1321,6 +1321,16 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>每個 filter 其實是 $F\times F\times C_{in}$ 的<strong>立體塊</strong>（只有輸入單通道時才剛好是一片 2D 方陣）。</p>
 <p>例：輸入 RGB（$C_{in}=3$），設計「這層放 <strong>64 個 5×5 filter</strong>」：每個 filter = $5\times5\times3$、共 64 個 → 輸出 64 張特徵圖（$C_{out}=64$）；參數量 $=(5\times5\times3+1)\times64=(75+1)\times64=76\times64=4864$。</p>
 <blockquote><p><strong>訓練後留下什麼。</strong> CNN 訓練的淨結果 = <strong>所有卷積 filter（＋偏置）＋ 全連接分類頭的權重（＋偏置）</strong>（可能還有 BatchNorm 參數）——這一整包就是<strong>模型參數</strong>（幾 B 參數的那個參數），存進模型檔、推論時固定使用。前半是「特徵抽取器」、後半是「分類頭」。</p></blockquote>
+<p><strong>各架構的參數組成（本質相同、種類不同）。</strong> 「模型參數」的本質一致——凡是<strong>訓練時被梯度下降更新的數字</strong>都算；但<strong>組成因架構而異</strong>，CNN 的 filter 只是其中一種形式：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>架構</th><th>主要參數</th></tr></thead>
+<tbody>
+<tr><td>MLP / 全連接</td><td>每層權重 $\mathbf{W}$ + 偏置 $\mathbf{b}$</td></tr>
+<tr><td>CNN</td><td>卷積 filter + 偏置、FC 頭權重 + 偏置、BatchNorm $\gamma,\beta$</td></tr>
+<tr><td>RNN / LSTM</td><td>輸入權重 $\mathbf{W}_x$、隱藏權重 $\mathbf{W}_h$、偏置；LSTM 各閘門的 $\mathbf{W},\mathbf{b}$</td></tr>
+<tr><td>Transformer / LLM</td><td>Embedding 表、注意力 $\mathbf{W}_Q/\mathbf{W}_K/\mathbf{W}_V/\mathbf{W}_O$、FFN 兩層、LayerNorm $\gamma,\beta$、輸出頭</td></tr>
+</tbody></table></div>
+<p><strong>不算參數的</strong>：<strong>超參數</strong>（層數、維度、學習率——人設，不存權重檔，§7）、<strong>無參數的層</strong>（ReLU、pooling、dropout；少數如 PReLU 例外）、<strong>優化器狀態</strong>（Adam 的動量 $m,v$——訓練時要，但非模型本身，§6）。<strong>一句話：任何模型的參數都是「所有可學的權重＋偏置（＋少數可學係數如 $\gamma,\beta$、embedding 表）」的集合</strong>，由訓練學出、存檔、推論固定使用。</p>
 
 <h3>12.4 stride、padding 與輸出尺寸</h3>
 <ul>
