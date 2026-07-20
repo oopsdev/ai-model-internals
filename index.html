@@ -1150,6 +1150,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="8">8. 前向傳播 (Forward Propagation)</h2>
+<blockquote><p><strong>先建立心智模型：神經網路是「結構（函數）」，不是「神經元迭代」。</strong> 神經網路本身描述的是<strong>神經元怎麼分層並列、層層串接成一個函數</strong>（input → output）；它是<strong>結構</strong>，不是「同一神經元反覆迭代」。要分清三件事：</p>
+<ul>
+<li><strong>神經網路（結構）</strong>：神經元如何組成函數——層內並列、層間串接（<a href="#1.2">§1.2</a>、本節）。</li>
+<li><strong>前向傳播（計算）</strong>：資料<strong>一次性逐層</strong>流過這個結構、得到輸出——是<strong>串接計算</strong>，不是迭代。</li>
+<li><strong>迭代／重複</strong>：出現在 ① 訓練迴圈（多輪 epoch：前向→損失→反向→更新，<a href="#6">§6</a>、<a href="#7.2">§7.2</a>）、② RNN 沿時間套用同一組權重（<a href="#15">§15</a>）、③ LLM 逐字生成（<a href="#17">§17</a>）——這是<strong>過程</strong>特徵，不是網路結構定義。</li>
+</ul></blockquote>
 <p><strong>前向傳播 = 資料從輸入層流到輸出層、逐層算出預測</strong>——就是把「矩陣乘法 + 激活」一層層串起來。記第 $l$ 層權重 $\mathbf{W}^{(l)}$、偏置 $\mathbf{b}^{(l)}$、激活 $\sigma$：</p>
 <p>$$\mathbf{a}^{(0)}=\mathbf{x},\qquad \mathbf{z}^{(l)}=\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}+\mathbf{b}^{(l)},\qquad \mathbf{a}^{(l)}=\sigma(\mathbf{z}^{(l)})$$</p>
 <p><strong>這個矩陣式，其實就是「把一層 $m$ 個神經元的純量計算一次算完、疊成向量」。</strong> 一層有 $m$ 個神經元，每個都是 <a href="#1.2">§1.2</a> 那種神經元：</p>
