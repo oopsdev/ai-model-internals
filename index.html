@@ -1128,6 +1128,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>前向傳播 = 資料從輸入層流到輸出層、逐層算出預測</strong>——就是把「矩陣乘法 + 激活」一層層串起來。記第 $l$ 層權重 $\mathbf{W}^{(l)}$、偏置 $\mathbf{b}^{(l)}$、激活 $\sigma$：</p>
 <p>$$\mathbf{a}^{(0)}=\mathbf{x},\qquad \mathbf{z}^{(l)}=\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}+\mathbf{b}^{(l)},\qquad \mathbf{a}^{(l)}=\sigma(\mathbf{z}^{(l)})$$</p>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
+<p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（§14）、CNN 通道數（§12.6）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（§7）。層數多 → 表達力強、能學更複雜的階層特徵（§1.3.1），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 §11）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
 <ul>
 <li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（§1.3.1）。</li>
 <li>前向時會<strong>順手存下各層的 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$</strong>，因為反向傳播（§10）要用它們。</li>
