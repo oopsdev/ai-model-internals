@@ -1588,6 +1588,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="19">19. 評估指標數學</h2>
 <p>「準確率高」不一定好——挑對指標比挑模型更關鍵。</p>
+<p><strong>先回答一個常見問題：有沒有「一個值」代表模型訓練的好壞？</strong> 有，但要分清是哪個值、在哪份資料上算：</p>
+<ul>
+<li><strong>損失 (loss)</strong>：訓練時<strong>直接最小化</strong>的目標值（§4），越低代表越貼合資料。<strong>但只看「訓練集損失」會被過擬合騙</strong>（訓練集很低、真實表現卻差）。</li>
+<li><strong>評估指標 (metric)</strong>：把「好壞」翻成人看得懂的分數，依任務不同（見下 §19.1–19.3）——分類看 accuracy / F1 / AUC、回歸看 MSE / R²、LLM 看 perplexity、檢索看 Recall@k。</li>
+<li><strong>關鍵：要在「沒看過的資料」上算才算數。</strong> 真正代表模型好壞的，是<strong>驗證 / 測試集</strong>（§7）上的損失或主要指標；實務會同時看「訓練 vs 驗證」兩條損失曲線來判斷過擬合（§7）。</li>
+</ul>
+<p><strong>一句話：訓練過程看「損失」、評模型好壞看「驗證 / 測試集上的主要指標」；沒有放諸四海皆準的單一值，要依任務挑對指標。</strong></p>
 <h3>19.1 分類</h3>
 <figure><svg viewBox="0 0 360 210" role="img" aria-label="混淆矩陣：TP FN FP TN 四格">
   <text x="200" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">預測</text>
