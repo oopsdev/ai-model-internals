@@ -847,6 +847,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>偏導 (partial derivative) $\dfrac{\partial L}{\partial\theta_j}$ — 多變數時「只動一個旋鈕」的變化率</strong>（固定其他參數，看這一個對 $L$ 的單獨影響）。</p>
 <p><strong>梯度 (gradient) $\nabla_\theta L$ — 把所有偏導疊成一個向量：</strong></p>
 <p>$$\nabla_\theta L=\left(\frac{\partial L}{\partial\theta_1},\frac{\partial L}{\partial\theta_2},\dots\right)^\top$$</p>
+<p><strong>白話：梯度是一個向量 (vector)，代表函數在各個方向上的變化率。</strong> 更精確說——它的<strong>每個分量</strong>是沿各座標軸的變化率（偏導），而<strong>整個向量</strong>則指向「變化最快（上升最快）」的方向、長度＝那個方向的變化率。</p>
 <p><span class="geo">幾何意義：</span>梯度<strong>指向「$L$ 上升最快」的方向</strong>、長度＝那個方向的陡度；要下降就往<strong>反方向</strong>走 — 這是梯度下降（主題 6）的全部直覺：</p>
 <p>$$\theta\leftarrow\theta-\eta\,\nabla_\theta L$$</p>
 <p>把損失想成一個「碗／山谷」，站在坡上某點：<strong>梯度是最陡上坡、$-\nabla L$ 是最陡下坡</strong>；每步走 $\eta$（學習率）大小，逐步滾向谷底。$\eta$ 太大會衝過頭、太小會很慢。</p>
