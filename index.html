@@ -56,9 +56,10 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 .t-infer thead th{background:rgba(52,211,153,.20);color:#dcfce7}
 .t-gen thead th{background:rgba(167,139,250,.22);color:#ede9fe}
 .t-train,.t-infer,.t-gen{table-layout:fixed}
-.t-train th:nth-child(1),.t-infer th:nth-child(1),.t-gen th:nth-child(1){width:26%}
-.t-train th:nth-child(2),.t-infer th:nth-child(2),.t-gen th:nth-child(2){width:54%}
-.t-train th:nth-child(3),.t-infer th:nth-child(3),.t-gen th:nth-child(3){width:20%}
+.t-train th:nth-child(1),.t-infer th:nth-child(1),.t-gen th:nth-child(1){width:19%}
+.t-train th:nth-child(2),.t-infer th:nth-child(2),.t-gen th:nth-child(2){width:30%}
+.t-train th:nth-child(3),.t-infer th:nth-child(3),.t-gen th:nth-child(3){width:34%}
+.t-train th:nth-child(4),.t-infer th:nth-child(4),.t-gen th:nth-child(4){width:17%}
 @media print{body{background:#fff;color:#111}.wrap{max-width:none}a{color:#06c}h2{color:#06c}h3{color:#080}
   strong,b{color:#b45309}code{background:#f4f4f4}blockquote{background:#f4faf7}
   th,td{border-color:#bbb}thead th,.t-train thead th,.t-infer thead th,.t-gen thead th{background:#eee;color:#111}}
@@ -176,7 +177,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
     <rect x="680" y="34" width="150" height="76" rx="8" fill="#38bdf8" fill-opacity="0.10" stroke="#38bdf8" stroke-width="1.4"/><text x="755" y="52">更新參數</text>
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
-    <a href="#1.5" xlink:href="#1.5"><text x="95" y="72">標準化 §1.5</text></a>
+    <a href="#1.5" xlink:href="#1.5"><text x="95" y="72">標準化 §1.5</text></a><a href="#7" xlink:href="#7"><text x="95" y="86">超參數 §7</text></a>
     <a href="#1.3" xlink:href="#1.3"><text x="260" y="70">matmul §1.3</text></a><a href="#1.2" xlink:href="#1.2"><text x="260" y="84">神經元 §1.2·激活 §5</text></a>
     <a href="#4" xlink:href="#4"><text x="425" y="70">MSE §4·交叉熵 §5</text></a><a href="#2" xlink:href="#2"><text x="425" y="84">最大似然 §2</text></a>
     <a href="#3" xlink:href="#3"><text x="590" y="70">偏導·鏈鎖律 §3</text></a><text x="590" y="84">梯度·Jacobian</text>
@@ -223,30 +224,30 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 激活 + softmax</strong>」；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（<a href="#20">§20</a>）。</figcaption></figure>
 <p><strong>看出共通性</strong>：把 <strong>1.1–1.5（線代）＋ 3（微積分）＋ 5（softmax/交叉熵）</strong> 學通，三種網路就都通了 — 推論是訓練的前向段、生成是推論加接龍。下面三張表是同一張圖的細節：</p>
 <div class="tablewrap"><table class="t-train">
-<thead><tr><th>① 訓練 — 階段</th><th>用到的數學</th><th>章節</th></tr></thead>
+<thead><tr><th>① 訓練 — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
-<tr><td>資料 → 正規化</td><td>標準化 / Min-Max</td><td><a href="#1.5">§1.5</a></td></tr>
-<tr><td>前向傳播</td><td>矩陣乘法、內積、神經元、激活</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#5">§5</a></td></tr>
-<tr><td>算損失</td><td>MSE / 交叉熵、最大似然</td><td><a href="#4">§4</a>, <a href="#5">§5</a>, <a href="#2">§2</a></td></tr>
-<tr><td>反向傳播</td><td>偏導、鏈鎖律、梯度、Jacobian</td><td><a href="#3">§3</a></td></tr>
-<tr><td>更新參數</td><td>梯度下降、正則化</td><td><a href="#4.2">§4.2</a>, <a href="#6">§6</a>, <a href="#1.4">§1.4</a>, <a href="#7">§7</a></td></tr>
+<tr><td>資料正規化 ＋ 設定超參數</td><td>標準化 / Min-Max；超參數選擇</td><td>正規化後的輸入資料；選定的<strong>超參數</strong>（層數 / 維度 / 學習率 / batch…）</td><td><a href="#1.5">§1.5</a>, <a href="#7">§7</a></td></tr>
+<tr><td>前向傳播</td><td>矩陣乘法、內積、神經元、激活</td><td>各層激活值 → 預測（logits / 機率）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#5">§5</a></td></tr>
+<tr><td>算損失</td><td>MSE / 交叉熵、最大似然</td><td>一個純量損失值（模型錯多少）</td><td><a href="#4">§4</a>, <a href="#5">§5</a>, <a href="#2">§2</a></td></tr>
+<tr><td>反向傳播</td><td>偏導、鏈鎖律、梯度、Jacobian</td><td>各參數的梯度（∂L/∂θ）</td><td><a href="#3">§3</a></td></tr>
+<tr><td>更新參數</td><td>梯度下降、正則化</td><td>更新後的參數（新的 W, b）</td><td><a href="#4.2">§4.2</a>, <a href="#6">§6</a>, <a href="#1.4">§1.4</a>, <a href="#7">§7</a></td></tr>
 </tbody>
 </table></div>
 <div class="tablewrap"><table class="t-infer">
-<thead><tr><th>② 推論 — 階段</th><th>用到的數學</th><th>章節</th></tr></thead>
+<thead><tr><th>② 推論 — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
-<tr><td>輸入 → 正規化</td><td>標準化</td><td><a href="#1.5">§1.5</a></td></tr>
-<tr><td>前向傳播</td><td>矩陣乘法、內積、激活</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#5">§5</a></td></tr>
-<tr><td>輸出</td><td>softmax / argmax</td><td><a href="#5">§5</a></td></tr>
+<tr><td>輸入 → 正規化</td><td>標準化</td><td>正規化後的輸入資料</td><td><a href="#1.5">§1.5</a></td></tr>
+<tr><td>前向傳播</td><td>矩陣乘法、內積、激活</td><td>各層激活 → logits（原始分數）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#5">§5</a></td></tr>
+<tr><td>輸出</td><td>softmax / argmax</td><td>各類別機率 → 預測類別（argmax）</td><td><a href="#5">§5</a></td></tr>
 </tbody>
 </table></div>
 <div class="tablewrap"><table class="t-gen">
-<thead><tr><th>③ 生成 (LLM) — 階段</th><th>用到的數學</th><th>章節</th></tr></thead>
+<thead><tr><th>③ 生成 (LLM) — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
-<tr><td>Embedding</td><td>向量表示；RAG 檢索用餘弦相似度</td><td><a href="#1.1">§1.1</a>, <a href="#1.4">§1.4</a></td></tr>
-<tr><td>注意力</td><td>Q·K 內積、softmax、矩陣乘法</td><td><a href="#1.1">§1.1</a>, <a href="#5">§5</a>, <a href="#1.3">§1.3</a></td></tr>
-<tr><td>前向 (FFN)</td><td>矩陣乘法、激活</td><td><a href="#1.3">§1.3</a>, <a href="#5">§5</a></td></tr>
-<tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td><a href="#5">§5</a>, <a href="#2">§2</a></td></tr>
+<tr><td>Embedding</td><td>向量表示；RAG 檢索用餘弦相似度</td><td>每個 token 的向量表示</td><td><a href="#1.1">§1.1</a>, <a href="#1.4">§1.4</a></td></tr>
+<tr><td>注意力</td><td>Q·K 內積、softmax、矩陣乘法</td><td>融合上下文後的向量表示</td><td><a href="#1.1">§1.1</a>, <a href="#5">§5</a>, <a href="#1.3">§1.3</a></td></tr>
+<tr><td>前向 (FFN)</td><td>矩陣乘法、激活</td><td>各位置的特徵向量</td><td><a href="#1.3">§1.3</a>, <a href="#5">§5</a></td></tr>
+<tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td>下一個 token 的機率分布 → 取樣出的 token</td><td><a href="#5">§5</a>, <a href="#2">§2</a></td></tr>
 </tbody>
 </table></div>
 <blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（<a href="#14">§14</a>）。</p></blockquote>
