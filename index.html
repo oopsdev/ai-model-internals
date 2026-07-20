@@ -842,10 +842,10 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="3">3. 微積分與梯度 — 導數、偏導、鏈鎖律</h2>
 <p>訓練 = 最小化損失 $L(\theta)$。怎麼往更小走？靠<strong>梯度</strong>。</p>
-<h3>3.1 導數、偏導與梯度</h3>
-<p><strong>導數 $\dfrac{dL}{d\theta}$ — 變化率（切線斜率）。</strong> <span class="geo">定義：</span>$\theta$ 動一點點時 $L$ 跟著變多少的比率（$\lim_{\Delta\theta\to0}\frac{\Delta L}{\Delta\theta}$，即切線斜率）。<span class="geo">物理意義：</span>斜率為正 → $L$ 上升、為負 → 下降、為 0 → 平地（<strong>駐點</strong>：谷底/山頂/鞍點）。<span class="geo">用途：</span>它告訴我們「往哪個方向調、調多少」能降低損失。</p>
-<p><strong>偏導 $\dfrac{\partial L}{\partial\theta_j}$ — 多變數時「只動一個旋鈕」的變化率</strong>（固定其他參數，看這一個對 $L$ 的單獨影響）。</p>
-<p><strong>梯度 $\nabla_\theta L$ — 把所有偏導疊成一個向量：</strong></p>
+<h3>3.1 導數、偏導與梯度（Derivative / Partial Derivative / Gradient）</h3>
+<p><strong>導數 (derivative) $\dfrac{dL}{d\theta}$ — 變化率（切線斜率，tangent slope）。</strong> <span class="geo">定義：</span>$\theta$ 動一點點時 $L$ 跟著變多少的比率（$\lim_{\Delta\theta\to0}\frac{\Delta L}{\Delta\theta}$，即切線斜率）。<span class="geo">物理意義：</span>斜率為正 → $L$ 上升、為負 → 下降、為 0 → 平地（<strong>駐點 (stationary / critical point)</strong>：谷底/山頂/鞍點 saddle point）。<span class="geo">用途：</span>它告訴我們「往哪個方向調、調多少」能降低損失。</p>
+<p><strong>偏導 (partial derivative) $\dfrac{\partial L}{\partial\theta_j}$ — 多變數時「只動一個旋鈕」的變化率</strong>（固定其他參數，看這一個對 $L$ 的單獨影響）。</p>
+<p><strong>梯度 (gradient) $\nabla_\theta L$ — 把所有偏導疊成一個向量：</strong></p>
 <p>$$\nabla_\theta L=\left(\frac{\partial L}{\partial\theta_1},\frac{\partial L}{\partial\theta_2},\dots\right)^\top$$</p>
 <p><span class="geo">幾何意義：</span>梯度<strong>指向「$L$ 上升最快」的方向</strong>、長度＝那個方向的陡度；要下降就往<strong>反方向</strong>走 — 這是梯度下降（主題 6）的全部直覺：</p>
 <p>$$\theta\leftarrow\theta-\eta\,\nabla_\theta L$$</p>
@@ -862,7 +862,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="30" y="40" fill="#94a3b8" font-size="12">L</text>
 </svg><figcaption>損失曲面像碗；沿 -∇L 一步步走下坡逼近最小點。步長由學習率 η 決定</figcaption></figure>
 
-<p><strong>為什麼「疊偏導」就會指向「上升最快」？（方向導數當橋樑）</strong></p>
+<p><strong>為什麼「疊偏導」就會指向「上升最快」？（方向導數 directional derivative 當橋樑）</strong></p>
 <p>定義（疊偏導）與幾何意義（指向上升最快）之間，缺的橋是<strong>方向導數</strong>。把 $f(x,y)$ 想成山的高度、$(x,y)$ 是位置：</p>
 <ol>
 <li><strong>偏導 ＝ 沿軸的坡度。</strong> $\frac{\partial f}{\partial x}$＝往東走的坡度、$\frac{\partial f}{\partial y}$＝往北走的坡度。梯度只是把兩者疊成向量 $\nabla f=(\frac{\partial f}{\partial x},\frac{\partial f}{\partial y})$。</li>
