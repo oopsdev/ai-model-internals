@@ -1165,10 +1165,10 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p>$$\mathbf{z}^{(l)}=\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}+\mathbf{b}^{(l)}=\begin{pmatrix}z_1\\z_2\\\vdots\\z_m\end{pmatrix}=\begin{pmatrix}\mathbf{w}_1^\top\mathbf{a}^{(l-1)}+b_1\\\mathbf{w}_2^\top\mathbf{a}^{(l-1)}+b_2\\\vdots\\\mathbf{w}_m^\top\mathbf{a}^{(l-1)}+b_m\end{pmatrix},\qquad \mathbf{a}^{(l)}=\sigma(\mathbf{z}^{(l)})=\begin{pmatrix}\sigma(z_1)\\\sigma(z_2)\\\vdots\\\sigma(z_m)\end{pmatrix}$$</p>
 <p><strong>向量 $\mathbf{a}^{(l)}$ 的第 $j$ 個分量 $a_j$，就是第 $j$ 個神經元的純量輸出。</strong> 所以「$\mathbf{W}\mathbf{a}+\mathbf{b}$ 的每一列＝一個神經元的內積」、整個向量＝這一層所有神經元的輸出疊起來；矩陣乘法只是<strong>把「$m$ 次神經元計算」打包成一次運算</strong>（也因此能交給 GPU/NPU 平行算，<a href="#20">§20</a>）。</p>
-<p><strong>用神經元的話怎麼說？是「一排並列」的神經元，不是「一串」。</strong> 一層 = <strong>一排彼此平行的神經元</strong>（$m$ 個同時吃相同輸入 $\mathbf{a}^{(l-1)}$、各自獨立算出一個純量），把這排純量並排疊起來就是層向量 $\mathbf{a}^{(l)}$：</p>
+<p><strong>用神經元的話說，一層 = 一排「並列」的神經元。</strong> $m$ 個神經元同時吃相同輸入 $\mathbf{a}^{(l-1)}$、各自獨立算出一個純量，把這排純量並排疊起來就是層向量 $\mathbf{a}^{(l)}$：</p>
 <ul>
 <li><strong>同一層內＝並列 (parallel)</strong>：$m$ 個神經元互不相連、各看相同輸入、各吐一個純量 → 疊成向量（誰也不吃誰的輸出）。</li>
-<li><strong>層與層之間＝串接 (serial)</strong>：前一層的<strong>向量</strong>輸出當下一層的輸入，一層接一層——「串」是形容這裡，不是層內。</li>
+<li><strong>層與層之間＝串接 (serial)</strong>：前一層的<strong>向量</strong>輸出當下一層的輸入，一層接一層。</li>
 </ul>
 <figure><svg viewBox="0 0 470 150" role="img" aria-label="一排並列神經元把輸入向量映成輸出向量、層層串接">
   <text x="55" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">輸入 a⁽ˡ⁻¹⁾</text>
