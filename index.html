@@ -1153,6 +1153,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>前向傳播 = 資料從輸入層流到輸出層、逐層算出預測</strong>——就是把「矩陣乘法 + 激活」一層層串起來。記第 $l$ 層權重 $\mathbf{W}^{(l)}$、偏置 $\mathbf{b}^{(l)}$、激活 $\sigma$：</p>
 <p>$$\mathbf{a}^{(0)}=\mathbf{x},\qquad \mathbf{z}^{(l)}=\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}+\mathbf{b}^{(l)},\qquad \mathbf{a}^{(l)}=\sigma(\mathbf{z}^{(l)})$$</p>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
+<p><strong>輸出是向量還是純量？</strong> 每一層的輸出 $\mathbf{a}^{(l)}$ 都是<strong>向量</strong>（該層所有神經元的激活值）；<strong>最終輸出看任務</strong>：多元分類 → 向量（C 個類別分數 / 機率）、生成 → 向量（詞表分布）；單一數值回歸、二元分類 → <strong>純量</strong>（一個數）。對比：<strong>損失永遠是純量</strong>——把預測和真值壓成「一個數」才能最小化（<a href="#4.1">§4.1</a>）。</p>
 <p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（<a href="#14">§14</a>）、CNN 通道數（<a href="#12.6">§12.6</a>）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（<a href="#7">§7</a>）。層數多 → 表達力強、能學更複雜的階層特徵（<a href="#1.3">§1.3.1</a>），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 <a href="#11">§11</a>）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
 <ul>
 <li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（<a href="#1.3">§1.3.1</a>）。</li>
