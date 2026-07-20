@@ -96,10 +96,10 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>FFN</td><td>Feed-Forward Network</td><td>前饋層（Transformer 內）</td></tr>
 <tr><td>LLM</td><td>Large Language Model</td><td>大型語言模型</td></tr>
 <tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>檢索增強生成（知識庫）</td></tr>
-<tr><td>BPE</td><td>Byte Pair Encoding</td><td>位元組對編碼（子詞切分演算法，§13）</td></tr>
+<tr><td>BPE</td><td>Byte Pair Encoding</td><td>位元組對編碼（子詞切分演算法，<a href="#13">§13</a>）</td></tr>
 <tr><td>ReLU</td><td>Rectified Linear Unit</td><td>修正線性單元（激活函數）</td></tr>
-<tr><td>Sigmoid</td><td>非縮寫（sigma σ／S ＋ -oid 像…形）</td><td>S 型函數（乙狀函數）；壓到 (0,1) 當單一機率（§5.1）</td></tr>
-<tr><td>Softmax</td><td>非縮寫（soft 柔性 ＋ max 最大）</td><td>柔性最大值／歸一化指數函數；轉成機率分布（§5.2）</td></tr>
+<tr><td>Sigmoid</td><td>非縮寫（sigma σ／S ＋ -oid 像…形）</td><td>S 型函數（乙狀函數）；壓到 (0,1) 當單一機率（<a href="#5.1">§5.1</a>）</td></tr>
+<tr><td>Softmax</td><td>非縮寫（soft 柔性 ＋ max 最大）</td><td>柔性最大值／歸一化指數函數；轉成機率分布（<a href="#5.2">§5.2</a>）</td></tr>
 <tr><td>argmax</td><td>argument of the maximum</td><td>取「分數最大」的類別</td></tr>
 <tr><td>autodiff</td><td>Automatic Differentiation</td><td>自動微分</td></tr>
 <tr><td>epoch</td><td>—</td><td>一輪（整份訓練資料跑一遍）</td></tr>
@@ -175,11 +175,11 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
     <rect x="680" y="34" width="150" height="76" rx="8" fill="#38bdf8" fill-opacity="0.10" stroke="#38bdf8" stroke-width="1.4"/><text x="755" y="52">更新參數</text>
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
-    <text x="95" y="72">標準化 §1.5</text>
-    <text x="260" y="70">matmul §1.3</text><text x="260" y="84">神經元 §1.2·激活 §5</text>
-    <text x="425" y="70">MSE §4·交叉熵 §5</text><text x="425" y="84">最大似然 §2</text>
-    <text x="590" y="70">偏導·鏈鎖律 §3</text><text x="590" y="84">梯度·Jacobian</text>
-    <text x="755" y="70">梯度下降 §4.2/6</text><text x="755" y="84">正則化 §1.4·§7</text>
+    <text x="95" y="72">標準化 <a href="#1.5">§1.5</a></text>
+    <text x="260" y="70">matmul <a href="#1.3">§1.3</a></text><text x="260" y="84">神經元 <a href="#1.2">§1.2</a>·激活 <a href="#5">§5</a></text>
+    <text x="425" y="70">MSE <a href="#4">§4</a>·交叉熵 <a href="#5">§5</a></text><text x="425" y="84">最大似然 <a href="#2">§2</a></text>
+    <text x="590" y="70">偏導·鏈鎖律 <a href="#3">§3</a></text><text x="590" y="84">梯度·Jacobian</text>
+    <text x="755" y="70">梯度下降 <a href="#4.2">§4.2</a>/6</text><text x="755" y="84">正則化 <a href="#1.4">§1.4</a>·<a href="#7">§7</a></text>
   </g>
   <g stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="170" y1="72" x2="185" y2="72"/><line x1="335" y1="72" x2="350" y2="72"/><line x1="500" y1="72" x2="515" y2="72"/><line x1="665" y1="72" x2="680" y2="72"/>
@@ -193,9 +193,9 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
     <rect x="350" y="176" width="150" height="76" rx="8" fill="#34d399" fill-opacity="0.10" stroke="#34d399" stroke-width="1.4"/><text x="425" y="194">輸出</text>
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
-    <text x="95" y="214">標準化 §1.5</text>
-    <text x="260" y="212">matmul §1.3·內積 §1.1</text><text x="260" y="226">激活 §5</text>
-    <text x="425" y="214">softmax / argmax §5</text>
+    <text x="95" y="214">標準化 <a href="#1.5">§1.5</a></text>
+    <text x="260" y="212">matmul <a href="#1.3">§1.3</a>·內積 <a href="#1.1">§1.1</a></text><text x="260" y="226">激活 <a href="#5">§5</a></text>
+    <text x="425" y="214">softmax / argmax <a href="#5">§5</a></text>
   </g>
   <g stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="170" y1="214" x2="185" y2="214"/><line x1="335" y1="214" x2="350" y2="214"/>
@@ -210,16 +210,16 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
     <rect x="515" y="302" width="150" height="80" rx="8" fill="#a78bfa" fill-opacity="0.12" stroke="#a78bfa" stroke-width="1.4"/><text x="590" y="320">下一個 token</text>
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
-    <text x="95" y="340">向量 §1.1</text><text x="95" y="356">RAG:餘弦 §1.4</text>
-    <text x="260" y="340">Q·K 內積 §1.1</text><text x="260" y="356">softmax §5·matmul §1.3</text>
-    <text x="425" y="340">matmul §1.3</text><text x="425" y="356">激活 §5</text>
-    <text x="590" y="340">softmax §5</text><text x="590" y="356">取樣(機率 §2)</text>
+    <text x="95" y="340">向量 <a href="#1.1">§1.1</a></text><text x="95" y="356">RAG:餘弦 <a href="#1.4">§1.4</a></text>
+    <text x="260" y="340">Q·K 內積 <a href="#1.1">§1.1</a></text><text x="260" y="356">softmax <a href="#5">§5</a>·matmul <a href="#1.3">§1.3</a></text>
+    <text x="425" y="340">matmul <a href="#1.3">§1.3</a></text><text x="425" y="356">激活 <a href="#5">§5</a></text>
+    <text x="590" y="340">softmax <a href="#5">§5</a></text><text x="590" y="356">取樣(機率 <a href="#2">§2</a>)</text>
   </g>
   <g stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="170" y1="340" x2="185" y2="340"/><line x1="335" y1="340" x2="350" y2="340"/><line x1="500" y1="340" x2="515" y2="340"/>
   </g>
   <text x="590" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">↻ 接龍（自回歸）</text>
-</svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 激活 + softmax</strong>」；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（§20）。</figcaption></figure>
+</svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 激活 + softmax</strong>」；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（<a href="#20">§20</a>）。</figcaption></figure>
 <p><strong>看出共通性</strong>：把 <strong>1.1–1.5（線代）＋ 3（微積分）＋ 5（softmax/交叉熵）</strong> 學通，三種網路就都通了 — 推論是訓練的前向段、生成是推論加接龍。下面三張表是同一張圖的細節：</p>
 <div class="tablewrap"><table class="t-train">
 <thead><tr><th>① 訓練 — 階段</th><th>用到的數學</th><th>章節</th></tr></thead>
@@ -248,7 +248,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td>5, 2</td></tr>
 </tbody>
 </table></div>
-<blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（§14）。</p></blockquote>
+<blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（<a href="#14">§14</a>）。</p></blockquote>
 <blockquote><p><strong>註：表中的「參數」是什麼?</strong> ①「更新參數」更新的，就是<strong>模型參數</strong>——<strong>訓練學出、推論時固定的所有權重＋偏置</strong>（各架構的參數組成見 <a href="#params">§12.3 各架構的參數組成</a>）；訓練前人為設定、不屬於模型權重的「超參數」則見 <a href="#7">§7 正則化</a>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
@@ -260,17 +260,17 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
   <!-- inference row -->
   <g text-anchor="middle">
     <rect x="15" y="52" width="115" height="64" rx="7" fill="#64748b" fill-opacity="0.14" stroke="#64748b" stroke-width="1.3"/>
-    <text x="72" y="74" fill="#fff" font-size="12" font-weight="700">輸入影像</text><text x="72" y="90" fill="#cbd5e1" font-size="8.8">28×28 → 矩陣</text><text x="72" y="105" fill="#94a3b8" font-size="8.3">正規化 §1.5</text>
+    <text x="72" y="74" fill="#fff" font-size="12" font-weight="700">輸入影像</text><text x="72" y="90" fill="#cbd5e1" font-size="8.8">28×28 → 矩陣</text><text x="72" y="105" fill="#94a3b8" font-size="8.3">正規化 <a href="#1.5">§1.5</a></text>
     <rect x="140" y="52" width="115" height="64" rx="7" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-width="1.3"/>
-    <text x="197" y="74" fill="#fff" font-size="12" font-weight="700">卷積 Conv</text><text x="197" y="90" fill="#cbd5e1" font-size="8.8">filter 滑過圖</text><text x="197" y="105" fill="#94a3b8" font-size="8.3">局部內積 §1.1–1.3</text>
+    <text x="197" y="74" fill="#fff" font-size="12" font-weight="700">卷積 Conv</text><text x="197" y="90" fill="#cbd5e1" font-size="8.8">filter 滑過圖</text><text x="197" y="105" fill="#94a3b8" font-size="8.3">局部內積 <a href="#1.1">§1.1</a>–1.3</text>
     <rect x="265" y="52" width="115" height="64" rx="7" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-width="1.3"/>
-    <text x="322" y="74" fill="#fff" font-size="12" font-weight="700">ReLU</text><text x="322" y="90" fill="#cbd5e1" font-size="8.8">逐元素非線性</text><text x="322" y="105" fill="#94a3b8" font-size="8.3">§1.2 · 1.3.1</text>
+    <text x="322" y="74" fill="#fff" font-size="12" font-weight="700">ReLU</text><text x="322" y="90" fill="#cbd5e1" font-size="8.8">逐元素非線性</text><text x="322" y="105" fill="#94a3b8" font-size="8.3"><a href="#1.2">§1.2</a> · 1.3.1</text>
     <rect x="390" y="52" width="115" height="64" rx="7" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-width="1.3"/>
     <text x="447" y="74" fill="#fff" font-size="12" font-weight="700">池化 Pool</text><text x="447" y="90" fill="#cbd5e1" font-size="8.8">縮小、抓重點</text><text x="447" y="105" fill="#94a3b8" font-size="8.3">取最大（降維）</text>
     <rect x="515" y="52" width="115" height="64" rx="7" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-width="1.3"/>
-    <text x="572" y="74" fill="#fff" font-size="12" font-weight="700">展平+全連接</text><text x="572" y="90" fill="#cbd5e1" font-size="8.8">Wx+b → 分數</text><text x="572" y="105" fill="#94a3b8" font-size="8.3">矩陣乘法 §1.3</text>
+    <text x="572" y="74" fill="#fff" font-size="12" font-weight="700">展平+全連接</text><text x="572" y="90" fill="#cbd5e1" font-size="8.8">Wx+b → 分數</text><text x="572" y="105" fill="#94a3b8" font-size="8.3">矩陣乘法 <a href="#1.3">§1.3</a></text>
     <rect x="640" y="52" width="115" height="64" rx="7" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-width="1.3"/>
-    <text x="697" y="74" fill="#fff" font-size="12" font-weight="700">Softmax</text><text x="697" y="90" fill="#cbd5e1" font-size="8.8">分數 → 機率</text><text x="697" y="105" fill="#94a3b8" font-size="8.3">§5.2 · argmax</text>
+    <text x="697" y="74" fill="#fff" font-size="12" font-weight="700">Softmax</text><text x="697" y="90" fill="#cbd5e1" font-size="8.8">分數 → 機率</text><text x="697" y="105" fill="#94a3b8" font-size="8.3"><a href="#5.2">§5.2</a> · argmax</text>
     <rect x="765" y="52" width="115" height="64" rx="7" fill="#fbbf24" fill-opacity="0.12" stroke="#fbbf24" stroke-width="1.3"/>
     <text x="822" y="74" fill="#fff" font-size="12" font-weight="700">輸出</text><text x="822" y="90" fill="#fcd34d" font-size="9.5" font-weight="700">貓 0.92</text><text x="822" y="105" fill="#94a3b8" font-size="8.3">預測 + 信心</text>
   </g>
@@ -280,11 +280,11 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
   <!-- training loop -->
   <g text-anchor="middle">
     <rect x="640" y="165" width="115" height="48" rx="7" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-width="1.3"/>
-    <text x="697" y="185" fill="#fff" font-size="11" font-weight="700">損失</text><text x="697" y="201" fill="#fca5a5" font-size="8.3">交叉熵 §5 · MLE §2</text>
+    <text x="697" y="185" fill="#fff" font-size="11" font-weight="700">損失</text><text x="697" y="201" fill="#fca5a5" font-size="8.3">交叉熵 <a href="#5">§5</a> · MLE <a href="#2">§2</a></text>
     <rect x="430" y="165" width="115" height="48" rx="7" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-width="1.3"/>
-    <text x="487" y="185" fill="#fff" font-size="11" font-weight="700">反向傳播</text><text x="487" y="201" fill="#fca5a5" font-size="8.3">鏈鎖律 §3</text>
+    <text x="487" y="185" fill="#fff" font-size="11" font-weight="700">反向傳播</text><text x="487" y="201" fill="#fca5a5" font-size="8.3">鏈鎖律 <a href="#3">§3</a></text>
     <rect x="220" y="165" width="115" height="48" rx="7" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-width="1.3"/>
-    <text x="277" y="185" fill="#fff" font-size="11" font-weight="700">更新 W, b</text><text x="277" y="201" fill="#fca5a5" font-size="8.3">梯度下降 §4.2</text>
+    <text x="277" y="185" fill="#fff" font-size="11" font-weight="700">更新 W, b</text><text x="277" y="201" fill="#fca5a5" font-size="8.3">梯度下降 <a href="#4.2">§4.2</a></text>
   </g>
   <g stroke="#f87171" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="805" y1="116" x2="730" y2="164"/>
@@ -308,14 +308,14 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td><strong>(訓練) 損失 → 反向 → 更新</strong></td><td>比對正確答案算損失、逐層算梯度、更新權重、重複多輪</td><td>交叉熵/MLE、鏈鎖律、梯度下降</td><td>2, 3, 4.2, 5, 7.2</td></tr>
 </tbody>
 </table></div>
-<p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，§1.1）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元的權重樣板</strong>（§1.2）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 §20。<strong>完整定義與幾何意義見主題 12。</strong>）</p>
-<p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（§5，即負對數似然 §2）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（§3）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§12.3 各架構的參數組成</a>；§4.2）→ 重複多輪（epoch，§7.2）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
+<p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，<a href="#1.1">§1.1</a>）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元的權重樣板</strong>（<a href="#1.2">§1.2</a>）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 <a href="#20">§20</a>。<strong>完整定義與幾何意義見主題 12。</strong>）</p>
+<p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（<a href="#5">§5</a>，即負對數似然 <a href="#2">§2</a>）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（<a href="#3">§3</a>）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§12.3 各架構的參數組成</a>；<a href="#4.2">§4.2</a>）→ 重複多輪（epoch，<a href="#7.2">§7.2</a>）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="1">1. 線性代數 — 向量、矩陣、內積</h2>
 <p>神經網路的每一層，本質就是<strong>矩陣乘法 + 非線性轉換</strong>。先把語言備齊。</p>
-<h3>1.1 向量與內積 — 投影與量測對齊程度</h3>
+<h3 id="1.1">1.1 向量與內積 — 投影與量測對齊程度</h3>
 <p>一個 $n$ 維向量 $\mathbf{x}=(x_1,x_2,\dots,x_n)^\top$ 可看成一個資料點的特徵（例如一條 flow 的封包數、bytes、時長…）。<strong>內積 (dot product)</strong> 是最核心的運算：</p>
 <p>$$\mathbf{w}\cdot\mathbf{x} = \mathbf{w}^\top\mathbf{x} = \sum_{i=1}^{n} w_i x_i$$</p>
 <p>它衡量兩向量的「對齊程度」。幾何上 $\mathbf{w}^\top\mathbf{x} = \lVert\mathbf{w}\rVert\,\lVert\mathbf{x}\rVert\cos\phi$，其中 $\lVert\mathbf{x}\rVert=\sqrt{\sum_i x_i^2}$ 是長度、$\phi$ 是夾角。<strong>一個神經元做的就是一次內積 $\mathbf{w}^\top\mathbf{x}$ 加偏置 $b$</strong>，代表「用權重量測輸入有多符合某樣式」。（注：這裡的「對齊」是方向與長度的綜合分數；純方向的相似度需先正規化，見 1.5。）</p>
@@ -346,7 +346,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 
 <p>內積的代數定義 $\sum_i a_ib_i$ 與幾何定義 $\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$ 為何會相等？關鍵是<strong>餘弦定律</strong>；完整推導見<a href="#a1">附錄 A</a>。</p>
 
-<h3>1.2 神經元 — 把線性代數變成「會學習的特徵偵測器」</h3>
+<h3 id="1.2">1.2 神經元 — 把線性代數變成「會學習的特徵偵測器」</h3>
 <p>人工神經元是深度學習的最小單元，靈感來自生物神經元（收多個輸入、加權整合、超過門檻才「激發」放電）。它的數學定義只有兩步：</p>
 <p>$$z = \mathbf{w}^\top\mathbf{x} + b = \sum_i w_i x_i + b, \qquad a = \sigma(z)$$</p>
 <ul>
@@ -381,7 +381,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p><strong>激活 $\sigma$ — 非線性轉換。</strong> 若沒有 $\sigma$，多層神經元疊起來仍是線性（矩陣連乘 $\mathbf{W}_2\mathbf{W}_1\mathbf{x}$ 還是一個矩陣），疊幾層都只能學線性邊界。<strong>加入非線性轉換後，多層才能逼近任意複雜函數</strong> — 這是深度學習能學複雜樣式的關鍵（激活函數細節見主題 9）。</p>
 <p><span class="geo">接回上下文。</span> 一個神經元 = 一次內積 + 偏置 + 非線性轉換；<strong>一層 = 很多神經元 = 一個矩陣 $\mathbf{W}$</strong>（每列是一個神經元的權重，即 1.3 的列視角）：$\mathbf{z}=\mathbf{W}\mathbf{x}+\mathbf{b}$、$\mathbf{a}=\sigma(\mathbf{z})$；<strong>多層堆疊 + 非線性轉換 = 深度網路</strong>，前一層的輸出當下一層輸入，逐層抽取越來越抽象的特徵。</p>
 
-<h3>1.3 矩陣乘法 — 座標變換，也是對各樣板的對齊程度</h3>
+<h3 id="1.3">1.3 矩陣乘法 — 座標變換，也是對各樣板的對齊程度</h3>
 <p>把一層 $m$ 個神經元的權重疊成矩陣 $\mathbf{W}\in\mathbb{R}^{m\times n}$，一次算出整層加權和：</p>
 <p>$$\mathbf{z} = \mathbf{W}\mathbf{x} + \mathbf{b},\qquad z_j = \sum_{i=1}^{n} W_{ji}x_i + b_j$$</p>
 <p>$\mathbf{z}\in\mathbb{R}^m$ 是這層的原始輸出 (pre-activation)。一次前向傳播就是連串的 $\mathbf{W}\mathbf{x}+\mathbf{b}$。這也是<strong>為什麼 GPU/NPU 有用</strong> — 它們為大規模矩陣乘法 (GEMM) 而生。</p>
@@ -433,7 +433,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p>兩種互補視角：</p>
 <ul>
 <li><strong>欄視角（空間變換）</strong>：欄＝基底落點；$\mathbf{W}\mathbf{x}$＝$\mathbf{x}$ 被變換後的新位置。</li>
-<li><strong>列視角（特徵偵測）</strong>：每一列是一個權重向量，$z_j=\mathbf{w}_{j,:}^\top\mathbf{x}$ 是內積＝$\mathbf{x}$ 對第 $j$ 個樣式的對齊分數 → 一層＝一排特徵偵測器（接回 1.2 神經元）。把這個「特徵偵測器」在影像上到處滑動掃描，就是<strong>卷積</strong>（主題 12）。</li>
+<li><strong>列視角（特徵偵測）</strong>：每一列是一個權重向量，$z_j=\mathbf{w}_{j,:}^\top\mathbf{x}$ 是內積＝$\mathbf{x}$ 對第 $j$ 個樣式的對齊分數 → 一層＝一排特徵偵測器（接回 1.2 神經元）。把這個「特徵偵測器」在影像上到處滑動掃描，就是<strong>卷積</strong>（<a href="#12">主題 12</a>）。</li>
 </ul>
 <p><strong>矩陣×矩陣的幾何意義 ＝ 變換的「合成」。</strong> 兩個矩陣相乘 $\mathbf{AB}$，就是把兩個變換<strong>接起來、合成成單一變換</strong>：$(\mathbf{AB})\mathbf{x}=\mathbf{A}(\mathbf{B}\mathbf{x})$，即「<strong>先做 B、再做 A</strong>」。例如 $\mathbf{B}$＝剪切、$\mathbf{A}$＝旋轉，$\mathbf{AB}$ 就是「先剪切、再旋轉」這個合成動作：</p>
 <figure><svg viewBox="0 0 600 175" role="img" aria-label="矩陣乘矩陣＝變換合成：原→經B剪切→經A旋轉">
@@ -452,8 +452,8 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <li><strong>欄視角</strong>：$\mathbf{AB}$ 的每一欄 = $\mathbf{A}$ 作用在 $\mathbf{B}$ 的對應欄上（$\mathbf{A}$ 把 $\mathbf{B}$ 的基底落點再變換一次）。</li>
 <li><strong>順序重要</strong>：$\mathbf{AB}\neq\mathbf{BA}$（先 B 後 A 與先 A 後 B 通常不同）。</li>
 <li><strong>面積</strong>：$\det(\mathbf{AB})=\det(\mathbf{A})\det(\mathbf{B})$（放大倍率相乘）。</li>
-<li>特殊變換：對角矩陣＝沿各軸縮放（接回 §1.6 特徵值）、旋轉矩陣＝轉一個角度。</li>
-<li><strong>連結</strong>：神經網路多層堆疊 = 多個矩陣合成；中間若沒有非線性，會塌成一個矩陣（§1.3.1）。</li>
+<li>特殊變換：對角矩陣＝沿各軸縮放（接回 <a href="#1.6">§1.6</a> 特徵值）、旋轉矩陣＝轉一個角度。</li>
+<li><strong>連結</strong>：神經網路多層堆疊 = 多個矩陣合成；中間若沒有非線性，會塌成一個矩陣（<a href="#1.3">§1.3.1</a>）。</li>
 </ul>
 <p><strong>行列式 (determinant)：</strong>如果矩陣是<strong>方陣</strong>，「行列式」就是可以把方陣轉變成<strong>一個數</strong>的運算：2×2 時 $\det\begin{bmatrix}a&b\\c&d\end{bmatrix}=ad-bc$。<strong>幾何意義：$|\det|$ 就是這個變換把「大小」放大的固定倍數</strong>（2D 的大小是面積、3D 是體積、n 維是 n 維體積）。以 2D 為例：基底張成的單位正方形（面積 1）經矩陣拉成一個平行四邊形，這個平行四邊形的面積就是 $|\det|$。特例：$\det=1$ 面積不變、$\det\lt0$ 方向被翻轉（鏡射）、<strong>$\det=0$ 代表把空間「壓扁」到更低維（面積歸零）、矩陣不可逆</strong>。這個「$\det=0$＝壓扁空間」在 1.6 解特徵值時會關鍵地用到。</p>
 <figure><svg viewBox="0 0 660 210" role="img" aria-label="行列式幾何意義：單位正方形經矩陣變換後面積放大 det 倍，det=0 時壓扁成線">
@@ -544,10 +544,10 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p><strong>摺紙比喻。</strong> 一張畫著兩條交纏螺旋的紙，攤平時一條直線分不開；把紙<strong>摺幾摺</strong>後，一刀就能切開。每一層的輸出，就是那張紙被摺過一次後的新狀態。</p>
 <p><strong>一句話總結：</strong>前一層的輸出＝<strong>同一個資料點被重新表達成「在一組學到的方向上各投影多少」的新座標，而且整個空間已被非線性摺過一次</strong>，好讓下一層的超平面更容易把類別切開。這就是「深度」的意義——每多一層，就多摺一次、換一次更有利的座標系（接回 1.2 神經元、前接主題 8 前向傳播）。</p>
 
-<h3>1.4 常用範數與相似度</h3>
+<h3 id="1.4">1.4 常用範數與相似度</h3>
 <p><strong>先從「長度」與「距離」的幾何直覺講起。</strong> 一個向量可看成從原點指向某點的箭頭。最自然的兩個量是：<strong>長度</strong>＝這支箭頭有多長（原點到那個點多遠）；<strong>距離</strong>＝兩個點相隔多遠，也就是差向量 $\mathbf{a}-\mathbf{b}$ 的長度。日常算長度用的是<strong>直線距離</strong>（畢氏定理）$\sqrt{x_1^2+x_2^2+\dots}$ — 鳥飛的最短直線，幾何上是一條直線段。</p>
-<p><strong>向量有「大小」與「方向」兩個屬性。</strong> <strong>大小</strong>＝長度（範數，下面細談）；<strong>方向 (direction)</strong> 的定義是：把向量<strong>除以自身長度</strong>得到的<strong>單位向量 (unit vector)</strong> $\hat{\mathbf{v}}=\mathbf{v}/\lVert\mathbf{v}\rVert$（長度 = 1，只保留「指向哪裡」、丟掉「多長」）。方向相同 $\iff$ 互為正倍數（$\mathbf{a}=k\mathbf{b},\,k>0$）、相反 $\iff$ 負倍數；2D 也可用與 $x$ 軸的夾角 $\theta=\arctan(v_y/v_x)$ 表示。例：$(3,4)$ 長度 5、方向 $(0.6,0.8)$；$(6,8)$ 與它<strong>方向相同</strong>（都是 $(0.6,0.8)$）、只是長度不同。後面的<strong>餘弦相似度</strong>就是「只比方向、不管大小」（也是 embedding §14、梯度方向 §3.1 用到的「方向」）。</p>
-<p><strong>方向由誰決定?</strong> 由<strong>各分量之間的「比例」</strong>決定，不是任一分量的絕對值——把所有分量<strong>同乘一個正數，方向不變</strong>（只有比例重要）。（「比例」＝各分量的比值 $v_1:v_2:\dots:v_n$，可<strong>約分或放大而比值不變</strong>，就像 $3:4=6:8$；兩向量比例相同、<strong>且正負號一致</strong>就是同方向。）其中<strong>絕對值最大的分量權值最重</strong>：方向會<strong>偏向那根軸</strong>（該軸的方向餘弦 $v_i/\lVert\mathbf{v}\rVert$ 最大），但「偏向」≠「等於」那根軸，最終方向仍是<strong>所有分量按比例合成</strong>的結果（呼應 §3.1「最快方向不是最大分量的軸」）。例：$(3,4)$ 偏向 $y$ 軸（$\arctan\frac43\approx53°$）、$(100,3)$ 幾乎沿 $x$ 軸、$(5,5)$ 剛好 $45°$ 不偏任何軸、$(3,0)$ 純粹沿 $x$ 軸。</p>
+<p><strong>向量有「大小」與「方向」兩個屬性。</strong> <strong>大小</strong>＝長度（範數，下面細談）；<strong>方向 (direction)</strong> 的定義是：把向量<strong>除以自身長度</strong>得到的<strong>單位向量 (unit vector)</strong> $\hat{\mathbf{v}}=\mathbf{v}/\lVert\mathbf{v}\rVert$（長度 = 1，只保留「指向哪裡」、丟掉「多長」）。方向相同 $\iff$ 互為正倍數（$\mathbf{a}=k\mathbf{b},\,k>0$）、相反 $\iff$ 負倍數；2D 也可用與 $x$ 軸的夾角 $\theta=\arctan(v_y/v_x)$ 表示。例：$(3,4)$ 長度 5、方向 $(0.6,0.8)$；$(6,8)$ 與它<strong>方向相同</strong>（都是 $(0.6,0.8)$）、只是長度不同。後面的<strong>餘弦相似度</strong>就是「只比方向、不管大小」（也是 embedding <a href="#14">§14</a>、梯度方向 <a href="#3.1">§3.1</a> 用到的「方向」）。</p>
+<p><strong>方向由誰決定?</strong> 由<strong>各分量之間的「比例」</strong>決定，不是任一分量的絕對值——把所有分量<strong>同乘一個正數，方向不變</strong>（只有比例重要）。（「比例」＝各分量的比值 $v_1:v_2:\dots:v_n$，可<strong>約分或放大而比值不變</strong>，就像 $3:4=6:8$；兩向量比例相同、<strong>且正負號一致</strong>就是同方向。）其中<strong>絕對值最大的分量權值最重</strong>：方向會<strong>偏向那根軸</strong>（該軸的方向餘弦 $v_i/\lVert\mathbf{v}\rVert$ 最大），但「偏向」≠「等於」那根軸，最終方向仍是<strong>所有分量按比例合成</strong>的結果（呼應 <a href="#3.1">§3.1</a>「最快方向不是最大分量的軸」）。例：$(3,4)$ 偏向 $y$ 軸（$\arctan\frac43\approx53°$）、$(100,3)$ 幾乎沿 $x$ 軸、$(5,5)$ 剛好 $45°$ 不偏任何軸、$(3,0)$ 純粹沿 $x$ 軸。</p>
 <p><strong>但「直線距離」不是唯一合理的量法。</strong> 在某些情況，用直線距離來比較並不恰當或不方便，需要換一種「怎麼算長度」的規則：</p>
 <ul>
 <li>市區棋盤格街道<strong>不能走對角線</strong>、只能沿街轉直角 → 實際距離是走過的<strong>格子總長</strong>，不是直線。</li>
@@ -614,9 +614,9 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>距離 / 相似度</td><td>兩點距離 $\lVert\mathbf{a}-\mathbf{b}\rVert$ → KNN、分群、異常偵測</td></tr>
 <tr><td><strong>正則化</strong> (regularization)</td><td>懲罰權重 $\lVert\mathbf{w}\rVert$ 防過擬合（L1 稀疏／L2 平滑，主題 7）</td></tr>
 <tr><td><strong>正規化</strong> (normalization)</td><td>$\mathbf{x}/\lVert\mathbf{x}\rVert$ 做單位向量、Layer/Batch Norm（1.5、主題 11）</td></tr>
-<tr><td>餘弦相似度</td><td>除以範數消掉長度 → Embedding 語意檢索（主題 14）</td></tr>
-<tr><td>損失函數</td><td>MSE ＝殘差的 L2 範數平方 $\lVert\hat{\mathbf{y}}-\mathbf{y}\rVert^2$（主題 4）</td></tr>
-<tr><td>梯度裁剪 (gradient clipping)</td><td>限制梯度大小 $\lVert\nabla\rVert$ 穩定訓練（主題 6）</td></tr>
+<tr><td>餘弦相似度</td><td>除以範數消掉長度 → Embedding 語意檢索（<a href="#14">主題 14</a>）</td></tr>
+<tr><td>損失函數</td><td>MSE ＝殘差的 L2 範數平方 $\lVert\hat{\mathbf{y}}-\mathbf{y}\rVert^2$（<a href="#4">主題 4</a>）</td></tr>
+<tr><td>梯度裁剪 (gradient clipping)</td><td>限制梯度大小 $\lVert\nabla\rVert$ 穩定訓練（<a href="#6">主題 6</a>）</td></tr>
 </tbody>
 </table></div>
 <p>所以<strong>範數是地基，正則化只是蓋在上面的其中一間房</strong>。易混提醒：<strong>正則化 = regularization</strong>（防過擬合）、<strong>正規化 = normalization</strong>（調尺度），只差一字、英文也像，做的事卻完全不同（見 1.5）。</p>
@@ -634,7 +634,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </tbody>
 </table></div>
 <p>其中「離群值」最直觀：$\sum(\text{誤差})^2$ 裡誤差 10 貢獻 100、誤差 1 只貢獻 1，<strong>L2 會為了那個 10 拼命調整、忽略其他點</strong>；L1 用 $\sum|\text{誤差}|$，不被單一離群點綁架。另外<strong>「餘弦」這種角度型相似度是 L2 專屬</strong>（角度／內積綁在 L2 幾何，柯西–施瓦茲才保證 $\cos\phi\in[-1,1]$、相同方向剛好 = 1）；<strong>L1／L∞ 表達相似是靠「距離」</strong>而非角度（要相似度就把距離反過來，如 $1/(1+d)$）。這就是「<strong>沒有免費的午餐</strong>」：度量要配問題，不是 L2 打天下。</p>
-<h3>1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
+<h3 id="1.5">1.5 正規化 (normalization) — 把數值調到可比較的基準</h3>
 <p>正規化的精神：<strong>拿掉「不該影響判斷的量」，讓比較公平、訓練穩定</strong>。基礎有兩種（第三種在主題 11）：</p>
 <p><strong>(a) 向量正規化。</strong> 把向量除以自身長度，變成<strong>單位向量</strong>（長度 = 1）：</p>
 <p>$$\hat{\mathbf{x}} = \frac{\mathbf{x}}{\lVert\mathbf{x}\rVert}$$</p>
@@ -652,7 +652,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <p><strong>(c) 網路內正規化（主題 11 詳述）。</strong> Batch/Layer Normalization 正規化各層激活值以穩定深層訓練；softmax 本身也是把分數正規化成「總和為 1」的機率分布。</p>
 <p><strong>易混點：正規化 (normalization) ≠ 正則化 (regularization)。</strong> 前者調數值尺度（本節）；後者防過擬合（L1/L2、dropout，主題 7）。中文很像，別搞混。</p>
 
-<h3>1.6 特徵值與特徵向量 — 變換下「不轉向」的軸</h3>
+<h3 id="1.6">1.6 特徵值與特徵向量 — 變換下「不轉向」的軸</h3>
 <p>對方陣 $\mathbf{A}$，若存在非零向量 $\mathbf{v}$ 使 $\mathbf{A}\mathbf{v}=\lambda\mathbf{v}$，則 $\mathbf{v}$ 是<strong>特徵向量</strong>、純量 $\lambda$ 是<strong>特徵值</strong>。</p>
 <blockquote><p><strong>名詞澄清。</strong> 這裡的「特徵」是 <strong>eigen</strong>（固有、特性），與 1.5 的「特徵 = feature（輸入變數）」<strong>只是中文撞名、毫無關係</strong>。尤其注意：本節的<strong>特徵向量 (eigenvector) ≠ 資料的 feature vector</strong>（1.1 的 $\mathbf{x}$）。判斷靠上下文 — 講矩陣／變換／PCA／伸縮就是 eigen，講資料／輸入／欄位就是 feature。</p></blockquote>
 <p><span class="geo">幾何意義。</span> 矩陣＝對空間做線性變換（旋轉 / 拉伸 / 剪切）；大多數向量被 $\mathbf{A}$ 一乘會<strong>轉向</strong>，而<strong>特徵向量是少數「方向不變、只被拉長或縮短」的特殊軸</strong>，倍率就是 $\lambda$（$\lambda \gt 1$ 拉長、$0 \lt \lambda \lt 1$ 縮短、$\lambda \lt 0$ 反向、$\lambda=1$ 不變）。把單位圓上所有向量用 $\mathbf{A}$ 變換會變成<strong>橢圓</strong> — 橢圓的長短軸方向＝特徵向量、半軸長＝特徵值。</p>
@@ -738,7 +738,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="2">2. 機率與統計 — 分布、條件機率、最大似然</h2>
 <p>判別式模型輸出「機率」、生成式模型學「分布」、訓練的損失又來自「最大似然」——所以這章是 AI 的統計地基。以下每個概念都給「<strong>定義 → 直覺/物理意義 → 在 AI 的用途</strong>」。</p>
-<h3>2.1 機率、隨機變數與分布</h3>
+<h3 id="2.1">2.1 機率、隨機變數與分布</h3>
 <p><strong>機率 (probability)</strong> — 介於 0～1 的數，衡量某事「有多可能」：0 不可能、1 必然、所有結果機率總和 = 1。<span class="geo">直覺：</span>長期做很多次時該事件出現的比例（公平硬幣正面 0.5）。<span class="geo">用途：</span>分類器輸出「這封信是垃圾郵件的機率 = 0.92」就是它。</p>
 <p><strong>隨機變數 (random variable) $X$</strong> — 一個「值還不確定、依機率取值」的量：<strong>離散</strong>（可數，如骰子點數、類別）或<strong>連續</strong>（任意實數，如身高、流量 bytes）。</p>
 <blockquote><p><strong>符號提醒。</strong> <strong>大寫 $X$</strong> = 隨機變數本身；<strong>小寫 $x$</strong> = 它可能取到的某個具體值。$X=x$ 是一個<strong>事件</strong>（「$X$ 取到值 $x$」），所以 <strong>$P(X=x)$</strong> 讀成「$X$ 等於 $x$ 的機率」——整個 "$X=x$" 是括號內描述的事件（<strong>不是</strong> $P(X)=x$）。例：公平骰子 $P(X=3)=\frac16$。</p></blockquote>
@@ -806,7 +806,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="555" y="165" fill="#94a3b8" font-size="11" text-anchor="middle">μ</text>
 </svg><figcaption>三種常見分布：<strong>伯努利</strong>（兩根長條 0/1）、<strong>類別</strong>（K 根長條）、<strong>常態</strong>（鐘形曲線）。前兩者是離散 PMF、長條高度＝機率、總和 = 1；常態是連續 PDF、曲線高度是密度、面積 = 1。</figcaption></figure>
 
-<h3>2.2 條件機率、獨立與貝氏定理</h3>
+<h3 id="2.2">2.2 條件機率、獨立與貝氏定理</h3>
 <p><strong>條件機率 $P(A\mid B)$ — 「已知 B 發生，A 的機率」：</strong></p>
 <p>$$P(A\mid B)=\frac{P(A\cap B)}{P(B)}$$</p>
 <p><span class="geo">直覺：</span>多了一個已知條件，把考慮範圍<strong>縮小到「B 發生的世界」</strong>裡再看 A 的比例。例：「已知信裡有『中獎』兩字，它是垃圾郵件的機率」遠高於「隨便一封信是垃圾郵件」——條件改變了機率。<span class="geo">用途：</span>分類器算的就是 $P(\text{類別}\mid\text{特徵})$。</p>
@@ -820,7 +820,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p>這正是主題 0 判別 vs 生成分野的數學根。</p>
 
-<h3>2.3 似然與最大似然估計 (MLE)</h3>
+<h3 id="2.3">2.3 似然與最大似然估計 (MLE)</h3>
 <p><strong>先分清「機率」與「似然」（同一式子、兩種看法）：</strong></p>
 <ul>
 <li><strong>機率</strong>：<strong>固定參數</strong>，問「資料出現的可能性」。</li>
@@ -830,31 +830,31 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$\theta^\star=\arg\max_\theta \prod_{i=1}^{N} P(y_i\mid x_i;\theta)$$</p>
 <p><span class="geo">直覺：</span>調整模型旋鈕，直到「模型覺得真實資料很正常、很可能出現」。連乘不好算 → 取對數變連加（log 單調、不改最大點）、加負號變最小化：</p>
 <p>$$\theta^\star=\arg\min_\theta\; -\sum_{i=1}^{N}\log P(y_i\mid x_i;\theta)$$</p>
-<p>這個 $-\sum\log P$ 就是<strong>負對數似然</strong>，也就是分類最常用的<strong>交叉熵損失</strong>（主題 5）。<strong>損失函數多半是負對數似然的化身，不是憑空設計。</strong></p>
-<p><strong>訓練 ↔ 推論的閉環（MLE 找到的 θ 之後怎麼用）。</strong> MLE 找到的 $\theta^\star$ 就是<strong>模型的全部權重</strong>（所有 $\mathbf{W},\mathbf{b}$、filter、embedding…），訓練完<strong>固定下來、存成模型檔</strong>。推論時對<strong>新輸入 $x$</strong> 用同一組 $\theta^\star$ 跑<strong>前向傳播（§8）</strong>、算出：</p>
+<p>這個 $-\sum\log P$ 就是<strong>負對數似然</strong>，也就是分類最常用的<strong>交叉熵損失</strong>（<a href="#5">主題 5</a>）。<strong>損失函數多半是負對數似然的化身，不是憑空設計。</strong></p>
+<p><strong>訓練 ↔ 推論的閉環（MLE 找到的 θ 之後怎麼用）。</strong> MLE 找到的 $\theta^\star$ 就是<strong>模型的全部權重</strong>（所有 $\mathbf{W},\mathbf{b}$、filter、embedding…），訓練完<strong>固定下來、存成模型檔</strong>。推論時對<strong>新輸入 $x$</strong> 用同一組 $\theta^\star$ 跑<strong>前向傳播（<a href="#8">§8</a>）</strong>、算出：</p>
 <ul>
-<li><strong>分類</strong> → $P(y\mid x;\theta^\star)$ 各類機率（softmax，§5）→ argmax 取類別、或當信心分數調門檻；</li>
+<li><strong>分類</strong> → $P(y\mid x;\theta^\star)$ 各類機率（softmax，<a href="#5">§5</a>）→ argmax 取類別、或當信心分數調門檻；</li>
 <li><strong>回歸</strong> → 預測數值 $\hat y=f(x;\theta^\star)$；</li>
-<li><strong>生成 / LLM</strong> → $P(\text{下一個 token}\mid \text{context};\theta^\star)$ → 取樣生成（§17）。</li>
+<li><strong>生成 / LLM</strong> → $P(\text{下一個 token}\mid \text{context};\theta^\star)$ → 取樣生成（<a href="#17">§17</a>）。</li>
 </ul>
-<p>所以<strong>訓練學參數、推論用參數，兩邊是同一個 $P(y\mid x;\theta)$</strong>——訓練時在<strong>訓練資料</strong>上把它調到最能解釋，推論時把它套到<strong>沒看過的 $x$</strong>；套得準不準就是<strong>泛化</strong>（§7）。</p>
+<p>所以<strong>訓練學參數、推論用參數，兩邊是同一個 $P(y\mid x;\theta)$</strong>——訓練時在<strong>訓練資料</strong>上把它調到最能解釋，推論時把它套到<strong>沒看過的 $x$</strong>；套得準不準就是<strong>泛化</strong>（<a href="#7">§7</a>）。</p>
 <blockquote><p><strong>工程意涵。</strong> 分類器輸出的是<strong>機率/信心分數</strong>而非硬標籤；資安可用它調「靈敏度 vs 誤報」門檻（主題 19 ROC）。懂 MLE 就懂為什麼交叉熵是預設損失。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="3">3. 微積分與梯度 — 導數、偏導、鏈鎖律</h2>
 <p>訓練 = 最小化損失 $L(\theta)$。怎麼往更小走？靠<strong>梯度</strong>。</p>
-<h3>3.1 導數、偏導與梯度（Derivative / Partial Derivative / Gradient）</h3>
+<h3 id="3.1">3.1 導數、偏導與梯度（Derivative / Partial Derivative / Gradient）</h3>
 <p><strong>導數 (derivative) $\dfrac{dL}{d\theta}$ — 變化率（切線斜率，tangent slope）。</strong> <span class="geo">定義：</span>$\theta$ 動一點點時 $L$ 跟著變多少的比率（$\lim_{\Delta\theta\to0}\frac{\Delta L}{\Delta\theta}$，即切線斜率）。<span class="geo">物理意義：</span>斜率為正 → $L$ 上升、為負 → 下降、為 0 → 平地（<strong>駐點 (stationary / critical point)</strong>：谷底/山頂/鞍點 saddle point）。<span class="geo">用途：</span>它告訴我們「往哪個方向調、調多少」能降低損失。</p>
 <p><strong>偏導 (partial derivative) $\dfrac{\partial L}{\partial\theta_j}$ — 多變數時「只動一個旋鈕」的變化率</strong>（固定其他參數，看這一個對 $L$ 的單獨影響）。</p>
 <p><strong>梯度 (gradient) $\nabla_\theta L$ — 把所有偏導疊成一個向量：</strong></p>
 <p>$$\nabla_\theta L=\left(\frac{\partial L}{\partial\theta_1},\frac{\partial L}{\partial\theta_2},\dots\right)^\top$$</p>
 <p><strong>白話：梯度是一個向量 (vector)，代表函數在各個方向上的變化率。</strong> 更精確說——它的<strong>每個分量</strong>是沿各座標軸的變化率（偏導），而<strong>整個向量</strong>則指向「變化最快（上升最快）」的方向、長度＝那個方向的變化率。</p>
 <blockquote><p><strong>易誤解澄清。</strong> 上升最快的方向是<strong>整個向量 $\nabla f$ 的方向</strong>（各分量合成的<strong>斜對角</strong>方向），<strong>不是</strong>「最大分量所在的那根座標軸」。例：$\nabla f=(3,4)$，上升最快方向是 $(3,4)/5=(0.6,0.8)$（斜的）、變化率 $|\nabla f|=5$；若只沿最大分量的 $y$ 軸 $(0,1)$ 走，變化率只有 4、比 5 小。所以要把所有分量<strong>合起來看</strong>，不能只挑最大那一維（原理見下方「方向導數當橋樑」）。</p></blockquote>
-<p><span class="geo">幾何意義：</span>梯度<strong>指向「$L$ 上升最快」的方向</strong>、長度＝那個方向的陡度；要下降就往<strong>反方向</strong>走 — 這是梯度下降（主題 6）的全部直覺：</p>
+<p><span class="geo">幾何意義：</span>梯度<strong>指向「$L$ 上升最快」的方向</strong>、長度＝那個方向的陡度；要下降就往<strong>反方向</strong>走 — 這是梯度下降（<a href="#6">主題 6</a>）的全部直覺：</p>
 <p>$$\theta\leftarrow\theta-\eta\,\nabla_\theta L$$</p>
 <p><strong>「梯度下降」這名字為什麼有個「下降」?</strong> 梯度本身指「上坡最快」，但訓練要讓<strong>損失變小</strong>，所以往它的<strong>反方向 $-\nabla L$</strong>（最陡下坡）走。名字拆解：「<strong>梯度</strong>」＝用到梯度這個向量；「<strong>下降</strong>」＝目標是讓<strong>損失值下降</strong>——合起來就是「靠梯度來降低損失」的演算法，公式中的<strong>減號</strong>正是「往反方向」。</p>
-<p>把損失想成一個「碗／山谷」，站在坡上某點：<strong>梯度是最陡上坡、$-\nabla L$ 是最陡下坡</strong>；每步走 $\eta$（學習率）大小，逐步滾向谷底（走到平地＝谷底時梯度 ≈ 0）。$\eta$ 太大會衝過頭、太小會很慢（$\eta$ 是<strong>超參數</strong>，怎麼決定見 §6.2）。</p>
+<p>把損失想成一個「碗／山谷」，站在坡上某點：<strong>梯度是最陡上坡、$-\nabla L$ 是最陡下坡</strong>；每步走 $\eta$（學習率）大小，逐步滾向谷底（走到平地＝谷底時梯度 ≈ 0）。$\eta$ 太大會衝過頭、太小會很慢（$\eta$ 是<strong>超參數</strong>，怎麼決定見 <a href="#6.2">§6.2</a>）。</p>
 <figure><svg viewBox="0 0 380 205" role="img" aria-label="梯度下降在損失曲面上下降">
   <line x1="45" y1="178" x2="350" y2="178" stroke="#475569" marker-end="url(#ar-s)"/>
   <line x1="45" y1="30" x2="45" y2="178" stroke="#475569"/>
@@ -873,7 +873,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ol>
 <li><strong>偏導 ＝ 沿軸的坡度。</strong> $\frac{\partial f}{\partial x}$＝往東走的坡度、$\frac{\partial f}{\partial y}$＝往北走的坡度。梯度只是把兩者疊成向量 $\nabla f=(\frac{\partial f}{\partial x},\frac{\partial f}{\partial y})$。</li>
 <li><strong>往任意方向走的變化率 ＝ 方向導數。</strong> 往單位方向 $\mathbf{u}=(u_x,u_y)$ 走一小步，高度變化率 $=\frac{\partial f}{\partial x}u_x+\frac{\partial f}{\partial y}u_y=\nabla f\cdot\mathbf{u}$。之所以是加總：往 $\mathbf{u}$ 走 ＝「往東走 $u_x$」＋「往北走 $u_y$」的合成，每段貢獻＝該軸坡度 × 在該軸移動量。<strong>這個 $\nabla f\cdot\mathbf{u}$ 就是橋。</strong></li>
-<li><strong>哪個方向變化最大？</strong> 用內積對齊公式（§1.1）展開（$|\mathbf{u}|=1$）：$\nabla f\cdot\mathbf{u}=|\nabla f|\cos\theta$，$\theta$＝走的方向與梯度的夾角。$|\nabla f|$ 固定，只有 $\cos\theta$ 可變：</li>
+<li><strong>哪個方向變化最大？</strong> 用內積對齊公式（<a href="#1.1">§1.1</a>）展開（$|\mathbf{u}|=1$）：$\nabla f\cdot\mathbf{u}=|\nabla f|\cos\theta$，$\theta$＝走的方向與梯度的夾角。$|\nabla f|$ 固定，只有 $\cos\theta$ 可變：</li>
 </ol>
 <div class="tablewrap"><table>
 <thead><tr><th>走的方向</th><th>$\theta$</th><th>$\cos\theta$</th><th>變化率</th><th>意義</th></tr></thead>
@@ -882,7 +882,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td>垂直梯度</td><td>$90°$</td><td>$0$</td><td>$0$</td><td>高度不變（<strong>等高線方向</strong>）</td></tr>
 <tr><td><strong>背對梯度</strong></td><td>$180°$</td><td>$-1$</td><td>$-|\nabla f|$（最小）</td><td><strong>下降最快</strong>（梯度下降走這）</td></tr>
 </tbody></table></div>
-<p><strong>接起來：</strong> 定義決定 $\nabla f$ 的分量；方向導數說「往任一方向的變化率＝該方向與 $\nabla f$ 的對齊程度」；內積在<strong>同向時最大</strong>（§1.1）⟹ <strong>$\nabla f$ 自己的方向就是上升最快的方向</strong>，長度 $|\nabla f|$＝最陡坡度。梯度必<strong>垂直於等高線</strong>（沿等高線 $\cos\theta=0$、高度不變）。</p>
+<p><strong>接起來：</strong> 定義決定 $\nabla f$ 的分量；方向導數說「往任一方向的變化率＝該方向與 $\nabla f$ 的對齊程度」；內積在<strong>同向時最大</strong>（<a href="#1.1">§1.1</a>）⟹ <strong>$\nabla f$ 自己的方向就是上升最快的方向</strong>，長度 $|\nabla f|$＝最陡坡度。梯度必<strong>垂直於等高線</strong>（沿等高線 $\cos\theta=0$、高度不變）。</p>
 <figure><svg viewBox="0 0 380 220" role="img" aria-label="等高線與梯度：梯度垂直等高線、指向最陡上坡">
   <circle cx="190" cy="112" r="30" fill="none" stroke="#334155" stroke-width="1.3"/>
   <circle cx="190" cy="112" r="60" fill="none" stroke="#334155" stroke-width="1.3"/>
@@ -898,8 +898,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="120" y="52" fill="#fdba74" font-size="11">∇f：垂直等高線、</text>
   <text x="120" y="66" fill="#fdba74" font-size="11">指向最陡上坡</text>
 </svg><figcaption>梯度永遠<strong>垂直於等高線</strong>、指向鄰近最陡的上坡方向；沿等高線走（切向）高度不變。往 $-\nabla f$ 走＝下山最快，即梯度下降。</figcaption></figure>
-<p><strong>數字例：</strong> $\nabla f=(3,4)$ → 上升最快方向 $(3,4)/5=(0.6,0.8)$、最陡坡度 $|(3,4)|=5$；往 $(-0.8,0.6)$（垂直）走沿等高線；往 $-\nabla f$ 走＝下山最快，正是梯度下降 $\theta\leftarrow\theta-\eta\nabla f$（§4.2）。</p>
-<h3>3.2 鏈鎖律 — 反向傳播的引擎</h3>
+<p><strong>數字例：</strong> $\nabla f=(3,4)$ → 上升最快方向 $(3,4)/5=(0.6,0.8)$、最陡坡度 $|(3,4)|=5$；往 $(-0.8,0.6)$（垂直）走沿等高線；往 $-\nabla f$ 走＝下山最快，正是梯度下降 $\theta\leftarrow\theta-\eta\nabla f$（<a href="#4.2">§4.2</a>）。</p>
+<h3 id="3.2">3.2 鏈鎖律 — 反向傳播的引擎</h3>
 <p><strong>鏈鎖律 (chain rule) — 複合函數的「影響力連乘」。</strong> 神經網路是層層複合 $L=f_k(f_{k-1}(\cdots f_1(\mathbf{x})))$：$w$ 先影響 $z$、$z$ 影響 $a$、$a$ 影響 $L$。<span class="geo">直覺：</span>$w$ 對 $L$ 的<strong>總影響率＝沿路每一段影響率相乘</strong>（像齒輪傳動、一環扣一環）：</p>
 <p>$$\frac{dL}{dw}=\frac{dL}{da}\cdot\frac{da}{dz}\cdot\frac{dz}{dw}$$</p>
 <p>例如 $L=(y-\hat y)^2$、$\hat y=\sigma(z)$、$z=wx+b$，則</p>
@@ -911,24 +911,24 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="4">4. 線性回歸與損失函數</h2>
 <p>最小的「會學習」模型，把前三章串起來。</p>
-<h3>4.1 模型與損失</h3>
-<p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（§4.2 用梯度下降往低處走）。</p>
+<h3 id="4.1">4.1 模型與損失</h3>
+<p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（<a href="#4.2">§4.2</a> 用梯度下降往低處走）。</p>
 <p><strong>損失的意義。</strong></p>
 <ul>
 <li><strong>一把量尺</strong>：把整批資料的「對錯」量化成一個純量，可比較、可最佳化。</li>
-<li><strong>梯度的來源</strong>：對損失取梯度（§3、§4.2）才知道「參數往哪調會變好」——<strong>沒有損失就沒有方向</strong>。</li>
-<li><strong>內含機率假設</strong>：選哪種損失＝對資料做哪種假設（MSE ↔ 高斯誤差、交叉熵 ↔ 類別分布），這正是最大似然（§2.3）。</li>
+<li><strong>梯度的來源</strong>：對損失取梯度（<a href="#3">§3</a>、<a href="#4.2">§4.2</a>）才知道「參數往哪調會變好」——<strong>沒有損失就沒有方向</strong>。</li>
+<li><strong>內含機率假設</strong>：選哪種損失＝對資料做哪種假設（MSE ↔ 高斯誤差、交叉熵 ↔ 類別分布），這正是最大似然（<a href="#2.3">§2.3</a>）。</li>
 </ul>
 <p><strong>損失的應用（用在哪）。</strong></p>
 <ul>
-<li><strong>訓練</strong>：最小化損失＝學參數（§4.2 梯度下降、§10）。</li>
-<li><strong>挑損失＝挑任務</strong>：回歸用 MSE、分類用交叉熵（§5）——選錯損失會學不動。</li>
-<li><strong>監控與早停</strong>：比較訓練集 vs 驗證集的損失曲線，判斷過擬合、決定訓練幾輪（§7）。</li>
-<li><strong>正則化</strong>：在損失上加懲罰項（L1/L2，§1.4）控制模型複雜度、抑制過擬合。</li>
+<li><strong>訓練</strong>：最小化損失＝學參數（<a href="#4.2">§4.2</a> 梯度下降、<a href="#10">§10</a>）。</li>
+<li><strong>挑損失＝挑任務</strong>：回歸用 MSE、分類用交叉熵（<a href="#5">§5</a>）——選錯損失會學不動。</li>
+<li><strong>監控與早停</strong>：比較訓練集 vs 驗證集的損失曲線，判斷過擬合、決定訓練幾輪（<a href="#7">§7</a>）。</li>
+<li><strong>正則化</strong>：在損失上加懲罰項（L1/L2，<a href="#1.4">§1.4</a>）控制模型複雜度、抑制過擬合。</li>
 </ul>
 <p><strong>具體例子：線性回歸 + MSE。</strong> 線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
-<p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（主題 2）— 再次印證損失來自機率假設。</p>
+<p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2">主題 2</a>）— 再次印證損失來自機率假設。</p>
 <p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$；平方是為了懲罰大誤差、且對應高斯假設。</p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="線性回歸最小平方">
   <line x1="45" y1="165" x2="350" y2="165" stroke="#475569" marker-end="url(#ar-s)"/>
@@ -964,7 +964,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="372" y="66" fill="#94a3b8" font-size="11">y</text>
 </svg><figcaption>同一件事的兩種目標 — 分類用超平面把點雲<strong>切開</strong>（判在哪一側）；回歸用一條線<strong>穿過</strong>點雲（讓殘差最小、輸出數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上。</figcaption></figure>
 
-<h3>4.2 梯度與更新</h3>
+<h3 id="4.2">4.2 梯度與更新</h3>
 <p>$$\nabla_{\mathbf{w}}L=\frac{2}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)\,\mathbf{x}_i$$</p>
 <p>再用梯度下降 $\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}L$。<strong>「預測誤差 $(\hat y-y)$ 乘輸入 $\mathbf{x}$」的形式會在神經網路反覆出現</strong> — backprop 最外層永遠是誤差項。</p>
 <blockquote><p><strong>工程意涵。</strong> 網路 AI 的「頻寬/健康預測」本質就是回歸；線性回歸是理解一切的起點。MSE 適合連續值，<strong>不適合分類</strong>（下節換損失）。</p></blockquote>
@@ -973,7 +973,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="5">5. 邏輯回歸、Sigmoid、Softmax 與交叉熵</h2>
 <p>分類模型的數學核心 — 幾乎所有分類器（含神經網路輸出層）都用這套。</p>
-<h3>5.1 二元分類：Sigmoid + 二元交叉熵</h3>
+<h3 id="5.1">5.1 二元分類：Sigmoid + 二元交叉熵</h3>
 <p>要輸出機率 (0~1)，把線性輸出 $z=\mathbf{w}^\top\mathbf{x}+b$ 過 <strong>sigmoid</strong>：</p>
 <p>$$\sigma(z)=\frac{1}{1+e^{-z}}\in(0,1)$$</p>
 <p><span class="geo">幾何意義。</span> Sigmoid 是一條 <strong>S 形曲線，把整條實數線「壓」進 (0,1)</strong>：$z=0$ 時輸出 0.5（決策臨界），$z$ 很大趨近 1、很小趨近 0。剛好可當「屬於正類的機率」。</p>
@@ -994,7 +994,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$\hat y=\sigma(z)$ 解讀為 $P(y=1\mid x)$。損失用<strong>二元交叉熵 (BCE)</strong>（即負對數似然）：</p>
 <p>$$L=-\frac{1}{N}\sum_{i=1}^{N}\big[y_i\log\hat y_i+(1-y_i)\log(1-\hat y_i)\big]$$</p>
 <p>漂亮處：$\sigma'(z)=\sigma(z)(1-\sigma(z))$，且 BCE 對 $z$ 的梯度化簡成 $\frac{\partial L}{\partial z}=\hat y-y$ — 又是「預測減真值」，乾淨、數值穩定。</p>
-<h3>5.2 多元分類：Softmax + 交叉熵</h3>
+<h3 id="5.2">5.2 多元分類：Softmax + 交叉熵</h3>
 <p>$C$ 類時，輸出層給 $C$ 個分數 (logits) $\mathbf{z}=(z_1,\dots,z_C)$，用 <strong>softmax</strong> 轉成機率分布：</p>
 <p>$$\text{softmax}(\mathbf{z})_k=\frac{e^{z_k}}{\sum_{j=1}^{C} e^{z_j}}$$</p>
 <p><strong>名稱。</strong> Softmax <strong>非縮寫</strong>：soft（柔性、平滑可微）＋ max（最大值）＝「<strong>柔性最大值</strong>」——它是 argmax（贏者全拿、給最大項 1 其餘 0、不可微）的<strong>平滑可微版</strong>，中譯亦稱<strong>歸一化指數函數</strong>（中文文獻常直接寫 Softmax）。</p>
@@ -1025,16 +1025,16 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="190" y="205" fill="#cbd5e1" font-size="15" font-weight="700" text-anchor="middle">C 類</text>
 </svg><figcaption>三類（C=3）：三條「分數相等」邊界（黃）交於一點，把平面切成 3 個區域，每點歸給分數最高的類（argmax）。線性 softmax 邊界為直線段；前面經 σ 摺疊後可任意彎曲。</figcaption></figure>
 
-<h3>5.3 數值穩定：softmax 減 max</h3>
+<h3 id="5.3">5.3 數值穩定：softmax 減 max</h3>
 <p>$e^{z_k}$ 在 $z$ 大時溢位。實作先減最大值（結果不變）：</p>
 <p>$$\text{softmax}(\mathbf{z})_k=\frac{e^{z_k-\max_j z_j}}{\sum_j e^{z_j-\max_j z_j}}$$</p>
-<blockquote><p><strong>工程意涵。</strong> <strong>Softmax 是所有分類器與 LLM 輸出層的共同終點</strong> — 網路流量分類輸出「各類別機率」、LLM 輸出「下一個 token 的機率分布」用的都是它。懂 softmax + 交叉熵，等於掌握判別式分類與生成式取樣（主題 17）的共同基座。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> <strong>Softmax 是所有分類器與 LLM 輸出層的共同終點</strong> — 網路流量分類輸出「各類別機率」、LLM 輸出「下一個 token 的機率分布」用的都是它。懂 softmax + 交叉熵，等於掌握判別式分類與生成式取樣（<a href="#17">主題 17</a>）的共同基座。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="6">6. 梯度下降與優化器 (SGD / Adam)</h2>
 <p>主題 3 說「往 $-\nabla L$ 走」；這章講<strong>實務上怎麼走</strong>：用多少資料算梯度、步伐多大、怎麼走得又快又穩。</p>
-<h3>6.1 三種批次：全批次 / 隨機 / 小批次</h3>
+<h3 id="6.1">6.1 三種批次：全批次 / 隨機 / 小批次</h3>
 <p>算一次梯度要用多少筆資料？</p>
 <div class="tablewrap"><table>
 <thead><tr><th>做法</th><th>一次用多少資料</th><th>特性</th></tr></thead>
@@ -1044,8 +1044,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td><strong>小批次 (mini-batch)</strong> ★</td><td>一小批（32/64/256）</td><td>折衷：夠穩又夠快，<strong>實務標準</strong></td></tr>
 </tbody>
 </table></div>
-<p>小批次的合理性接回 §2.1：整體損失是「逐筆損失的<strong>期望</strong>」，一小批的平均就是它的<strong>無偏估計</strong>——用一小批估整體梯度，省時又夠準。（跑完全部小批 = 一個 epoch，§7.2）</p>
-<h3>6.2 學習率 η — 步伐大小</h3>
+<p>小批次的合理性接回 <a href="#2.1">§2.1</a>：整體損失是「逐筆損失的<strong>期望</strong>」，一小批的平均就是它的<strong>無偏估計</strong>——用一小批估整體梯度，省時又夠準。（跑完全部小批 = 一個 epoch，<a href="#7.2">§7.2</a>）</p>
+<h3 id="6.2">6.2 學習率 η — 步伐大小</h3>
 <p>$$\theta \leftarrow \theta - \eta\,\nabla_\theta L$$</p>
 <p><strong>逐符號拆解。</strong></p>
 <ul>
@@ -1061,15 +1061,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ul>
 <li>$\eta$ <strong>太大</strong>：衝過頭、在谷壁間來回彈、甚至<strong>發散</strong>（損失爆掉變 NaN）。</li>
 <li>$\eta$ <strong>太小</strong>：每步太保守、<strong>收斂很慢</strong>。</li>
-<li>常用<strong>學習率排程 (schedule)</strong>：開頭 warmup（小→大）、後期 decay（慢慢調小）讓它穩定收斂。（碗＋步伐圖見 §3.1。）</li>
+<li>常用<strong>學習率排程 (schedule)</strong>：開頭 warmup（小→大）、後期 decay（慢慢調小）讓它穩定收斂。（碗＋步伐圖見 <a href="#3.1">§3.1</a>。）</li>
 </ul>
 <p><strong>$\eta$ 怎麼決定？是超參數，靠經驗 + 實驗（調參）。</strong> $\eta$ 和維度 $d$、層數 $L$ 一樣是<strong>訓練前人為設定的超參數</strong>，不是學出來的。實務：</p>
 <ul>
-<li><strong>試 log 尺度的幾個值</strong>（$0.1, 0.03, 0.01, 0.003, 0.001…$），看<strong>訓練 / 驗證損失曲線</strong>，挑「下降最快又穩定」的（§7）。常見起手值 $10^{-3}$。</li>
-<li><strong>不想手動釘死一個值</strong>：用<strong>學習率排程</strong>（warmup + decay / cosine）動態調；或用<strong>自適應優化器（Adam，§6.3）</strong>——每個參數自動調有效步長、對初始 $\eta$ 較不敏感（但仍要設基準值）；也有 <strong>LR finder</strong> 掃一段 $\eta$ 挑最佳起點。</li>
+<li><strong>試 log 尺度的幾個值</strong>（$0.1, 0.03, 0.01, 0.003, 0.001…$），看<strong>訓練 / 驗證損失曲線</strong>，挑「下降最快又穩定」的（<a href="#7">§7</a>）。常見起手值 $10^{-3}$。</li>
+<li><strong>不想手動釘死一個值</strong>：用<strong>學習率排程</strong>（warmup + decay / cosine）動態調；或用<strong>自適應優化器（Adam，<a href="#6.3">§6.3</a>）</strong>——每個參數自動調有效步長、對初始 $\eta$ 較不敏感（但仍要設基準值）；也有 <strong>LR finder</strong> 掃一段 $\eta$ 挑最佳起點。</li>
 <li><strong>直覺</strong>：$\eta$ ＝下山的步伐大小——步太大跨過谷底 / 滑倒，步太小走到天黑。</li>
 </ul>
-<h3>6.3 動量與 Adam — 走得更快更穩</h3>
+<h3 id="6.3">6.3 動量與 Adam — 走得更快更穩</h3>
 <p>純 SGD 在<strong>狹長山谷</strong>會左右來回抖、前進很慢。兩個改良：</p>
 <ul>
 <li><strong>動量 (Momentum)</strong>：把過去梯度<strong>累積</strong>成「速度」，像滾下坡的球——在一致方向<strong>加速</strong>、抵銷來回抖動、甚至<strong>衝過小坑</strong>：$v \leftarrow \beta v - \eta\nabla_\theta L,\ \ \theta \leftarrow \theta + v$。</li>
@@ -1089,7 +1089,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="7">7. 正則化 (Regularization) — 對抗過擬合</h2>
 <p class="note" style="border:0;margin:0 0 1em">主題 6（梯度下降／優化器）待補；本節先建立正則化要對付的問題 — 過擬合。</p>
-<h3>7.1 過擬合 vs 欠擬合</h3>
+<h3 id="7.1">7.1 過擬合 vs 欠擬合</h3>
 <p><strong>過擬合 (overfitting)</strong>：模型把訓練資料「背過頭」，連資料裡的<strong>雜訊、巧合</strong>都學進去 → <strong>訓練集分數超高、但遇到沒看過的新資料就差</strong>。它學到的是「這批資料的特例」，不是「通則」。就像學生死背考古題，換個題目就不會。</p>
 <p><strong>欠擬合 (underfitting)</strong>：反過來，模型<strong>太簡單</strong>，連訓練資料的趨勢都抓不到 → 訓練、測試都差。</p>
 <figure><svg viewBox="0 0 660 250" role="img" aria-label="欠擬合、剛好、過擬合三種模型對同一批帶雜訊資料的擬合對照">
@@ -1125,7 +1125,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> Demo 時「訓練準確率 99%」可能只是<strong>背了那批樣本</strong>，換真實流量就失效——這就是過擬合。驗收邊緣模型要用<strong>按時間切、含真實比例惡意樣本</strong>的測試集，看它對「沒看過的資料」還準不準。</p></blockquote>
 
-<h3>7.2 要訓練幾輪 (epoch)？看驗證損失</h3>
+<h3 id="7.2">7.2 要訓練幾輪 (epoch)？看驗證損失</h3>
 <p>一個 <strong>epoch = 把整份訓練資料完整跑一遍</strong>（前向→損失→反向→更新）。一遍學不會——梯度下降每次只走一小步，要<strong>重複多輪</strong>損失才逐步降下來、模型收斂。但<strong>不是越多輪越好</strong>：<strong>訓練損失</strong>隨 epoch 一路下降；<strong>驗證損失</strong>（沒看過的資料）先降後升——<strong>觸底那一輪就是最佳輪數</strong>，之後再練就開始過擬合。</p>
 <figure><svg viewBox="0 0 470 300" role="img" aria-label="學習曲線：訓練損失持續下降、驗證損失先降後升，最低點為 early stopping 最佳輪數">
   <rect x="235" y="40" width="205" height="212" fill="#fbbf24" fill-opacity="0.06"/>
@@ -1151,17 +1151,17 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>前向傳播 = 資料從輸入層流到輸出層、逐層算出預測</strong>——就是把「矩陣乘法 + 激活」一層層串起來。記第 $l$ 層權重 $\mathbf{W}^{(l)}$、偏置 $\mathbf{b}^{(l)}$、激活 $\sigma$：</p>
 <p>$$\mathbf{a}^{(0)}=\mathbf{x},\qquad \mathbf{z}^{(l)}=\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}+\mathbf{b}^{(l)},\qquad \mathbf{a}^{(l)}=\sigma(\mathbf{z}^{(l)})$$</p>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
-<p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（§14）、CNN 通道數（§12.6）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（§7）。層數多 → 表達力強、能學更複雜的階層特徵（§1.3.1），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 §11）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
+<p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（<a href="#14">§14</a>）、CNN 通道數（<a href="#12.6">§12.6</a>）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（<a href="#7">§7</a>）。層數多 → 表達力強、能學更複雜的階層特徵（<a href="#1.3">§1.3.1</a>），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 <a href="#11">§11</a>）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
 <ul>
-<li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（§1.3.1）。</li>
-<li>前向時會<strong>順手存下各層的 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$</strong>，因為反向傳播（§10）要用它們。</li>
+<li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（<a href="#1.3">§1.3.1</a>）。</li>
+<li>前向時會<strong>順手存下各層的 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$</strong>，因為反向傳播（<a href="#10">§10</a>）要用它們。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 推論成本 ≈ 前向一遍的矩陣乘法量（FLOPs，§20）；記憶體要放參數 ＋（訓練時）各層激活值。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 推論成本 ≈ 前向一遍的矩陣乘法量（FLOPs，<a href="#20">§20</a>）；記憶體要放參數 ＋（訓練時）各層激活值。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="9">9. 激活函數 (Activation Functions)</h2>
-<p><strong>為什麼一定要非線性？</strong> 沒有激活，多層只是矩陣連乘＝一個矩陣（§1.3.1），再多層也只能學線性邊界。激活 $\sigma$ 提供<strong>非線性轉換</strong>，讓多層能逼近任意複雜函數、把空間摺開（§1.2、§1.3.1）。</p>
+<p><strong>為什麼一定要非線性？</strong> 沒有激活，多層只是矩陣連乘＝一個矩陣（<a href="#1.3">§1.3.1</a>），再多層也只能學線性邊界。激活 $\sigma$ 提供<strong>非線性轉換</strong>，讓多層能逼近任意複雜函數、把空間摺開（<a href="#1.2">§1.2</a>、<a href="#1.3">§1.3.1</a>）。</p>
 <div class="tablewrap"><table>
 <thead><tr><th>函數</th><th>公式</th><th>特性 / 何時用</th></tr></thead>
 <tbody>
@@ -1170,7 +1170,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td><strong>Sigmoid</strong></td><td>$\frac{1}{1+e^{-x}}$</td><td>壓到 $(0,1)$；<strong>二元輸出</strong>用；隱藏層少用（兩端飽和 → 梯度消失）</td></tr>
 <tr><td><strong>tanh</strong></td><td>$\frac{e^x-e^{-x}}{e^x+e^{-x}}$</td><td>壓到 $(-1,1)$、以 0 為中心；比 sigmoid 好但仍會飽和</td></tr>
 <tr><td><strong>GELU / SiLU</strong></td><td>平滑版 ReLU</td><td>現代 Transformer 常用</td></tr>
-<tr><td><strong>Softmax</strong></td><td>$\frac{e^{z_k}}{\sum_j e^{z_j}}$</td><td><strong>多類輸出層</strong>：轉成機率分布（§5.2）</td></tr>
+<tr><td><strong>Softmax</strong></td><td>$\frac{e^{z_k}}{\sum_j e^{z_j}}$</td><td><strong>多類輸出層</strong>：轉成機率分布（<a href="#5.2">§5.2</a>）</td></tr>
 </tbody>
 </table></div>
 <figure><svg viewBox="0 0 420 200" role="img" aria-label="ReLU、sigmoid、tanh 三種激活函數曲線">
@@ -1188,14 +1188,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="10">10. 反向傳播推導 (Backpropagation)</h2>
-<p>§3.2 給了鏈鎖律；反向傳播就是<strong>把鏈鎖律有系統地、由輸出往輸入逐層套用</strong>，一次算出所有參數的梯度。</p>
+<p><a href="#3.2">§3.2</a> 給了鏈鎖律；反向傳播就是<strong>把鏈鎖律有系統地、由輸出往輸入逐層套用</strong>，一次算出所有參數的梯度。</p>
 <p><strong>核心流程（計算圖）：</strong></p>
 <ol>
 <li><strong>前向</strong>：算出各層 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$ 與損失 $L$，順手存起來。</li>
 <li><strong>反向</strong>：從輸出誤差開始，逐層往回傳「上游梯度」，每層用鏈鎖律乘上該層的局部導數。</li>
 </ol>
 <p>記 $\boldsymbol{\delta}^{(l)}=\frac{\partial L}{\partial \mathbf{z}^{(l)}}$（第 $l$ 層的「誤差訊號」）：</p>
-<p>$$\boldsymbol{\delta}^{(L)}=\hat{\mathbf{y}}-\mathbf{y}\ (\text{softmax+交叉熵，§5}),\qquad \boldsymbol{\delta}^{(l)}=\big(\mathbf{W}^{(l+1)\top}\boldsymbol{\delta}^{(l+1)}\big)\odot\sigma'(\mathbf{z}^{(l)})$$</p>
+<p>$$\boldsymbol{\delta}^{(L)}=\hat{\mathbf{y}}-\mathbf{y}\ (\text{softmax+交叉熵，<a href="#5">§5</a>}),\qquad \boldsymbol{\delta}^{(l)}=\big(\mathbf{W}^{(l+1)\top}\boldsymbol{\delta}^{(l+1)}\big)\odot\sigma'(\mathbf{z}^{(l)})$$</p>
 <p>$$\frac{\partial L}{\partial \mathbf{W}^{(l)}}=\boldsymbol{\delta}^{(l)}\,\mathbf{a}^{(l-1)\top},\qquad \frac{\partial L}{\partial \mathbf{b}^{(l)}}=\boldsymbol{\delta}^{(l)}$$</p>
 <figure><svg viewBox="0 0 480 150" role="img" aria-label="反向傳播計算圖：前向 x→z→a→L，反向逐層傳梯度">
   <g fill="#243449" stroke="#94a3b8" stroke-width="1.3"><circle cx="55" cy="60" r="16"/><circle cx="185" cy="60" r="16"/><circle cx="315" cy="60" r="16"/><circle cx="430" cy="60" r="16"/></g>
@@ -1208,9 +1208,9 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="310" y="128" fill="#f87171" font-size="10">← 反向：逐層傳梯度（鏈鎖律）</text>
 </svg><figcaption>反向傳播：前向（藍）算出 x→z→a→L；反向（紅）從 L 開始用鏈鎖律逐層把梯度往回傳，沿途算出每層權重的梯度。</figcaption></figure>
 <ul>
-<li>反向的每一步<strong>又都是矩陣乘法</strong>（§20）＋逐元素乘 $\sigma'$。</li>
+<li>反向的每一步<strong>又都是矩陣乘法</strong>（<a href="#20">§20</a>）＋逐元素乘 $\sigma'$。</li>
 <li><strong>為什麼高效</strong>：上游梯度 $\boldsymbol{\delta}$ 只算一次、往回傳時重複利用；否則對每個參數各自算會是天文數字。這讓百萬/十億參數的梯度能一次算完。</li>
-<li>算完梯度 → 交給優化器更新（§6）。</li>
+<li>算完梯度 → 交給優化器更新（<a href="#6">§6</a>）。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 訓練 = 前向 + 反向，所以<strong>訓練算力 ≈ 推論的 2–3 倍</strong>、且要<strong>額外記憶體存各層激活</strong>（activation memory，大模型訓練的記憶體瓶頸）。這對應「邊緣推論、中央訓練」。</p></blockquote>
 
@@ -1218,18 +1218,18 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="11">11. 初始化與正規化層 (Init / BatchNorm)</h2>
 <p>兩個讓「深層網路訓練得起來」的關鍵技巧。</p>
-<h3>11.1 權重初始化</h3>
+<h3 id="11.1">11.1 權重初始化</h3>
 <ul>
 <li><strong>不能全設 0</strong>：所有神經元變得對稱、學到一樣的東西 → 等於只有一個神經元（無法破壞對稱）。必須<strong>隨機</strong>初始化。</li>
 <li><strong>不能太大或太小</strong>：太大 → 激活/梯度<strong>爆炸</strong>；太小 → <strong>消失</strong>。</li>
 <li><strong>Xavier / He 初始化</strong>：依「扇入/扇出」（輸入/輸出連接數）調隨機權重的變異數，讓訊號與梯度在深層間<strong>維持適當大小</strong>。He 搭 ReLU、Xavier 搭 tanh。</li>
 </ul>
-<h3>11.2 正規化層 (BatchNorm / LayerNorm)</h3>
-<p>接回 §1.5 的第三種正規化：把<strong>每層的激活值</strong>正規化（減平均、除標準差，再學縮放 $\gamma$ 與偏移 $\beta$）：</p>
+<h3 id="11.2">11.2 正規化層 (BatchNorm / LayerNorm)</h3>
+<p>接回 <a href="#1.5">§1.5</a> 的第三種正規化：把<strong>每層的激活值</strong>正規化（減平均、除標準差，再學縮放 $\gamma$ 與偏移 $\beta$）：</p>
 <p>$$\hat{\mathbf{a}}=\frac{\mathbf{a}-\mu}{\sqrt{\sigma^2+\epsilon}},\qquad \text{輸出}=\gamma\hat{\mathbf{a}}+\beta$$</p>
 <ul>
 <li><strong>好處</strong>：穩定各層數值分布、可用<strong>更大學習率</strong>、加速收斂，也有輕微正則化效果。</li>
-<li><strong>BatchNorm</strong>（沿 batch 統計）常用於 CNN；<strong>LayerNorm</strong>（沿特徵統計）是 <strong>Transformer 標配</strong>（§16）。</li>
+<li><strong>BatchNorm</strong>（沿 batch 統計）常用於 CNN；<strong>LayerNorm</strong>（沿特徵統計）是 <strong>Transformer 標配</strong>（<a href="#16">§16</a>）。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 沒有好的初始化 + 正規化，深層網路常常訓練不起來（發散或不動）。LayerNorm 幾乎出現在每個 Transformer 區塊裡。</p></blockquote>
 
@@ -1238,11 +1238,11 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h2 id="12">12. CNN 卷積</h2>
 <p>影像若用「全連接」硬做：一張 224×224×3 的圖攤平就是 15 萬維，第一層每個神經元就要 15 萬個權重——參數爆炸，還把「相鄰像素才相關」「同物件換位置仍是同物件」這些影像特性全丟了。<strong>卷積 (convolution)</strong> 就是為影像量身打造的解法。</p>
 
-<h3>12.1 卷積在做什麼（定義）</h3>
-<p>一個<strong>卷積核 (filter / kernel)</strong> 是一個小方陣（如 3×3）的權重。它<strong>滑過</strong>整張影像，在每個位置把 filter 蓋在對齊的小塊上，做<strong>逐元素相乘再加總（＝一次內積，§1.1）</strong>得到<strong>一個數</strong>；所有位置的數排起來就是一張<strong>特徵圖 (feature map)</strong>。</p>
+<h3 id="12.1">12.1 卷積在做什麼（定義）</h3>
+<p>一個<strong>卷積核 (filter / kernel)</strong> 是一個小方陣（如 3×3）的權重。它<strong>滑過</strong>整張影像，在每個位置把 filter 蓋在對齊的小塊上，做<strong>逐元素相乘再加總（＝一次內積，<a href="#1.1">§1.1</a>）</strong>得到<strong>一個數</strong>；所有位置的數排起來就是一張<strong>特徵圖 (feature map)</strong>。</p>
 <p>以符號寫（輸入影像 $I$、卷積核 $K$ 大小 $F\times F$、偏置 $b$、輸出特徵圖 $O$）：</p>
 <p>$$O(i,j)=\underbrace{\sum_{u=0}^{F-1}\sum_{v=0}^{F-1} K(u,v)\,I(i{+}u,\,j{+}v)}_{\text{filter 與小塊逐元素相乘加總}}\;+\;b$$</p>
-<p>這正是卷積核 $K$ 與該位置小塊 $P_{ij}$（$I$ 在 $(i,j)$ 的 $F\times F$ 區域）的 <strong>Frobenius 內積</strong>（＝把兩者攤平做內積，§1.1）：</p>
+<p>這正是卷積核 $K$ 與該位置小塊 $P_{ij}$（$I$ 在 $(i,j)$ 的 $F\times F$ 區域）的 <strong>Frobenius 內積</strong>（＝把兩者攤平做內積，<a href="#1.1">§1.1</a>）：</p>
 <p>$$O(i,j)=\langle K,\,P_{ij}\rangle + b=\sum_{u,v}K_{uv}\,(P_{ij})_{uv}+b$$</p>
 <p>多通道（輸入有 $C$ 個通道，如 RGB $C=3$）時，再對通道加總：</p>
 <p>$$O(i,j)=\sum_{c=1}^{C}\sum_{u=0}^{F-1}\sum_{v=0}^{F-1} K_c(u,v)\,I_c(i{+}u,\,j{+}v)+b$$</p>
@@ -1287,8 +1287,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>3×3 卷積一步：filter K 與小塊 P <strong>對應位置相乘</strong>（中間格）、再<strong>全部加起來</strong> = 25（一個數）。</figcaption></figure>
 <p>攤平來看：$K=(1,2,3,4,5,6,7,8,9)$、$P=(1,0,1,0,1,0,1,0,1)$，內積 $=1{\cdot}1+2{\cdot}0+3{\cdot}1+4{\cdot}0+5{\cdot}1+6{\cdot}0+7{\cdot}1+8{\cdot}0+9{\cdot}1=1+3+5+7+9=25$——和上圖一模一樣。所以 <strong>3×3 卷積一步 = 9 維向量的內積 = 一個數</strong>。</p>
 
-<h3>12.2 幾何意義：filter 是「樣板」、特徵圖是「對齊強度圖」</h3>
-<p>接回 §1.1（內積＝對齊程度）與 §1.2（神經元＝特徵偵測器）：</p>
+<h3 id="12.2">12.2 幾何意義：filter 是「樣板」、特徵圖是「對齊強度圖」</h3>
+<p>接回 <a href="#1.1">§1.1</a>（內積＝對齊程度）與 <a href="#1.2">§1.2</a>（神經元＝特徵偵測器）：</p>
 <ul>
 <li><strong>filter 就是一個「局部樣板」</strong>（小塊空間裡的一個方向向量）。</li>
 <li>每個位置的卷積＝量「<strong>這一小塊有多像這個樣板</strong>」（對齊程度 / 投影）——越像、數值越大（激活越強），不像則接近 0 或負。</li>
@@ -1310,10 +1310,10 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <rect x="448" y="25" width="24" height="120" fill="#fbbf24" fill-opacity="0.7"/>
   <text x="460" y="162" fill="#94a3b8" font-size="9.5" text-anchor="middle">特徵圖：只有邊處變亮</text>
 </svg><figcaption>卷積的幾何意義：filter 是「垂直邊樣板」；特徵圖只在有垂直邊的位置變亮（＝該樣板出現的地方），其餘接近 0。所以特徵圖是「樣板在影像各處的對齊強度圖」。</figcaption></figure>
-<p>淺層 filter 學到邊緣 / 角 / 紋理等<strong>低階樣板</strong>，多層堆疊後組合成部件、物件等<strong>高階樣板</strong>——就是「在越來越抽象的樣板空間裡量對齊」（呼應 §1.3.1 逐層換座標）。</p>
-<blockquote><p><strong>filter 是「學出來」的，不是人設計的。</strong> filter 的數值就是<strong>權重</strong>：一開始隨機初始化，再用梯度下降＋反向傳播訓練（§1.2、§3、§4.2）。資料與損失會自動逼它長成有用的樣板——淺層自己學成邊緣/角、深層組合成部件/物件，沒有人手動設定「去學邊緣」。（本節與 §12.1 示意圖的 filter 數字是<strong>為講解手填</strong>的；只有傳統影像處理才用人工設計的固定 filter，如 Sobel、高斯模糊。）</p></blockquote>
+<p>淺層 filter 學到邊緣 / 角 / 紋理等<strong>低階樣板</strong>，多層堆疊後組合成部件、物件等<strong>高階樣板</strong>——就是「在越來越抽象的樣板空間裡量對齊」（呼應 <a href="#1.3">§1.3.1</a> 逐層換座標）。</p>
+<blockquote><p><strong>filter 是「學出來」的，不是人設計的。</strong> filter 的數值就是<strong>權重</strong>：一開始隨機初始化，再用梯度下降＋反向傳播訓練（<a href="#1.2">§1.2</a>、<a href="#3">§3</a>、<a href="#4.2">§4.2</a>）。資料與損失會自動逼它長成有用的樣板——淺層自己學成邊緣/角、深層組合成部件/物件，沒有人手動設定「去學邊緣」。（本節與 <a href="#12.1">§12.1</a> 示意圖的 filter 數字是<strong>為講解手填</strong>的；只有傳統影像處理才用人工設計的固定 filter，如 Sobel、高斯模糊。）</p></blockquote>
 
-<h3>12.3 三個關鍵性質（為什麼卷積適合影像）</h3>
+<h3 id="12.3">12.3 三個關鍵性質（為什麼卷積適合影像）</h3>
 <ul>
 <li><strong>局部連接（感受野）</strong>：每個輸出只看一小塊，符合「相鄰像素才相關」。</li>
 <li><strong>參數共享</strong>：<strong>同一個 filter 掃全圖</strong>——不管物件在哪都用同一組權重 → 參數量大減（3×3 filter 只有 9 個權重，卻掃遍全圖）。</li>
@@ -1331,7 +1331,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ul>
 <li><strong>輸入通道</strong>：被決定的——第一層由<strong>資料</strong>定（RGB=3、灰階=1），中間層 = <strong>上一層的輸出通道</strong>。</li>
 <li><strong>輸出通道（= 這層 filter 數）</strong>：由你<strong>設計</strong>，是<strong>超參數</strong>（常見 32/64/128/256/512，越深通常越多）。</li>
-<li>關鍵區分：<strong>filter 的「數值」是訓練學出來的（參數）；filter 的「數量（通道數）」是人設定的（超參數）</strong>（接 §7 參數 vs 超參數）。</li>
+<li>關鍵區分：<strong>filter 的「數值」是訓練學出來的（參數）；filter 的「數量（通道數）」是人設定的（超參數）</strong>（接 <a href="#7">§7</a> 參數 vs 超參數）。</li>
 <li>慣例：<strong>越深、通道越多、空間尺寸越小</strong>（池化省下的算力換更多通道）；實務多<strong>沿用經典架構</strong>（VGG、ResNet）再微調，不會每次從零猜。</li>
 </ul>
 <p><strong>filter 的三個維度（大小、深度、數量）。</strong> 設計一層卷積時，你決定 filter 的「大小」與「數量」，深度自動跟著輸入：</p>
@@ -1355,9 +1355,9 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td>RNN / LSTM</td><td>輸入權重 $\mathbf{W}_x$、隱藏權重 $\mathbf{W}_h$、偏置；LSTM 各閘門的 $\mathbf{W},\mathbf{b}$</td></tr>
 <tr><td>Transformer / LLM</td><td>Embedding 表、注意力 $\mathbf{W}_Q/\mathbf{W}_K/\mathbf{W}_V/\mathbf{W}_O$、FFN 兩層、LayerNorm $\gamma,\beta$、輸出頭</td></tr>
 </tbody></table></div>
-<p><strong>不算參數的</strong>：<strong>超參數</strong>（層數、維度、學習率——人設，不存權重檔，§7）、<strong>無參數的層</strong>（ReLU、pooling、dropout；少數如 PReLU 例外）、<strong>優化器狀態</strong>（Adam 的動量 $m,v$——訓練時要，但非模型本身，§6）。<strong>一句話：任何模型的參數都是「所有可學的權重＋偏置（＋少數可學係數如 $\gamma,\beta$、embedding 表）」的集合</strong>，由訓練學出、存檔、推論固定使用。</p>
+<p><strong>不算參數的</strong>：<strong>超參數</strong>（層數、維度、學習率——人設，不存權重檔，<a href="#7">§7</a>）、<strong>無參數的層</strong>（ReLU、pooling、dropout；少數如 PReLU 例外）、<strong>優化器狀態</strong>（Adam 的動量 $m,v$——訓練時要，但非模型本身，<a href="#6">§6</a>）。<strong>一句話：任何模型的參數都是「所有可學的權重＋偏置（＋少數可學係數如 $\gamma,\beta$、embedding 表）」的集合</strong>，由訓練學出、存檔、推論固定使用。</p>
 
-<h3>12.4 stride、padding 與輸出尺寸</h3>
+<h3 id="12.4">12.4 stride、padding 與輸出尺寸</h3>
 <ul>
 <li><strong>stride（步幅）</strong>：filter 每次滑幾格（越大、輸出越小）。</li>
 <li><strong>padding（補邊）</strong>：在影像邊緣補 0，用來保住尺寸或照顧邊界像素。</li>
@@ -1392,11 +1392,11 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="435" y="206" fill="#94a3b8" font-size="9.5" text-anchor="middle">窗1(黃)→跳2格→窗2(綠虛)；橫2窗×直2窗 → 輸出 2×2</text>
 </svg><figcaption>左：<strong>padding=1</strong> 把原 3×3 圖（亮）四周補一圈 0（暗）→ 變 5×5（用來保尺寸）。右：<strong>stride=2</strong>，3×3 窗每次橫跳 2 格（黃→綠虛線）；5×5 只放得下 2×2 個窗 → 輸出 2×2。</figcaption></figure>
 
-<h3>12.5 整張卷積 = 一次矩陣乘法（im2col）</h3>
-<p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（§20）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
+<h3 id="12.5">12.5 整張卷積 = 一次矩陣乘法（im2col）</h3>
+<p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（<a href="#20">§20</a>）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
 <blockquote><p><strong>工程意涵。</strong> 卷積不只用在影像：<strong>1D 卷積</strong>掃封包大小/方向序列，可抓「加密流量的局部指紋」（網路 AI 常用、輕量、適合邊緣 NPU）。多數邊緣 NPU 本來就為 CNN 卷積最佳化，所以 1D/2D-CNN 在邊緣跑很划算。</p></blockquote>
 
-<h3>12.6 各種「維度」誰決定（對照 embedding 的向量維度）</h3>
+<h3 id="12.6">12.6 各種「維度」誰決定（對照 embedding 的向量維度）</h3>
 <p>CNN 沒有 embedding 那種單一「向量維度 $d$」，而是<strong>多種尺寸並存、來源不同</strong>：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>維度 / 尺寸</th><th>是什麼</th><th>誰決定</th></tr></thead>
@@ -1405,30 +1405,30 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td>filter 大小 $F\times F$</td><td>卷積核尺寸（3×3…）</td><td><strong>人為</strong>（超參數）</td></tr>
 <tr><td>filter 數量 ＝ 輸出通道 $C_{out}$</td><td>這層學幾種特徵</td><td><strong>人為</strong>（超參數）</td></tr>
 <tr><td>stride / padding</td><td>滑動步長 / 補邊</td><td><strong>人為</strong>（超參數）</td></tr>
-<tr><td>輸出特徵圖 $H'\times W'$</td><td>每張特徵圖尺寸</td><td><strong>計算推導</strong>（§12.4 公式）</td></tr>
+<tr><td>輸出特徵圖 $H'\times W'$</td><td>每張特徵圖尺寸</td><td><strong>計算推導</strong>（<a href="#12.4">§12.4</a> 公式）</td></tr>
 <tr><td>filter 裡的權重值</td><td>每個核的數字</td><td><strong>訓練學</strong>（參數）</td></tr>
 <tr><td>flatten 後向量長度</td><td>進全連接層的維度</td><td><strong>計算推導</strong>（$H'\times W'\times C'$）</td></tr>
 <tr><td>FC 輸出 ＝ 類別數</td><td>最後輸出幾類</td><td><strong>任務決定</strong></td></tr>
 </tbody></table></div>
-<p><strong>最類比 embedding「向量維度 $d$」的是「通道數 $C$」</strong>：CNN 中<strong>每個空間位置 $(h,w)$ 跨所有通道，就是一個長度 = 通道數的向量</strong>（那個位置的「特徵向量」）。這個通道數（＝上一層 filter 數 $C_{out}$）跟 embedding 的 $d$ 一樣，是<strong>訓練前定好、固定的超參數</strong>（§14、§7）。差別：CNN 還多了<strong>空間尺寸 $H'\times W'$</strong> 這種<strong>由公式算出來</strong>的維度（embedding 沒有）；訓練學的一樣只是<strong>值</strong>（filter 權重），不是維度。</p>
+<p><strong>最類比 embedding「向量維度 $d$」的是「通道數 $C$」</strong>：CNN 中<strong>每個空間位置 $(h,w)$ 跨所有通道，就是一個長度 = 通道數的向量</strong>（那個位置的「特徵向量」）。這個通道數（＝上一層 filter 數 $C_{out}$）跟 embedding 的 $d$ 一樣，是<strong>訓練前定好、固定的超參數</strong>（<a href="#14">§14</a>、<a href="#7">§7</a>）。差別：CNN 還多了<strong>空間尺寸 $H'\times W'$</strong> 這種<strong>由公式算出來</strong>的維度（embedding 沒有）；訓練學的一樣只是<strong>值</strong>（filter 權重），不是維度。</p>
 
-<h3>12.7 哪些應用適合用 CNN（為什麼）</h3>
+<h3 id="12.7">12.7 哪些應用適合用 CNN（為什麼）</h3>
 <p>CNN 適不適合，取決於<strong>資料與問題是否符合它的「內建假設」（inductive bias）</strong>。符合 → 事半功倍、參數少又準；不符合 → 換別的架構更好。</p>
 <div class="tablewrap"><table>
 <thead><tr><th>CNN 的內建假設</th><th>適合的資料 / 問題特徵</th><th>為什麼</th><th>例子</th></tr></thead>
 <tbody>
-<tr><td><strong>局部性</strong>（filter 只看小窗）</td><td>有意義的特徵是<strong>局部</strong>的</td><td>filter 專抓局部樣式（§12.2）</td><td>影像的邊/紋理；封包序列的局部指紋</td></tr>
+<tr><td><strong>局部性</strong>（filter 只看小窗）</td><td>有意義的特徵是<strong>局部</strong>的</td><td>filter 專抓局部樣式（<a href="#12.2">§12.2</a>）</td><td>影像的邊/紋理；封包序列的局部指紋</td></tr>
 <tr><td><strong>平移不變</strong>（同 filter 到處滑）</td><td>特徵<strong>可能出現在任何位置、意義相同</strong></td><td>權重共享 → 位置無關偵測</td><td>貓在畫面任何角落都認得</td></tr>
 <tr><td><strong>權重共享</strong>（參數少）</td><td>輸入<strong>維度高</strong>、需省算力/抗過擬合</td><td>一個小 filter 重複用遍全圖</td><td>百萬像素影像</td></tr>
 <tr><td><strong>階層組合</strong>（堆疊）</td><td>資料有<strong>由小組大</strong>的組合結構</td><td>低階特徵疊成高階</td><td>像素→邊→形狀→物件</td></tr>
 <tr><td><strong>網格結構</strong></td><td>資料在<strong>規則網格</strong>上、<strong>鄰近相關</strong></td><td>卷積定義在網格鄰域</td><td>1D 序列、2D 影像、3D 影音</td></tr>
 </tbody></table></div>
 <p><strong>適合的應用</strong>：影像分類 / 物件偵測 / 分割、瑕疵檢測、OCR、音訊（轉頻譜圖當影像）、醫療影像；<strong>1D-CNN</strong> 掃時序 / 封包序列（抓局部指紋）。</p>
-<blockquote><p><strong>關於「長度不定」的序列（如封包流）。</strong> 要先分清兩種「不定」：① 封包<strong>大小</strong>（bytes 數）當特徵值 → 只是輸入數字不同，CNN 本來就吃任意值，無妨；② 封包<strong>數量（序列長度）不定</strong> → 才是重點，而 CNN <strong>有解</strong>：卷積本身<strong>不限長度</strong>（同 filter 滑過任意長度、輸出跟著變），只有最後接全連接分類頭才需固定大小 → 用 <strong>global pooling（全域池化，對整條時間軸取 max/avg）</strong> 把不定長特徵圖壓成<strong>固定向量</strong>，或取<strong>固定窗口</strong>（前 N 個 / 滑動窗）即可。<strong>原生吃不定長是 RNN 的先天優勢（§15）</strong>；1D-CNN 則靠 global pooling / 固定窗達成。實務常<strong>串接</strong>：CNN 抽局部特徵 → pooling 或 RNN 聚合。</p></blockquote>
+<blockquote><p><strong>關於「長度不定」的序列（如封包流）。</strong> 要先分清兩種「不定」：① 封包<strong>大小</strong>（bytes 數）當特徵值 → 只是輸入數字不同，CNN 本來就吃任意值，無妨；② 封包<strong>數量（序列長度）不定</strong> → 才是重點，而 CNN <strong>有解</strong>：卷積本身<strong>不限長度</strong>（同 filter 滑過任意長度、輸出跟著變），只有最後接全連接分類頭才需固定大小 → 用 <strong>global pooling（全域池化，對整條時間軸取 max/avg）</strong> 把不定長特徵圖壓成<strong>固定向量</strong>，或取<strong>固定窗口</strong>（前 N 個 / 滑動窗）即可。<strong>原生吃不定長是 RNN 的先天優勢（<a href="#15">§15</a>）</strong>；1D-CNN 則靠 global pooling / 固定窗達成。實務常<strong>串接</strong>：CNN 抽局部特徵 → pooling 或 RNN 聚合。</p></blockquote>
 <p><strong>不適合的情況（對照）</strong>：</p>
 <ul>
 <li><strong>表格資料</strong>（欄位無空間鄰近、順序可任意打亂）→ 局部性/平移不變假設失效，用<strong>樹模型（GBDT）或 MLP</strong> 更好。</li>
-<li><strong>長距離、任意位置的關聯</strong>（語言長依賴）→ CNN 感受野有限，用 <strong>Transformer / 注意力</strong>（§16）。</li>
+<li><strong>長距離、任意位置的關聯</strong>（語言長依賴）→ CNN 感受野有限，用 <strong>Transformer / 注意力</strong>（<a href="#16">§16</a>）。</li>
 <li><strong>非規則圖結構</strong>（社群網路、分子）→ 沒有網格，用 <strong>GNN</strong>。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 判別式 ML 邊緣線很吃 CNN 的特性：<strong>1D-CNN</strong> 掃封包大小 / 方向序列抓「加密流量局部指紋」、<strong>2D-CNN</strong> 做影像瑕疵 / 監控——都因<strong>參數少、平移不變、邊緣 NPU 為卷積最佳化</strong>而輕量好落地。反之，需長依賴或無網格結構的任務要換架構。</p></blockquote>
@@ -1436,7 +1436,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="13">13. Tokenization — 把文字變成 token</h2>
-<p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token（多為子詞 subword）</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（§14）：</p>
+<p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token（多為子詞 subword）</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（<a href="#14">§14</a>）：</p>
 <p>$$\text{文字}\to\text{tokens}\to\text{ids}\to\text{embeddings}\to\text{模型}$$</p>
 <ul>
 <li><strong>為什麼用子詞（BPE 等）</strong>：整詞當單位 → 詞表爆炸又處理不了新詞；單字元 → 太細。<strong>子詞</strong>折衷：常見詞當一個 token、罕見詞拆成片段，兼顧詞表大小與未知詞。</li>
@@ -1467,11 +1467,11 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="14">14. Embedding 與向量表示</h2>
-<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。承接 §13：token 拿到 id 後，就靠 embedding 查表變成向量餵進模型。凡是<strong>輸入為離散符號</strong>的模型都需要 embedding，且<strong>訓練、推論、生成三階段都用到</strong>（不是只有生成才需要）；輸入本來就是連續數字的模型（如影像）則不需要。</p>
+<p><strong>Embedding = 把離散符號（詞 / token / 類別 / 物件）映成連續向量</strong>，且<strong>意思相近 → 向量相近</strong>。承接 <a href="#13">§13</a>：token 拿到 id 後，就靠 embedding 查表變成向量餵進模型。凡是<strong>輸入為離散符號</strong>的模型都需要 embedding，且<strong>訓練、推論、生成三階段都用到</strong>（不是只有生成才需要）；輸入本來就是連續數字的模型（如影像）則不需要。</p>
 <p><strong>名稱（中譯）。</strong> Embedding 中譯為<strong>嵌入</strong>（完整常說<strong>詞嵌入 word embedding</strong>、<strong>嵌入向量</strong>），也意譯為<strong>向量表示</strong>。取 embed（鑲嵌、把東西放進某結構）之意——把離散符號<strong>嵌入</strong>一個連續的向量空間：原本像「貓」「狗」這種符號彼此無法算距離，嵌入後各變成空間中的一個點（向量），就能量距離、比相似度。這也呼應數學上的<strong>嵌入映射</strong>（把一個空間嵌進另一個、並保留原有關係）。</p>
 <ul>
 <li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $V\times d$，$V$ 詞表大小、$d$ 維度）——訓練學出來（參數）；或取模型某層輸出當表示。</li>
-<li><strong>幾何意義</strong>：向量活在一個<strong>語意空間</strong>裡，<strong>方向與距離 = 語意關係</strong>；比「像不像」用<strong>餘弦相似度</strong>（§1.4）。經典例：<code>king − man + woman ≈ queen</code>。</li>
+<li><strong>幾何意義</strong>：向量活在一個<strong>語意空間</strong>裡，<strong>方向與距離 = 語意關係</strong>；比「像不像」用<strong>餘弦相似度</strong>（<a href="#1.4">§1.4</a>）。經典例：<code>king − man + woman ≈ queen</code>。</li>
 <li><strong>用途（你的 RAG 產品線核心）</strong>：把<strong>文件段落與查詢都 embed 成向量</strong>，用餘弦相似度找<strong>最相關的段落</strong>（語意檢索）→ 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
 </ul>
 <figure><svg viewBox="0 0 380 200" role="img" aria-label="Embedding 語意空間：相近意思的詞向量靠在一起">
@@ -1482,7 +1482,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <g font-size="11" fill="#e5e7eb"><text x="98" y="56">cat</text><text x="136" y="86">dog</text><text x="66" y="101">rabbit</text><text x="278" y="150">car</text><text x="310" y="128">bus</text><text x="252" y="174">truck</text></g>
   <text x="110" y="130" fill="#34d399" font-size="10" text-anchor="middle">動物</text>
   <text x="285" y="192" fill="#38bdf8" font-size="10" text-anchor="middle">車輛</text>
-</svg><figcaption>Embedding 語意空間：意思相近的詞（動物 cat/dog/rabbit）向量靠在一起、不同類（車輛）離得遠。比相似度用餘弦（§1.4）——RAG 檢索就靠這個找最相關的段落。</figcaption></figure>
+</svg><figcaption>Embedding 語意空間：意思相近的詞（動物 cat/dog/rabbit）向量靠在一起、不同類（車輛）離得遠。比相似度用餘弦（<a href="#1.4">§1.4</a>）——RAG 檢索就靠這個找最相關的段落。</figcaption></figure>
 <p><strong>具體例子（示意向量）。</strong> 真實 embedding 多為數百~數千維，這裡用每維都代表一個特徵的小向量示意。假設三個維度（特徵）代表「是動物 / 是交通工具 / 會移動」：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>詞</th><th>示意向量 (是動物, 是交通工具, 會移動)</th></tr></thead>
@@ -1492,7 +1492,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td><code>car</code></td><td>(0.0, 0.9, 0.8)</td></tr>
 <tr><td><code>bus</code></td><td>(0.0, 0.9, 0.7)</td></tr>
 </tbody></table></div>
-<p>比「像不像」用<strong>餘弦相似度</strong>（§1.4）：</p>
+<p>比「像不像」用<strong>餘弦相似度</strong>（<a href="#1.4">§1.4</a>）：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>詞對</th><th>餘弦相似度</th><th>解讀</th></tr></thead>
 <tbody>
@@ -1506,7 +1506,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>這些向量的值怎麼來（怎麼算出來的）？</strong> 不是用公式算的，而是<strong>訓練學出來的參數</strong>：</p>
 <ul>
 <li><strong>一張查表矩陣</strong> $E$（大小 $V\times d$，$V$＝詞表大小、$d$＝維度）；token 的 id 就是「取第 id 列」，那一列就是它的向量。這 $V\times d$ 個數字全是參數。</li>
-<li><strong>隨機初始化 → 梯度下降更新</strong>：一開始是小亂數；之後跟模型其他權重一樣，前向「token → 查 $E$ → 進模型 → 算損失」，反向把 $\partial L/\partial E$ 回傳、往降低損失的方向調每個值（§10 反向傳播、§6 梯度下降）。幾百萬次更新後收斂成有意義的向量。</li>
+<li><strong>隨機初始化 → 梯度下降更新</strong>：一開始是小亂數；之後跟模型其他權重一樣，前向「token → 查 $E$ → 進模型 → 算損失」，反向把 $\partial L/\partial E$ 回傳、往降低損失的方向調每個值（<a href="#10">§10</a> 反向傳播、<a href="#6">§6</a> 梯度下降）。幾百萬次更新後收斂成有意義的向量。</li>
 <li><strong>學習信號來自任務</strong>：Word2vec 用「預測上下文詞」、LLM 用「預測下一個 token」。<strong>常出現在相似語境的詞（貓/狗），為了預測得準，向量會被學得相近</strong>——「意思近 → 向量近」是訓練的副產品，不是人為設定。</li>
 <li><strong>重要澄清</strong>：前面「是動物 / 是交通工具」只是<strong>示意</strong>。真實 embedding 每一維<strong>沒有人為指定意義</strong>，是訓練中自己長出來的抽象方向；單看一維通常無法解讀，是<strong>整個向量的方向與組合</strong>承載語意（某些方向事後才被發現對應如「性別」，屬湧現而非預先定義）。</li>
 </ul>
@@ -1514,21 +1514,21 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ul>
 <li><strong>參數 (parameters)</strong>：訓練時<strong>自動學</strong>的（embedding 的值、各層權重）。</li>
 <li><strong>超參數 (hyperparameters)</strong>：訓練<strong>前人為設定</strong>的（維度 $d$、學習率 $\eta$、層數、batch size…）。</li>
-<li><strong>$d$ 怎麼挑</strong>：靠經驗 + 實驗（調參）。常見 Word2vec / 小模型 100~300、BERT 768、大型 LLM 上千~上萬（GPT-3 達 12288）。太小 → 裝不下語意、表達力不足；太大 → 參數暴增、算力/記憶體貴、易過擬合、邊際效益遞減。實務是試幾個值、看<strong>驗證集</strong>（§7）選 CP 值最好的——屬<strong>外層調超參數的實驗迴圈</strong>（訓練好幾次比較），不是單次訓練內學出來的。</li>
+<li><strong>$d$ 怎麼挑</strong>：靠經驗 + 實驗（調參）。常見 Word2vec / 小模型 100~300、BERT 768、大型 LLM 上千~上萬（GPT-3 達 12288）。太小 → 裝不下語意、表達力不足；太大 → 參數暴增、算力/記憶體貴、易過擬合、邊際效益遞減。實務是試幾個值、看<strong>驗證集</strong>（<a href="#7">§7</a>）選 CP 值最好的——屬<strong>外層調超參數的實驗迴圈</strong>（訓練好幾次比較），不是單次訓練內學出來的。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> RAG 靠 embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>embedding 品質決定檢索好壞</strong>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="15">15. RNN / LSTM — 序列建模</h2>
-<p>有了 token 的向量序列（§13、§14），接著要有能處理<strong>序列</strong>的模型。序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
+<p>有了 token 的向量序列（<a href="#13">§13</a>、<a href="#14">§14</a>），接著要有能處理<strong>序列</strong>的模型。序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
 <p>$$\mathbf{h}_t=\sigma(\mathbf{W}_h\mathbf{h}_{t-1}+\mathbf{W}_x\mathbf{x}_t+\mathbf{b})$$</p>
 <p>每一步把「上一刻的記憶 $\mathbf{h}_{t-1}$」和「這一刻輸入 $\mathbf{x}_t$」混合成新記憶，可再輸出。</p>
 <ul>
 <li><strong>問題：長距依賴</strong>。序列一長，沿時間展開就像很深的網路 → <strong>梯度消失/爆炸</strong>，記不住遠處資訊。</li>
 <li><strong>LSTM / GRU</strong>：加<strong>閘門 (gate)</strong> 控制「記住 / 遺忘 / 輸出」多少 → 能記更久，是長序列的主力（Transformer 出現前）。</li>
 </ul>
-<h3>15.1 哪些應用適合用 RNN（為什麼）</h3>
+<h3 id="15.1">15.1 哪些應用適合用 RNN（為什麼）</h3>
 <p>跟 CNN 一樣，RNN 適不適合取決於<strong>資料是否符合它的內建假設</strong>——RNN 假設資料是<strong>有順序的序列</strong>，且<strong>當下輸出依賴歷史</strong>。</p>
 <div class="tablewrap"><table>
 <thead><tr><th>RNN 的內建假設</th><th>適合的資料 / 問題特徵</th><th>為什麼</th><th>例子</th></tr></thead>
@@ -1542,7 +1542,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>適合的應用</strong>：時序預測（感測器、網路流量 metrics、股價）、語音辨識、手寫辨識、log / 封包序列異常偵測、<strong>串流 / 即時</strong>逐步處理；文字生成（早期，現多被 Transformer 取代）。</p>
 <p><strong>不適合 / 侷限（對照）</strong>：</p>
 <ul>
-<li><strong>很長的序列、需長距依賴</strong> → 梯度消失（即使 LSTM 也有極限）、記不住遠處 → 用 <strong>Transformer / 注意力</strong>（§16）。</li>
+<li><strong>很長的序列、需長距依賴</strong> → 梯度消失（即使 LSTM 也有極限）、記不住遠處 → 用 <strong>Transformer / 注意力</strong>（<a href="#16">§16</a>）。</li>
 <li><strong>需大量平行訓練</strong> → RNN <strong>逐步串行、難平行</strong>、訓練慢 → Transformer 可整段平行。</li>
 <li><strong>無順序關係的資料</strong>（表格、影像空間結構）→ 順序假設失效 → 用 <strong>MLP / 樹模型 / CNN</strong>。</li>
 </ul>
@@ -1551,10 +1551,10 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="16">16. 注意力與 Transformer</h2>
-<p>RNN（§15）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
-<p><strong>注意力機制</strong>：每個位置產生 query $\mathbf{q}$、key $\mathbf{k}$、value $\mathbf{v}$。用 query 跟所有 key 做<strong>內積</strong>（＝對齊程度，§1.1）得分數，過 <strong>softmax</strong>（§5）變權重，再對 value 加權平均：</p>
+<p>RNN（<a href="#15">§15</a>）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
+<p><strong>注意力機制</strong>：每個位置產生 query $\mathbf{q}$、key $\mathbf{k}$、value $\mathbf{v}$。用 query 跟所有 key 做<strong>內積</strong>（＝對齊程度，<a href="#1.1">§1.1</a>）得分數，過 <strong>softmax</strong>（<a href="#5">§5</a>）變權重，再對 value 加權平均：</p>
 <p>$$\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d}}\Big)V$$</p>
-<p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（§1.1）＋ softmax（§5）＋ 矩陣乘法（§1.3）</strong>；除以 $\sqrt{d}$ 是為了數值穩定。</p>
+<p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（<a href="#1.1">§1.1</a>）＋ softmax（<a href="#5">§5</a>）＋ 矩陣乘法（<a href="#1.3">§1.3</a>）</strong>；除以 $\sqrt{d}$ 是為了數值穩定。</p>
 <figure><svg viewBox="0 0 480 160" role="img" aria-label="自注意力：query「it」對各 token 的注意力權重">
   <g font-size="12" text-anchor="middle">
     <rect x="25" y="100" width="60" height="30" rx="5" fill="#243449" stroke="#64748b"/><text x="55" y="120" fill="#e5e7eb">The</text>
@@ -1572,15 +1572,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="240" y="28" fill="#94a3b8" font-size="11" text-anchor="middle">query「it」問「該關注誰」→ 對 key 內積算對齊 → softmax 成權重</text>
   <text x="150" y="150" fill="#38bdf8" font-size="10" text-anchor="middle">最關注「cat」（權重最高＝線最粗）</text>
 </svg><figcaption>自注意力：query 用內積跟每個 token 的 key 比對齊、softmax 成權重（線越粗＝權重越高），再把各 token 的 value 加權平均。此例「it」最關注「cat」。</figcaption></figure>
-<p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（§11）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
+<p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（<a href="#11">§11</a>）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
 <blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心；但注意力對序列長度是 <strong>$O(n^2)$</strong>（每個位置看所有位置），長 context 很吃記憶體與算力（KV cache）——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="17">17. 自回歸生成與取樣</h2>
-<p>LLM 怎麼「生成」？——<strong>逐字接龍（自回歸）</strong>：每步用前文預測<strong>下一個 token 的機率分布</strong>（對整個詞表做 softmax，§5.2），選一個、接回輸入、再預測下一個，重複。</p>
+<p>LLM 怎麼「生成」？——<strong>逐字接龍（自回歸）</strong>：每步用前文預測<strong>下一個 token 的機率分布</strong>（對整個詞表做 softmax，<a href="#5.2">§5.2</a>），選一個、接回輸入、再預測下一個，重複。</p>
 <ul>
-<li>本質：<strong>生成 = 一連串「對詞表的分類」</strong>（見 ai-background-knowledge §1.1）。</li>
+<li>本質：<strong>生成 = 一連串「對詞表的分類」</strong>（見 ai-background-knowledge <a href="#1.1">§1.1</a>）。</li>
 <li><strong>取樣策略</strong>（怎麼從機率分布選字）：<strong>greedy</strong>（取最高＝argmax，穩定但單調）、<strong>temperature（溫度）</strong>（高溫發散有創意、低溫保守穩定）、<strong>top-k / top-p (nucleus)</strong>（只從前 $k$ 個 / 累積到 $p$ 的候選取樣，兼顧品質與多樣）。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 生成是<strong>逐 token 串行</strong>（每個 token 一次前向）→ 慢；用 <strong>KV cache</strong> 避免重算前文。context 長度有上限（受 $O(n^2)$ 注意力與記憶體限制）。</p></blockquote>
@@ -1590,20 +1590,20 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h2 id="18">18. 訓練目標與微調 (Fine-tuning / LoRA)</h2>
 <p>大模型分兩階段：</p>
 <ul>
-<li><strong>預訓練 (pretrain)</strong>：用<strong>海量無標籤資料</strong> + <strong>自監督</strong>目標（LLM = 一直「預測下一個 token」，§17）學到通用語言能力。成本極高，只有大廠做。</li>
+<li><strong>預訓練 (pretrain)</strong>：用<strong>海量無標籤資料</strong> + <strong>自監督</strong>目標（LLM = 一直「預測下一個 token」，<a href="#17">§17</a>）學到通用語言能力。成本極高，只有大廠做。</li>
 <li><strong>微調 (fine-tune)</strong>：拿預訓練好的模型，用<strong>少量任務/領域資料</strong>再訓練，適配到你的用途。</li>
 </ul>
-<h3>18.1 全量微調 vs 參數高效微調 (PEFT)</h3>
+<h3 id="18.1">18.1 全量微調 vs 參數高效微調 (PEFT)</h3>
 <ul>
 <li><strong>全量微調</strong>：更新所有參數 → 效果好，但吃記憶體/儲存（每個任務存一份完整大模型）。</li>
 <li><strong>PEFT（參數高效微調）</strong>：只調一小部分參數，省很多。<strong>LoRA</strong> 是最常用的。</li>
 </ul>
-<h3>18.2 LoRA（低秩增量）</h3>
+<h3 id="18.2">18.2 LoRA（低秩增量）</h3>
 <p>凍結原權重 $\mathbf{W}$，只學一個<strong>低秩增量</strong> $\Delta\mathbf{W}=\mathbf{B}\mathbf{A}$（$\mathbf{B}$ 是 $d\times r$、$\mathbf{A}$ 是 $r\times d$，秩 $r$ 很小，如 8）：</p>
 <p>$$\mathbf{W}'=\mathbf{W}+\Delta\mathbf{W}=\mathbf{W}+\mathbf{B}\mathbf{A}$$</p>
 <ul>
 <li><strong>為什麼省</strong>：原本要學 $d\times d$ 個數，現在只學 $2dr$ 個（$r\ll d$）→ 參數量、記憶體大減，還能<strong>多個 LoRA 切換</strong>（同一底模型掛不同小增量）。</li>
-<li><strong>數學根</strong>：接回 §1.3 矩陣乘法——用兩個瘦矩陣相乘做權重更新的<strong>低秩近似</strong>（與 SVD 低秩概念同源）。</li>
+<li><strong>數學根</strong>：接回 <a href="#1.3">§1.3</a> 矩陣乘法——用兩個瘦矩陣相乘做權重更新的<strong>低秩近似</strong>（與 SVD 低秩概念同源）。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> LoRA 讓你<strong>用小算力把大模型客製化</strong>（自家資料微調）。實務取捨：<strong>RAG</strong>（不改模型、外掛知識庫，知識即時可更新）vs <strong>微調/LoRA</strong>（把知識/風格烙進模型）——你的產品線兩者可並用。</p></blockquote>
 
@@ -1613,12 +1613,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>「準確率高」不一定好——挑對指標比挑模型更關鍵。</p>
 <p><strong>先回答一個常見問題：有沒有「一個值」代表模型訓練的好壞？</strong> 有，但要分清是哪個值、在哪份資料上算：</p>
 <ul>
-<li><strong>損失 (loss)</strong>：訓練時<strong>直接最小化</strong>的目標值（§4），越低代表越貼合資料。<strong>但只看「訓練集損失」會被過擬合騙</strong>（訓練集很低、真實表現卻差）。</li>
-<li><strong>評估指標 (metric)</strong>：把「好壞」翻成人看得懂的分數，依任務不同（見下 §19.1–19.3）——分類看 accuracy / F1 / AUC、回歸看 MSE / R²、LLM 看 perplexity、檢索看 Recall@k。</li>
-<li><strong>關鍵：要在「沒看過的資料」上算才算數。</strong> 真正代表模型好壞的，是<strong>驗證 / 測試集</strong>（§7）上的損失或主要指標；實務會同時看「訓練 vs 驗證」兩條損失曲線來判斷過擬合（§7）。</li>
+<li><strong>損失 (loss)</strong>：訓練時<strong>直接最小化</strong>的目標值（<a href="#4">§4</a>），越低代表越貼合資料。<strong>但只看「訓練集損失」會被過擬合騙</strong>（訓練集很低、真實表現卻差）。</li>
+<li><strong>評估指標 (metric)</strong>：把「好壞」翻成人看得懂的分數，依任務不同（見下 <a href="#19.1">§19.1</a>–19.3）——分類看 accuracy / F1 / AUC、回歸看 MSE / R²、LLM 看 perplexity、檢索看 Recall@k。</li>
+<li><strong>關鍵：要在「沒看過的資料」上算才算數。</strong> 真正代表模型好壞的，是<strong>驗證 / 測試集</strong>（<a href="#7">§7</a>）上的損失或主要指標；實務會同時看「訓練 vs 驗證」兩條損失曲線來判斷過擬合（<a href="#7">§7</a>）。</li>
 </ul>
 <p><strong>一句話：訓練過程看「損失」、評模型好壞看「驗證 / 測試集上的主要指標」；沒有放諸四海皆準的單一值，要依任務挑對指標。</strong></p>
-<h3>19.1 分類</h3>
+<h3 id="19.1">19.1 分類</h3>
 <figure><svg viewBox="0 0 360 210" role="img" aria-label="混淆矩陣：TP FN FP TN 四格">
   <text x="200" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">預測</text>
   <text x="140" y="42" fill="#94a3b8" font-size="11" text-anchor="middle">正（惡意）</text>
@@ -1639,21 +1639,21 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>F1</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的調和平均。</li>
 <li><strong>ROC / AUC</strong>：調不同門檻畫出的曲線 / 曲線下面積，衡量整體區辨力。</li>
 </ul>
-<h3>19.2 回歸</h3>
-<p><strong>MSE / MAE</strong>：均方 / 平均絕對誤差（§4、§1.4）；<strong>R²</strong>：模型解釋了多少變異。</p>
-<h3>19.3 生成 / 檢索</h3>
+<h3 id="19.2">19.2 回歸</h3>
+<p><strong>MSE / MAE</strong>：均方 / 平均絕對誤差（<a href="#4">§4</a>、<a href="#1.4">§1.4</a>）；<strong>R²</strong>：模型解釋了多少變異。</p>
+<h3 id="19.3">19.3 生成 / 檢索</h3>
 <ul>
-<li><strong>Perplexity（困惑度）</strong>：語言模型「對下一字有多不確定」，越低越好（＝負對數似然的指數，§2、§17）。</li>
+<li><strong>Perplexity（困惑度）</strong>：語言模型「對下一字有多不確定」，越低越好（＝負對數似然的指數，<a href="#2">§2</a>、<a href="#17">§17</a>）。</li>
 <li><strong>BLEU / ROUGE</strong>：比生成文字與參考答案的重疊。</li>
 <li><strong>Recall@k</strong>：檢索前 $k$ 個有沒有命中正確段落（RAG 檢索品質）。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> <strong>資安場景高度不平衡</strong>——別看 accuracy，要看 <strong>recall（抓到多少真威脅）與誤報率</strong>；門檻可用機率分數調（見 §2 工程意涵）。RAG 檢索品質看 <strong>Recall@k</strong>。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> <strong>資安場景高度不平衡</strong>——別看 accuracy，要看 <strong>recall（抓到多少真威脅）與誤報率</strong>；門檻可用機率分數調（見 <a href="#2">§2</a> 工程意涵）。RAG 檢索品質看 <strong>Recall@k</strong>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="20">20. 浮點、量化與硬體加速</h2>
 <p class="note" style="border:0;margin:0 0 1em">本節談硬體如何加速（20.1）、數字用什麼格式存（20.2）、以及如何用量化壓縮模型（20.3）。</p>
-<h3>20.1 GPU/NPU 為什麼能加速 AI 計算</h3>
+<h3 id="20.1">20.1 GPU/NPU 為什麼能加速 AI 計算</h3>
 <p>核心一句話：神經網路的<strong>前向</strong>與<strong>反向（微積分）</strong>幾乎全部化約成<strong>矩陣乘法 (matmul) + 逐元素運算</strong>，這兩種運算「大量、獨立、可同時做」——GPU/NPU 就是為此而生。</p>
 <p><strong>為什麼矩陣運算天生可平行。</strong> 矩陣乘法 $\mathbf{C}=\mathbf{A}\mathbf{B}$，每個輸出 $C_{ij}=$（A 第 $i$ 列）$\cdot$（B 第 $j$ 欄）是一個獨立內積，彼此不相干 → 可同時算。CPU 少數強核心偏序列；GPU 有<strong>數千個小核心</strong>，一次做數千個「乘加 (MAC)」，把大量獨立內積塞滿。</p>
 <p><strong>GPU 的加速手段：</strong></p>
@@ -1677,7 +1677,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>反向兩式<strong>又都是 matmul</strong>；激活函數的導數是逐元素運算。所以「訓練 = 前向 matmul + 反向 matmul + 逐元素」，全是 GPU/NPU 的強項；<strong>自動微分 (autodiff)</strong> 就是把微分自動拆成這串可平行運算。</p>
 <blockquote><p><strong>工程意涵。</strong> ① <strong>訓練算力 ≫ 推論</strong>：推論只做前向一遍，訓練要前向＋反向（再一整套 matmul）＋重複多輪 → 對應「邊緣做推論、再訓練放中央」。② <strong>參數量 → matmul 次數 (FLOPs) → 算力與記憶體需求</strong>（幾 B 模型為何吃資源）。③ <strong>量化 (INT8/INT4)</strong> 讓 NPU 吞吐↑、記憶體↓ → 邊緣落地的關鍵。</p></blockquote>
 
-<h3>20.2 浮點與數值格式</h3>
+<h3 id="20.2">20.2 浮點與數值格式</h3>
 <p>數字在電腦裡用固定位元存。常見格式（每參數位元組）：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>格式</th><th>位元</th><th>每參數</th><th>特點</th></tr></thead>
@@ -1700,14 +1700,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <rect x="104" y="84" width="144" height="24" fill="#38bdf8" fill-opacity="0.3" stroke="#475569"/><text x="176" y="101" fill="#e5e7eb" font-size="10" text-anchor="middle">exp ×8（範圍大）</text>
   <rect x="248" y="84" width="126" height="24" fill="#34d399" fill-opacity="0.3" stroke="#475569"/><text x="311" y="101" fill="#e5e7eb" font-size="10" text-anchor="middle">mantissa ×7</text>
 </svg><figcaption>同樣 16 位元：FP16 用 5 位 exponent + 10 位 mantissa（精度高、範圍小）；BF16 用 8 位 exponent（範圍同 FP32、不易溢位）+ 7 位 mantissa（精度較低）。訓練偏好 BF16。</figcaption></figure>
-<h3>20.3 量化 (Quantization)</h3>
+<h3 id="20.3">20.3 量化 (Quantization)</h3>
 <p>把權重/激活從 FP16 降到 <strong>INT8/INT4</strong> 表示：</p>
 <ul>
 <li><strong>好處</strong>：記憶體 ÷2～÷4、頻寬省、NPU 整數運算更快。</li>
 <li><strong>方法</strong>：<strong>PTQ</strong>（訓練後量化，快、免重訓）、<strong>QAT</strong>（量化感知訓練，較準但要重訓）。</li>
 <li><strong>取捨</strong>：位元越低越省，但<strong>精度誤差</strong>越大，需權衡。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>——INT4 讓 7B 模型從 14GB 壓到 ~3.5GB，才塞得進邊緣設備（換算見 ai-background-knowledge §3.1）。這也是為什麼你的邊緣 NPU 產品線以 INT8/INT4 為主。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>——INT4 讓 7B 模型從 14GB 壓到 ~3.5GB，才塞得進邊緣設備（換算見 ai-background-knowledge <a href="#3.1">§3.1</a>）。這也是為什麼你的邊緣 NPU 產品線以 INT8/INT4 為主。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1771,7 +1771,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="b1">附錄 B — 貝氏定理推導</h2>
-<p>貝氏定理（§2.2）可由<strong>條件機率的定義</strong>直接推出，不需額外假設。</p>
+<p>貝氏定理（<a href="#2.2">§2.2</a>）可由<strong>條件機率的定義</strong>直接推出，不需額外假設。</p>
 <h3>B.1 從條件機率定義出發</h3>
 <p>條件機率的定義：</p>
 <p>$$P(A\mid B)=\frac{P(A\cap B)}{P(B)}\quad\Rightarrow\quad P(A\cap B)=P(A\mid B)\,P(B)$$</p>
@@ -1781,14 +1781,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$P(A\mid B)\,P(B)=P(B\mid A)\,P(A)$$</p>
 <p>兩邊除以 $P(B)$：</p>
 <p>$$\boxed{\;P(A\mid B)=\frac{P(B\mid A)\,P(A)}{P(B)}\;}$$</p>
-<p>換符號 $A\to y$（類別）、$B\to x$（證據 / 特徵）即得 §2.2 的貝氏定理：</p>
+<p>換符號 $A\to y$（類別）、$B\to x$（證據 / 特徵）即得 <a href="#2.2">§2.2</a> 的貝氏定理：</p>
 <p>$$P(y\mid x)=\frac{P(x\mid y)\,P(y)}{P(x)}$$</p>
 <h3>B.2 分母 $P(x)$ — 全機率公式（歸一化常數）</h3>
 <p>分母 $P(x)$ 可用<strong>全機率公式</strong>攤開成各類別的貢獻：</p>
 <p>$$P(x)=\sum_{y} P(x\mid y)\,P(y)\quad(\text{離散})\qquad P(x)=\int P(x\mid y)\,P(y)\,dy\quad(\text{連續})$$</p>
 <p>它的角色是<strong>歸一化常數</strong>：確保所有後驗 $P(y\mid x)$ 加起來 = 1。因此貝氏常寫成「後驗 $\propto$ 似然 × 先驗」：</p>
 <p>$$P(y\mid x)\ \propto\ \underbrace{P(x\mid y)}_{\text{似然}}\;\underbrace{P(y)}_{\text{先驗}}$$</p>
-<p>直覺回顧：先驗 $P(y)$ 是看資料前的信念，乘上似然 $P(x\mid y)$、再歸一化，就更新成後驗 $P(y\mid x)$（見 §2.2）。</p>
+<p>直覺回顧：先驗 $P(y)$ 是看資料前的信念，乘上似然 $P(x\mid y)$、再歸一化，就更新成後驗 $P(y\mid x)$（見 <a href="#2.2">§2.2</a>）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
