@@ -854,7 +854,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><span class="geo">幾何意義：</span>梯度<strong>指向「$L$ 上升最快」的方向</strong>、長度＝那個方向的陡度；要下降就往<strong>反方向</strong>走 — 這是梯度下降（主題 6）的全部直覺：</p>
 <p>$$\theta\leftarrow\theta-\eta\,\nabla_\theta L$$</p>
 <p><strong>「梯度下降」這名字為什麼有個「下降」?</strong> 梯度本身指「上坡最快」，但訓練要讓<strong>損失變小</strong>，所以往它的<strong>反方向 $-\nabla L$</strong>（最陡下坡）走。名字拆解：「<strong>梯度</strong>」＝用到梯度這個向量；「<strong>下降</strong>」＝目標是讓<strong>損失值下降</strong>——合起來就是「靠梯度來降低損失」的演算法，公式中的<strong>減號</strong>正是「往反方向」。</p>
-<p>把損失想成一個「碗／山谷」，站在坡上某點：<strong>梯度是最陡上坡、$-\nabla L$ 是最陡下坡</strong>；每步走 $\eta$（學習率）大小，逐步滾向谷底（走到平地＝谷底時梯度 ≈ 0）。$\eta$ 太大會衝過頭、太小會很慢。</p>
+<p>把損失想成一個「碗／山谷」，站在坡上某點：<strong>梯度是最陡上坡、$-\nabla L$ 是最陡下坡</strong>；每步走 $\eta$（學習率）大小，逐步滾向谷底（走到平地＝谷底時梯度 ≈ 0）。$\eta$ 太大會衝過頭、太小會很慢（$\eta$ 是<strong>超參數</strong>，怎麼決定見 §6.2）。</p>
 <figure><svg viewBox="0 0 380 205" role="img" aria-label="梯度下降在損失曲面上下降">
   <line x1="45" y1="178" x2="350" y2="178" stroke="#475569" marker-end="url(#ar-s)"/>
   <line x1="45" y1="30" x2="45" y2="178" stroke="#475569"/>
@@ -1051,6 +1051,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li>$\eta$ <strong>太大</strong>：衝過頭、在谷壁間來回彈、甚至<strong>發散</strong>（損失爆掉變 NaN）。</li>
 <li>$\eta$ <strong>太小</strong>：每步太保守、<strong>收斂很慢</strong>。</li>
 <li>常用<strong>學習率排程 (schedule)</strong>：開頭 warmup（小→大）、後期 decay（慢慢調小）讓它穩定收斂。（碗＋步伐圖見 §3.1。）</li>
+</ul>
+<p><strong>$\eta$ 怎麼決定？是超參數，靠經驗 + 實驗（調參）。</strong> $\eta$ 和維度 $d$、層數 $L$ 一樣是<strong>訓練前人為設定的超參數</strong>，不是學出來的。實務：</p>
+<ul>
+<li><strong>試 log 尺度的幾個值</strong>（$0.1, 0.03, 0.01, 0.003, 0.001…$），看<strong>訓練 / 驗證損失曲線</strong>，挑「下降最快又穩定」的（§7）。常見起手值 $10^{-3}$。</li>
+<li><strong>不想手動釘死一個值</strong>：用<strong>學習率排程</strong>（warmup + decay / cosine）動態調；或用<strong>自適應優化器（Adam，§6.3）</strong>——每個參數自動調有效步長、對初始 $\eta$ 較不敏感（但仍要設基準值）；也有 <strong>LR finder</strong> 掃一段 $\eta$ 挑最佳起點。</li>
+<li><strong>直覺</strong>：$\eta$ ＝下山的步伐大小——步太大跨過谷底 / 滑倒，步太小走到天黑。</li>
 </ul>
 <h3>6.3 動量與 Adam — 走得更快更穩</h3>
 <p>純 SGD 在<strong>狹長山谷</strong>會左右來回抖、前進很慢。兩個改良：</p>
