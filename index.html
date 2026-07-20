@@ -1158,7 +1158,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul></blockquote>
 <p><strong>前向傳播 = 資料從輸入層流到輸出層、逐層算出預測</strong>——就是把「矩陣乘法 + 激活」一層層串起來。記第 $l$ 層權重 $\mathbf{W}^{(l)}$、偏置 $\mathbf{b}^{(l)}$、激活 $\sigma$：</p>
 <p>$$\mathbf{a}^{(0)}=\mathbf{x},\qquad \mathbf{z}^{(l)}=\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}+\mathbf{b}^{(l)},\qquad \mathbf{a}^{(l)}=\sigma(\mathbf{z}^{(l)})$$</p>
-<p><strong>這個矩陣式，其實就是「把一層 $m$ 個神經元的純量計算一次算完、疊成向量」。</strong> 一層有 $m$ 個神經元，每個都是 <a href="#1.2">§1.2</a> 那種神經元：</p>
+<p><strong>這個矩陣式，其實就是「把一層 $m$ 個神經元的純量計算一次算完、疊成 $m\times1$ 向量」。</strong> 一層有 $m$ 個神經元，每個都是 <a href="#1.2">§1.2</a> 那種神經元：</p>
 <ul>
 <li>第 $j$ 個神經元有自己的<strong>權重向量 $\mathbf{w}_j$</strong> 與偏置 $b_j$，算出<strong>純量</strong> $z_j=\mathbf{w}_j^\top\mathbf{a}^{(l-1)}+b_j$，再 $a_j=\sigma(z_j)$（純量）。</li>
 <li>把這 $m$ 個神經元「排成一疊」：權重向量當<strong>列</strong>堆成矩陣 $\mathbf{W}^{(l)}$（第 $j$ 列就是 $\mathbf{w}_j^\top$），偏置堆成向量 $\mathbf{b}^{(l)}$。</li>
