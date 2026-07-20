@@ -1090,7 +1090,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="7">7. 正則化 (Regularization) — 對抗過擬合</h2>
-<p class="note" style="border:0;margin:0 0 1em"><a href="#6">§6</a>（梯度下降／優化器）待補；本節先建立正則化要對付的問題 — 過擬合。</p>
+<p><strong>先釐清「參數」與「超參數」（本章的正則化強度就是一種超參數）。</strong></p>
+<ul>
+<li><strong>參數 (parameters)</strong>：訓練時<strong>自動學</strong>出來的數字——權重、偏置、filter、embedding…（模型檔存的就是這些，<a href="#12.3">§12.3</a>）。</li>
+<li><strong>超參數 (hyperparameters)</strong>：訓練<strong>前人為設定、訓練過程不會改變</strong>的設定——層數（<a href="#8">§8</a>）、維度 $d$（<a href="#14">§14</a>）、學習率 $\eta$（<a href="#6.2">§6.2</a>）、batch size（<a href="#6.1">§6.1</a>）、訓練輪數 epoch（<a href="#7.2">§7.2</a>）、<strong>正則化強度 $\lambda$</strong>（本章）…。它們<strong>不是模型自己學的</strong>，而是靠<strong>經驗 + 實驗（調參）</strong>、看驗證集表現來決定。</li>
+</ul>
+<blockquote><p><strong>一句話</strong>：參數＝模型「學」的；超參數＝人「設」的。導覽圖 ① 第一階段「設定超參數」指的就是這些。</p></blockquote>
 <h3 id="7.1">7.1 過擬合 vs 欠擬合</h3>
 <p><strong>過擬合 (overfitting)</strong>：模型把訓練資料「背過頭」，連資料裡的<strong>雜訊、巧合</strong>都學進去 → <strong>訓練集分數超高、但遇到沒看過的新資料就差</strong>。它學到的是「這批資料的特例」，不是「通則」。就像學生死背考古題，換個題目就不會。</p>
 <p><strong>欠擬合 (underfitting)</strong>：反過來，模型<strong>太簡單</strong>，連訓練資料的趨勢都抓不到 → 訓練、測試都差。</p>
