@@ -866,7 +866,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="30" y="40" fill="#94a3b8" font-size="12">L</text>
 </svg><figcaption>損失曲面像碗；沿 -∇L 一步步走下坡逼近最小點。步長由學習率 η 決定</figcaption></figure>
 
-<p><strong>為什麼「疊偏導」就會指向「上升最快」？（方向導數 directional derivative 當橋樑）</strong></p>
+<p><strong>為什麼「疊偏導（＝梯度 $\nabla f$）」會指向「上升最快」？（方向導數 directional derivative 當橋樑）</strong></p>
+<p>（「疊偏導」就是梯度——梯度的定義即「把所有偏導疊成一個向量」，兩者是同一件事。）</p>
 <p>定義（疊偏導）與幾何意義（指向上升最快）之間，缺的橋是<strong>方向導數</strong>。把 $f(x,y)$ 想成山的高度、$(x,y)$ 是位置：</p>
 <ol>
 <li><strong>偏導 ＝ 沿軸的坡度。</strong> $\frac{\partial f}{\partial x}$＝往東走的坡度、$\frac{\partial f}{\partial y}$＝往北走的坡度。梯度只是把兩者疊成向量 $\nabla f=(\frac{\partial f}{\partial x},\frac{\partial f}{\partial y})$。</li>
