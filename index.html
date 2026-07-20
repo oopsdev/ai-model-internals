@@ -848,6 +848,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>梯度 (gradient) $\nabla_\theta L$ — 把所有偏導疊成一個向量：</strong></p>
 <p>$$\nabla_\theta L=\left(\frac{\partial L}{\partial\theta_1},\frac{\partial L}{\partial\theta_2},\dots\right)^\top$$</p>
 <p><strong>白話：梯度是一個向量 (vector)，代表函數在各個方向上的變化率。</strong> 更精確說——它的<strong>每個分量</strong>是沿各座標軸的變化率（偏導），而<strong>整個向量</strong>則指向「變化最快（上升最快）」的方向、長度＝那個方向的變化率。</p>
+<blockquote><p><strong>易誤解澄清。</strong> 上升最快的方向是<strong>整個向量 $\nabla f$ 的方向</strong>（各分量合成的<strong>斜對角</strong>方向），<strong>不是</strong>「最大分量所在的那根座標軸」。例：$\nabla f=(3,4)$，上升最快方向是 $(3,4)/5=(0.6,0.8)$（斜的）、變化率 $|\nabla f|=5$；若只沿最大分量的 $y$ 軸 $(0,1)$ 走，變化率只有 4、比 5 小。所以要把所有分量<strong>合起來看</strong>，不能只挑最大那一維（原理見下方「方向導數當橋樑」）。</p></blockquote>
 <p><span class="geo">幾何意義：</span>梯度<strong>指向「$L$ 上升最快」的方向</strong>、長度＝那個方向的陡度；要下降就往<strong>反方向</strong>走 — 這是梯度下降（主題 6）的全部直覺：</p>
 <p>$$\theta\leftarrow\theta-\eta\,\nabla_\theta L$$</p>
 <p>把損失想成一個「碗／山谷」，站在坡上某點：<strong>梯度是最陡上坡、$-\nabla L$ 是最陡下坡</strong>；每步走 $\eta$（學習率）大小，逐步滾向谷底。$\eta$ 太大會衝過頭、太小會很慢。</p>
