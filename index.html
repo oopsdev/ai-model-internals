@@ -1906,7 +1906,23 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>效能</strong>：大資料（百萬列）比 XGBoost 快 <strong>10–20×</strong>；小資料差異不大；準度調參後相當或更好。</li>
 </ul>
 
-<h3>C.5 對照神經網路（何時用哪個）</h3>
+<h3>C.5 用到的數學運算（不需矩陣乘法）</h3>
+<p><strong>LightGBM 不像 NN 靠矩陣乘法 (matmul)</strong>，核心是<strong>統計累加 + 純量算術 + 比較</strong>——這是它 CPU-friendly、不太需要 GPU 的根本原因。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>運算</th><th>是什麼</th><th>類型</th></tr></thead>
+<tbody>
+<tr><td>梯度 / Hessian</td><td>每樣本算損失一階 $g_i$、二階 $h_i$</td><td>逐樣本純量（2 階泰勒近似）</td></tr>
+<tr><td>直方圖建構</td><td>每特徵分箱、累加每箱 $\sum g$、$\sum h$</td><td><strong>加總（主要計算量）</strong></td></tr>
+<tr><td>分裂增益</td><td>每候選切點算增益、挑最大</td><td>純量算術</td></tr>
+<tr><td>葉值</td><td>$w=-G/(H+\lambda)$</td><td>純量除法</td></tr>
+<tr><td>更新</td><td>$F_m=F_{m-1}+\eta\,h_m$</td><td>逐樣本純量加法</td></tr>
+<tr><td>分箱 / 比較</td><td>找切點比大小</td><td>比較 / 排序</td></tr>
+</tbody>
+</table></div>
+<p>分裂增益：$\text{Gain}=\frac12\left[\dfrac{G_L^2}{H_L+\lambda}+\dfrac{G_R^2}{H_R+\lambda}-\dfrac{(G_L+G_R)^2}{H_L+H_R+\lambda}\right]-\gamma$（$G,H$＝該側樣本的梯度、Hessian 總和），全是純量加減乘除。</p>
+<p><strong>有向量、無矩陣乘法</strong>：梯度陣列、直方圖陣列是「向量 / 陣列」資料，但運算是<strong>逐元素累加 + 純量算術 + 比較</strong>，<strong>沒有 <a href="#1.3">§1.3</a> 那種矩陣×向量 / 矩陣×矩陣乘法</strong>。→ 瓶頸在<strong>記憶體存取</strong>而非乘加 (FLOPs)，所以 <strong>CPU 就好、GPU 幫助有限</strong>（對照 NN 的 matmul 需 GPU/NPU，<a href="#20">§20</a>；也是網路 AI 邊緣 ML 選 GBDT 的數學根據）。</p>
+
+<h3>C.6 對照神經網路（何時用哪個）</h3>
 <div class="tablewrap"><table>
 <thead><tr><th>面向</th><th>GBDT (LightGBM)</th><th>神經網路</th></tr></thead>
 <tbody>
@@ -1919,7 +1935,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </tbody>
 </table></div>
 
-<h3>C.6 Case study：網路入侵偵測 (IDS) / 流量分類</h3>
+<h3>C.7 Case study：網路入侵偵測 (IDS) / 流量分類</h3>
 <ul>
 <li><strong>問題</strong>：從流量特徵判斷「正常 vs 攻擊（哪一類）」。</li>
 <li><strong>特徵</strong>：flow 統計（封包大小、時序、上下行量…）——即 <a href="#12.7">§12.7</a> / nfstream 產出的<strong>表格特徵</strong>；資料集 NSL-KDD、UNSW-NB15、CICIDS2017。</li>
@@ -1932,7 +1948,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>為何選它</strong>：流量特徵本質是<strong>表格型</strong> → 樹模型擅長；訓練快、推論輕、<strong>CPU 就能跑、模型小</strong> → <strong>適合邊緣即時</strong>（呼應判別式 ML 邊緣線）。</li>
 </ul>
 
-<h3>C.7 小結</h3>
+<h3>C.8 小結</h3>
 <p>NN 不是萬能：<strong>表格資料優先考慮 GBDT（LightGBM）</strong>，影像 / 序列才用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）LightGBM 是<strong>輕量首選</strong>。侷限：對特徵工程敏感、小資料易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / 正則化）、不吃原始序列/影像。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
