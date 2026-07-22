@@ -136,7 +136,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <ol start="6">
 <li><a href="#6">梯度下降與優化器 (SGD / Adam)</a></li>
 <li><a href="#7">正則化 — 對抗過擬合</a></li>
-<li><a href="#8">前向傳播</a></li>
+<li><a href="#8">前向傳播 — 逐層算出預測輸出</a></li>
 <li><a href="#9">激活函數</a></li>
 <li><a href="#10">反向傳播推導</a></li>
 <li><a href="#11">初始化與正規化層 (Init / BatchNorm)</a></li>
@@ -1154,7 +1154,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="8">8. 前向傳播 (Forward Propagation)</h2>
+<h2 id="8">8. 前向傳播 (Forward Propagation) — 逐層算出預測輸出</h2>
 <blockquote><p><strong>先建立心智模型：神經網路是「結構（函數）」，不是「神經元迭代」。</strong> 神經網路本身描述的是<strong>神經元怎麼分層並列、層層串接成一個函數</strong>（input → output）；它是<strong>結構</strong>，不是「同一神經元反覆迭代」。要分清三件事：</p>
 <ul>
 <li><strong>神經網路（結構）</strong>：神經元如何組成函數——層內並列、層間串接（<a href="#1.2">§1.2</a>、本節）。</li>
