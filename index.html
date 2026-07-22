@@ -160,6 +160,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <ol style="list-style:none;margin-left:0">
 <li><a href="#a1">A. 餘弦定律 (Law of Cosines)</a></li>
 <li><a href="#b1">B. 貝氏定理推導</a></li>
+<li><a href="#c1">C. 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</a></li>
 </ol>
 <blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
@@ -1483,7 +1484,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <blockquote><p><strong>關於「長度不定」的序列（如封包流）。</strong> 要先分清兩種「不定」：① 封包<strong>大小</strong>（bytes 數）當特徵值 → 只是輸入數字不同，CNN 本來就吃任意值，無妨；② 封包<strong>數量（序列長度）不定</strong> → 才是重點，而 CNN <strong>有解</strong>：卷積本身<strong>不限長度</strong>（同 filter 滑過任意長度、輸出跟著變），只有最後接全連接分類頭才需固定大小 → 用 <strong>global pooling（全域池化，對整條時間軸取 max/avg）</strong> 把不定長特徵圖壓成<strong>固定向量</strong>，或取<strong>固定窗口</strong>（前 N 個 / 滑動窗）即可。<strong>原生吃不定長是 RNN 的先天優勢（<a href="#15">§15</a>）</strong>；1D-CNN 則靠 global pooling / 固定窗達成。實務常<strong>串接</strong>：CNN 抽局部特徵 → pooling 或 RNN 聚合。</p></blockquote>
 <p><strong>不適合的情況（對照）</strong>：</p>
 <ul>
-<li><strong>表格資料</strong>（欄位無空間鄰近、順序可任意打亂）→ 局部性/平移不變假設失效，用<strong>樹模型（GBDT）或 MLP</strong> 更好。</li>
+<li><strong>表格資料</strong>（欄位無空間鄰近、順序可任意打亂）→ 局部性/平移不變假設失效，用<strong>樹模型（GBDT，見 <a href="#c1">附錄 C</a>）或 MLP</strong> 更好。</li>
 <li><strong>長距離、任意位置的關聯</strong>（語言長依賴）→ CNN 感受野有限，用 <strong>Transformer / 注意力</strong>（<a href="#16">§16</a>）。</li>
 <li><strong>非規則圖結構</strong>（社群網路、分子）→ 沒有網格，用 <strong>GNN</strong>。</li>
 </ul>
@@ -1846,9 +1847,97 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$P(y\mid x)\ \propto\ \underbrace{P(x\mid y)}_{\text{似然}}\;\underbrace{P(y)}_{\text{先驗}}$$</p>
 <p>直覺回顧：先驗 $P(y)$ 是看資料前的信念，乘上似然 $P(x\mid y)$、再歸一化，就更新成後驗 $P(y\mid x)$（見 <a href="#2.2">§2.2</a>）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="c1">附錄 C — 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</h2>
+<p>本教材主體講神經網路，但<strong>判別式 ML 的另一大主力是「梯度提升決策樹 (GBDT)」</strong>——在<strong>表格 / 結構化資料</strong>上常比 NN 更準、更快、更輕。<a href="#12.7">§12.7</a> 提過「表格資料 → 樹模型 (GBDT)」，本附錄補上它並與 NN 對照。<strong>因涉及教材主體（NN）未涵蓋的概念，先在 C.1 補齊先備知識（決策樹、集成學習），Autoencoder 於 C.6 就地說明。</strong></p>
+
+<h3>C.1 先備知識：決策樹與集成學習（教材未涵蓋，先補）</h3>
+<p><strong>決策樹 (Decision Tree)。</strong> 一棵樹用「一連串 if-else 問題」把資料切開：每個內部節點依<strong>某特徵的門檻</strong>分岔（例：「封包大小 &gt; 500?」），一路走到<strong>葉節點</strong>得到預測（分類看葉內多數類、回歸看葉內平均）。挑分岔點的準則：分類用<strong>不純度</strong>（Gini / 熵）下降最多、回歸用<strong>變異數</strong>下降最多。優點：好解釋、不需正規化；缺點：<strong>單棵易過擬合、不穩</strong>（所以要集成）。</p>
+<p><strong>集成學習 (Ensemble)：把很多弱模型合成強模型。</strong> 兩大流派：</p>
+<ul>
+<li><strong>Bagging（並行、降變異）</strong>：各自獨立訓練多棵樹，再投票 / 平均 → 代表 <strong>隨機森林 (Random Forest)</strong>。</li>
+<li><strong>Boosting（串行、降偏差）</strong>：一棵接一棵、<strong>每棵修正前面的錯</strong> → 代表 <strong>GBDT / XGBoost / LightGBM</strong>（本附錄主角）。</li>
+</ul>
+
+<h3>C.2 GBDT 是什麼（與 NN 的根本差異）</h3>
+<ul>
+<li><strong>梯度提升 (Gradient Boosting)</strong>：屬 Boosting——訓練一群<strong>弱決策樹</strong>，每棵新樹去<strong>擬合前面所有樹的殘差（負梯度）</strong>，把它們<strong>加總</strong>成強預測器。</li>
+<li><strong>與 NN 的對照</strong>：<strong>NN</strong> 是一個<strong>連續可微</strong>的大函數、用<strong>梯度下降</strong>調權重（<a href="#3">§3</a>、<a href="#6">§6</a>）；<strong>GBDT</strong> 是一疊<strong>離散的樹</strong>、<strong>逐棵</strong>擬合負梯度長出來。兩者都用到「梯度」，但一個<strong>調權重</strong>、一個<strong>加樹</strong>。</li>
+</ul>
+
+<h3>C.3 模型內部怎麼運作（逐步）</h3>
+<p>GBDT 的核心是「<strong>一棵接一棵、每棵補前一棵的錯</strong>」：</p>
+<figure><svg viewBox="0 0 880 210" role="img" aria-label="GBDT 梯度提升內部逐步運作：初始→算殘差→訓練樹→更新→重複→加總">
+  <defs><marker id="arg" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#94a3b8"/></marker>
+  <marker id="arg2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#fbbf24"/></marker></defs>
+  <rect x="10" y="30" width="96" height="54" rx="7" fill="#243449" stroke="#475569"/><text x="58" y="52" fill="#e2e8f0" font-size="11" text-anchor="middle">輸入特徵 x</text><text x="58" y="68" fill="#94a3b8" font-size="10" text-anchor="middle">真值 y</text>
+  <line x1="106" y1="57" x2="116" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="118" y="30" width="104" height="54" rx="7" fill="#243449" stroke="#475569"/><text x="170" y="52" fill="#e2e8f0" font-size="11" text-anchor="middle">F₀ 初始預測</text><text x="170" y="68" fill="#94a3b8" font-size="10" text-anchor="middle">(如均值)</text>
+  <line x1="222" y1="57" x2="232" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="234" y="30" width="146" height="54" rx="7" fill="rgba(251,191,36,0.14)" stroke="#fbbf24"/><text x="307" y="52" fill="#fff" font-size="11" text-anchor="middle">算負梯度(殘差)</text><text x="307" y="68" fill="#fcd34d" font-size="10.5" text-anchor="middle">rᵢ = yᵢ − F(xᵢ)</text>
+  <line x1="380" y1="57" x2="390" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="392" y="30" width="134" height="54" rx="7" fill="rgba(52,211,153,0.14)" stroke="#34d399"/><text x="459" y="52" fill="#fff" font-size="11" text-anchor="middle">訓練第 m 棵樹 hₘ</text><text x="459" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">擬合 rᵢ</text>
+  <line x1="526" y1="57" x2="536" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="538" y="30" width="150" height="54" rx="7" fill="#243449" stroke="#475569"/><text x="613" y="52" fill="#e2e8f0" font-size="11" text-anchor="middle">更新 Fₘ =</text><text x="613" y="68" fill="#cbd5e1" font-size="10.5" text-anchor="middle">Fₘ₋₁ + η·hₘ</text>
+  <line x1="688" y1="57" x2="700" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="702" y="30" width="168" height="54" rx="7" fill="rgba(248,113,113,0.13)" stroke="#f87171"/><text x="786" y="52" fill="#fff" font-size="11" text-anchor="middle">最終 F = F₀ + η·Σhₘ</text><text x="786" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">→ 預測（分類再過 softmax）</text>
+  <path d="M613,84 L613,150 L307,150 L307,84" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arg2)"/>
+  <text x="460" y="170" fill="#fbbf24" font-size="10.5" text-anchor="middle">↻ 重複 M 棵樹（每棵擬合前面的殘差）</text>
+</svg><figcaption>GBDT 內部：F₀ 起始 → 算殘差(負梯度) → 訓練一棵樹擬合殘差 → 加進來(乘學習率 η) → 重複 M 次 → 所有樹加總為最終預測。</figcaption></figure>
+<div class="tablewrap"><table>
+<thead><tr><th>步驟</th><th>做什麼</th><th>數學</th></tr></thead>
+<tbody>
+<tr><td>① 初始</td><td>給一個起始預測</td><td>$F_0(x)$ = 常數（如 $y$ 均值）</td></tr>
+<tr><td>② 算負梯度（殘差）</td><td>看目前預測差多少</td><td>$r_i = y_i - F(x_i)$（平方損失時）</td></tr>
+<tr><td>③ 訓練樹</td><td>長一棵樹擬合殘差</td><td>$h_m \approx r$</td></tr>
+<tr><td>④ 更新</td><td>把新樹乘學習率加進來</td><td>$F_m = F_{m-1} + \eta\,h_m$</td></tr>
+<tr><td>⑤ 重複</td><td>②–④ 共 $M$ 棵樹</td><td>—</td></tr>
+<tr><td>⑥ 最終</td><td>所有樹加總</td><td>$F(x)=F_0+\eta\sum_{m}h_m(x)$</td></tr>
+</tbody>
+</table></div>
+<p>分類任務最後把 $F(x)$ 過 sigmoid / softmax 轉成機率（<a href="#5">§5</a>）。<strong>直覺</strong>：第一棵樹抓大方向，後面每棵專門修正前面還沒抓對的部分（殘差），越加越準——與 NN 用梯度下降「連續調同一組權重」不同，GBDT 是「一直加新樹」。</p>
+
+<h3>C.4 LightGBM 的四個加速關鍵（微軟的 GBDT 實作）</h3>
+<ul>
+<li><strong>GOSS（單邊梯度採樣）</strong>：全留誤差大的樣本、只抽樣容易的 → 算力集中在難點。</li>
+<li><strong>EFB（互斥特徵綁定）</strong>：把幾乎不同時出現的稀疏特徵綁一起 → 降維度。</li>
+<li><strong>Histogram（直方圖分箱）</strong>：連續值分箱、只看箱邊界 → 快又省 RAM。</li>
+<li><strong>Leaf-wise（逐葉生長）</strong>：每次分裂「最能降誤差」的葉。</li>
+<li><strong>效能</strong>：大資料（百萬列）比 XGBoost 快 <strong>10–20×</strong>；小資料差異不大；準度調參後相當或更好。</li>
+</ul>
+
+<h3>C.5 對照神經網路（何時用哪個）</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>面向</th><th>GBDT (LightGBM)</th><th>神經網路</th></tr></thead>
+<tbody>
+<tr><td>最適資料</td><td><strong>表格 / 結構化</strong></td><td><strong>影像 / 文字 / 序列</strong></td></tr>
+<tr><td>大資料速度</td><td>最快</td><td>慢（需 GPU）</td></tr>
+<tr><td>記憶體 / 模型大小</td><td>低 / 小（數 MB）</td><td>高</td></tr>
+<tr><td>邊緣部署</td><td><strong>很友善（CPU）</strong></td><td>需 NPU / 量化（<a href="#20">§20</a>）</td></tr>
+<tr><td>可解釋性</td><td>好（特徵重要度）</td><td>較差</td></tr>
+<tr><td>不吃</td><td>原始序列 / 影像（需先抽特徵）</td><td>—</td></tr>
+</tbody>
+</table></div>
+
+<h3>C.6 Case study：網路入侵偵測 (IDS) / 流量分類</h3>
+<ul>
+<li><strong>問題</strong>：從流量特徵判斷「正常 vs 攻擊（哪一類）」。</li>
+<li><strong>特徵</strong>：flow 統計（封包大小、時序、上下行量…）——即 <a href="#12.7">§12.7</a> / nfstream 產出的<strong>表格特徵</strong>；資料集 NSL-KDD、UNSW-NB15、CICIDS2017。</li>
+<li><strong>實證架構</strong>：
+  <ul>
+  <li><strong>LightGBM + Autoencoder</strong>：AE 壓縮/降噪 → LightGBM 分類 → <strong>二元 99.41%、多類 98.7% 準確率</strong>。（<strong>Autoencoder 自編碼器</strong>：用神經網路把輸入<strong>壓縮成精簡表示再重建</strong>，藉此學到<strong>降噪 / 低維特徵</strong>；此處當 LightGBM 的前處理特徵抽取器。屬 NN 的一種，教材主體未涵蓋。）</li>
+  <li><strong>1D-CNN + LightGBM（混合）</strong>：1D-CNN 抽特徵、LightGBM 當分類器——<strong>DL 抽特徵、GBDT 做決策</strong>，兩者互補。</li>
+  </ul>
+</li>
+<li><strong>為何選它</strong>：流量特徵本質是<strong>表格型</strong> → 樹模型擅長；訓練快、推論輕、<strong>CPU 就能跑、模型小</strong> → <strong>適合邊緣即時</strong>（呼應判別式 ML 邊緣線）。</li>
+</ul>
+
+<h3>C.7 小結</h3>
+<p>NN 不是萬能：<strong>表格資料優先考慮 GBDT（LightGBM）</strong>，影像 / 序列才用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）LightGBM 是<strong>輕量首選</strong>。侷限：對特徵工程敏感、小資料易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / 正則化）、不吃原始序列/影像。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
-<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B 均已完成初稿：線代、機率統計、微積分、線性/邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、RNN/LSTM、注意力與 Transformer、Embedding、Tokenization、自回歸生成、LoRA、評估指標、浮點與量化。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C 均已完成初稿：線代、機率統計、微積分、線性/邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自回歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
