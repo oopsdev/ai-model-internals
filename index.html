@@ -1195,6 +1195,18 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>一層＝一排並列神經元：各神經元對相同輸入各算一個純量 $a_j$，疊成輸出向量 $\mathbf{a}^{(l)}$；再把這個向量串接給下一層。</figcaption></figure>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
 <p><strong>輸出是向量還是純量？</strong> 每一層的輸出 $\mathbf{a}^{(l)}$ 都是<strong>向量</strong>（該層所有神經元的激活值）；<strong>最終輸出看任務</strong>：多元分類 → 向量（C 個類別分數 / 機率）、生成 → 向量（詞表分布）；單一數值回歸、二元分類 → <strong>純量</strong>（一個數）。對比：<strong>損失永遠是純量</strong>——把預測和真值壓成「一個數」才能最小化（<a href="#4.1">§4.1</a>）。</p>
+<p><strong>輸出的內容是什麼形式？</strong>（上面講「維度」＝幾個數；這裡講「內容」＝那些數代表什麼。）取決於任務與最後一層有沒有過 softmax / 激活：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>形式</th><th>是什麼</th><th>何時</th></tr></thead>
+<tbody>
+<tr><td><strong>原始分數 (logits)</strong></td><td>最後一層線性輸出 $\mathbf{z}^{(L)}=\mathbf{W}\mathbf{a}+\mathbf{b}$，<strong>任意實數（可正可負）</strong></td><td>分類的中間輸出（過 softmax 前）</td></tr>
+<tr><td><strong>機率分布</strong></td><td>logits 過 <strong>softmax</strong>（多類）/ <strong>sigmoid</strong>（二元）→ 各值 ∈ (0,1)、多類總和 = 1</td><td>分類的可解讀輸出（<a href="#5">§5</a>）</td></tr>
+<tr><td><strong>類別標籤</strong></td><td>對機率取 <strong>argmax</strong> → 單一離散類別（如「貓」）</td><td>最終決策</td></tr>
+<tr><td><strong>預測數值</strong></td><td>回歸：輸出層<strong>不過激活（線性）</strong>→ 一個實數（如 68ms）</td><td>回歸（<a href="#4">§4</a>）</td></tr>
+<tr><td><strong>下一個 token 分布</strong></td><td>對<strong>整個詞表</strong> softmax → 長度＝詞表大小的機率向量 → 取樣</td><td>LLM 生成（<a href="#17">§17</a>）</td></tr>
+</tbody>
+</table></div>
+<p>流程：<code>logits →（softmax/sigmoid）→ 機率 →（argmax/取樣）→ 類別/token</code>；回歸則直接給數值。</p>
 <p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（<a href="#14">§14</a>）、CNN 通道數（<a href="#12.6">§12.6</a>）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（<a href="#7">§7</a>）。層數多 → 表達力強、能學更複雜的階層特徵（<a href="#1.3">§1.3.1</a>），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 <a href="#11">§11</a>）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
 <ul>
 <li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（<a href="#1.3">§1.3.1</a>）。</li>
