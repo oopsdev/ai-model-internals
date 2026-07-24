@@ -821,6 +821,17 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>判別式模型</strong>直接學 $P(y\mid x)$ — 分類器就在估這個。</li>
 <li><strong>生成式模型</strong>學 $P(x)$、$P(x\mid y)$（資料如何產生）— 所以能「生成」，也可用貝氏反推分類。</li>
 </ul>
+<p><strong>$x$、$y$ 對應到分類器的哪裡？</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>符號</th><th>是什麼</th><th>分類器中對應到</th><th>例</th></tr></thead>
+<tbody>
+<tr><td>$x$</td><td>輸入<strong>特徵向量</strong>（feature vector）</td><td>輸入層吃的特徵（<a href="#8">§8</a> 的 $\mathbf{a}^{(0)}=\mathbf{x}$）</td><td>影像像素、flow 特徵、郵件文字特徵</td></tr>
+<tr><td>$y$</td><td>輸出<strong>類別 / 標籤</strong></td><td>輸出層每個節點代表一類</td><td>貓/狗、正常/攻擊、spam/ham</td></tr>
+<tr><td>$P(y\mid x)$</td><td>給定 $x$ 屬 $y$ 的機率</td><td>輸出層 <strong>softmax 的各類機率</strong>（<a href="#5.2">§5.2</a>）</td><td>$P(\text{貓}\mid\text{圖})=0.92$</td></tr>
+</tbody>
+</table></div>
+<p>訓練時 $y$ 是<strong>標註的正確答案</strong>（交叉熵拿它比對，<a href="#5">§5</a>、<a href="#4.1">§4.1</a>）；推論時模型吐 $P(y\mid x)$、再 <strong>argmax</strong> 取預測類別。</p>
+<blockquote><p><strong>名詞澄清</strong>：這裡的「特徵向量」是 <strong>feature vector</strong>（特徵 = feature，即輸入特徵湊成的向量），<strong>不是</strong>線性代數的 <strong>eigenvector</strong>（中文也譯「特徵向量」，見 <a href="#1.6">§1.6</a>：$\mathbf{A}\mathbf{v}=\lambda\mathbf{v}$、方向不變只被縮放的向量）。中文剛好撞名，看上下文區分。</p></blockquote>
 <p>這正是<strong>判別 vs 生成分野</strong>的數學根。</p>
 
 <h3 id="2.3">2.3 似然與最大似然估計 (MLE)</h3>
