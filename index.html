@@ -1152,6 +1152,18 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="28" y="46" fill="#94a3b8" font-size="11">損失</text>
 </svg><figcaption>學習曲線：<strong>訓練損失</strong>（綠）隨 epoch 一路下降；<strong>驗證損失</strong>（黃）先降後升，<strong>最低點</strong>就是最佳輪數 — 用 early stopping 在此停住。再往右訓練，訓練損失雖續降但驗證損失回升、兩者落差變大＝過擬合。</figcaption></figure>
 <p><strong>怎麼決定 — Early stopping（早停）</strong>：一邊訓練一邊監看驗證損失，連續 N 輪（patience）沒進步就停、並保留「驗證損失最低」的存檔。它<strong>自動決定輪數</strong>，本身也是一種正則化。太少 epoch 欠擬合、太多 epoch 過擬合。</p>
+<p><strong>訓練迴圈總覽（前向 → 反向 → 更新 × batch × epoch）。</strong> 把整個訓練串起來：</p>
+<pre style="background:#0b1220;border:1px solid var(--line);border-radius:8px;padding:.8em 1em;overflow-x:auto;font-size:.86em;color:#cbd5e1;line-height:1.55;margin:.8em 0">for epoch in 1..N:                          <span style="color:#64748b"># 一個 epoch = 全部資料跑一遍</span>
+    for batch in 資料切成的多個 mini-batch:   <span style="color:#64748b"># §6.1</span>
+        前向 (forward)  → 預測與損失          <span style="color:#64748b"># §8、§4</span>
+        反向 (backward) → 算梯度 ∂L/∂w        <span style="color:#64748b"># §10</span>
+        更新 (update)   → θ ← θ − η∇L         <span style="color:#64748b"># §6</span>
+    看驗證損失 → 觸底(早停)就停               <span style="color:#64748b"># 本節</span></pre>
+<ul>
+<li><strong>一步 (step / iteration)</strong> = 一個 mini-batch 做「前向 → 反向 → <strong>更新</strong>」三件事（<strong>少了更新就白算</strong>）。</li>
+<li><strong>一個 epoch</strong> = 全部資料跑一遍 = 很多步（資料量 ÷ batch size）。</li>
+<li><strong>訓練</strong> = 重複多個 epoch，直到<strong>驗證損失觸底（早停）</strong>或達 max epoch 上限。</li>
+</ul>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
