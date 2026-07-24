@@ -1411,6 +1411,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li>每個位置的卷積＝量「<strong>這一小塊有多像這個樣板</strong>」（對齊程度 / 投影）——越像、數值越大（激活越強），不像則接近 0 或負。</li>
 <li>所以<strong>整張特徵圖 = 「這個樣板在影像各處出現的強度分佈圖」</strong>（像一張 heat map）。</li>
 </ul>
+<p><strong>用神經元的語言說</strong>：filter = 神經元的<strong>權重 $\mathbf{w}$</strong>；特徵圖上<strong>每一格</strong> = 一個神經元在該位置的<strong>輸出（激活值）</strong> $\sigma(\text{filter}\cdot\text{小塊}+b)$；<strong>整張特徵圖 = 同一個神經元（共用同一組權重）掃過全圖的激活值圖</strong>（又叫 activation map）——這就是 CNN 的<strong>權重共享 (weight sharing)</strong>（全連接是每個神經元各有獨立權重；CNN 是「一個神經元掃全圖」）。<strong>多個 filter → 多張特徵圖</strong> = 多個不同「特徵偵測神經元」各自的響應圖。</p>
 <p>例：一個「垂直邊樣板」filter 掃過影像後，特徵圖會<strong>在有垂直邊的地方變亮</strong>、平坦處接近 0——等於幫你標出「圖裡哪裡有垂直邊」。這就是卷積的幾何本質：<strong>一個到處掃描的特徵偵測器</strong>。</p>
 <figure><svg viewBox="0 0 560 190" role="img" aria-label="卷積幾何意義：垂直邊 filter 讓特徵圖在邊處變亮">
   <rect x="20" y="25" width="60" height="120" fill="#334155"/>
