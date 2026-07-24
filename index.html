@@ -1420,6 +1420,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li>所以<strong>整張特徵圖 = 「這個樣板在影像各處出現的強度分佈圖」</strong>（像一張 heat map）。</li>
 </ul>
 <p><strong>用神經元的語言說</strong>：filter = 神經元的<strong>權重 $\mathbf{w}$</strong>；特徵圖上<strong>每一格</strong> = 一個神經元在該位置的<strong>輸出（激活值）</strong> $\sigma(\text{filter}\cdot\text{小塊}+b)$；<strong>整張特徵圖 = 同一個神經元（共用同一組權重）掃過全圖的激活值圖</strong>（又叫 activation map）——這就是 CNN 的<strong>權重共享 (weight sharing)</strong>（全連接是每個神經元各有獨立權重；CNN 是「一個神經元掃全圖」）。<strong>多個 filter → 多張特徵圖</strong> = 多個不同「特徵偵測神經元」各自的響應圖。</p>
+<p><strong>特徵圖維度 ≠ 獨立神經元數（別套用全連接的直覺）</strong>：特徵圖 $7\times7$ 是「該 filter 掃過的<strong>位置數 / 輸出數</strong>」（49 個），但這 49 個位置<strong>共享同一組權重（filter）</strong>——不是 49 組獨立權重。對比：<strong>全連接</strong>一層的輸出維度 = 神經元數 = <strong>獨立權重組數</strong>（每神經元一組），所以「維度 = 神經元數」在全連接成立、在 <strong>CNN 不成立</strong>——CNN 真正「獨立」的是 <strong>filter 數</strong>（每個 filter 一組獨立權重）。若這層有 $C_{out}$ 個 filter → 輸出 $7\times7\times C_{out}$，其中<strong>獨立權重組數 = $C_{out}$</strong>、總輸出單元 = $49\times C_{out}$。</p>
 <p>例：一個「垂直邊樣板」filter 掃過影像後，特徵圖會<strong>在有垂直邊的地方變亮</strong>、平坦處接近 0——等於幫你標出「圖裡哪裡有垂直邊」。這就是卷積的幾何本質：<strong>一個到處掃描的特徵偵測器</strong>。</p>
 <figure><svg viewBox="0 0 560 190" role="img" aria-label="卷積幾何意義：垂直邊 filter 讓特徵圖在邊處變亮">
   <rect x="20" y="25" width="60" height="120" fill="#334155"/>
