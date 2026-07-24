@@ -1264,6 +1264,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（<a href="#14">§14</a>）、CNN 通道數（<a href="#12.6">§12.6</a>）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（<a href="#7">§7</a>）。層數多 → 表達力強、能學更複雜的階層特徵（<a href="#1.3">§1.3.1</a>），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 <a href="#11">§11</a>）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
 <ul>
 <li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（<a href="#1.3">§1.3.1</a>）。</li>
+<li><strong>推論 = 每筆輸入跑一次前向</strong>（用訓練好、<strong>固定</strong>的 w、b，不更新，<a href="#2.3">§2.3</a>）：來一筆算一次——分類 / 回歸<strong>每筆一次</strong>；<strong>LLM 生成則每個 token 各一次</strong>（自回歸，<a href="#17">§17</a>）。「一次前向」本身是逐層很多層運算，只是<strong>沒有反向那一遍</strong>（所以推論比訓練輕）。</li>
 <li>前向時會<strong>順手存下各層的 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$</strong>，因為反向傳播（<a href="#10">§10</a>）要用它們。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 推論成本 ≈ 前向一遍的矩陣乘法量（FLOPs，<a href="#20">§20</a>）；記憶體要放參數 ＋（訓練時）各層激活值。</p></blockquote>
