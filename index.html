@@ -312,6 +312,18 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </tbody>
 </table></div>
 <p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，<a href="#1.1">§1.1</a>）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。<strong>例：一張 9×9 影像、用 3×3 filter、每次滑一格 (stride 1)、不補邊 (padding 0)</strong> — 水平能放 $(9-3)/1+1=7$ 個位置、垂直也 7 個 → 特徵圖為 <strong>7×7</strong>（比原圖小一圈；輸出邊長公式見 <a href="#12.4">§12.4</a>）。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元的權重樣板</strong>（<a href="#1.2">§1.2</a>）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 <a href="#20">§20</a>。<strong>完整定義與幾何意義見<a href="#12">§12</a>。</strong>）</p>
+<p><strong>這段裡「神經元」是誰？—— 用 filter 代表。</strong> 對照如下：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>說明裡的元素</th><th>對應神經元的什麼</th></tr></thead>
+<tbody>
+<tr><td><strong>3×3 filter（那組權重）</strong></td><td><strong>神經元本身（它的權重 $\mathbf{w}$）</strong> ← 神經元用這個代表</td></tr>
+<tr><td>bias（每個 filter 一個）</td><td>神經元的偏置 $b$</td></tr>
+<tr><td>filter 蓋一小塊算出的<strong>那「一個數」</strong></td><td>神經元在<strong>那一個位置</strong>的輸出 $a=\sigma(\mathbf{w}\cdot\text{小塊}+b)$</td></tr>
+<tr><td>整張 <strong>7×7 特徵圖</strong></td><td>這個神經元<strong>掃過全圖 49 個位置</strong>的<strong>激活值圖</strong>（activation map）</td></tr>
+<tr><td><strong>多個 filter</strong></td><td>多個（不同）神經元，各抓一種樣式</td></tr>
+</tbody>
+</table></div>
+<p>即：<strong>一個 filter = 一個神經元</strong>；它掃過 9×9 影像的 49 個位置、產生 7×7 特徵圖（該神經元的激活值圖）。注意是<strong>同一個神經元權重共享</strong>掃全圖，不是 49 個獨立神經元（<a href="#12.2">§12.2</a>）。</p>
 <p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（<a href="#5">§5</a>，即負對數似然 <a href="#2">§2</a>）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（<a href="#3">§3</a>）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§12.3 各架構的參數組成</a>；<a href="#4.2">§4.2</a>）→ 重複多輪（epoch，<a href="#7.2">§7.2</a>）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
