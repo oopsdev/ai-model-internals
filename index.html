@@ -1175,6 +1175,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>一個 epoch</strong> = 全部資料跑一遍 = 很多步（資料量 ÷ batch size）。</li>
 <li><strong>訓練</strong> = 重複多個 epoch，直到<strong>驗證損失觸底（早停）</strong>或達 max epoch 上限。</li>
 </ul>
+<p><strong>w、b 多久更新一次？每一步（每個 mini-batch），不是每個 epoch。</strong> 更新在 batch 迴圈<strong>裡面</strong>——一個 epoch 有「資料量 ÷ batch size」步，w、b 就被更新那麼多次。而且是<strong>同一組參數的值一直被原地修改</strong>（$\theta \leftarrow \theta-\eta\nabla L$），不是「每輪產生一組全新的」；epoch 只是「資料跑完一遍」的計數單位。</p>
 <p><strong>訓練可重現嗎？（同資料 + 同初始權重 ≠ 同參數）</strong> 預設<strong>不可重現</strong>——即使固定初始權重、用同一組資料，每次跑出的參數多半仍略不同，因為訓練還有其他隨機源：<strong>mini-batch 洗牌順序（<a href="#6.1">§6.1</a>）、Dropout（<a href="#11">§11</a>）、資料增強、GPU 平行運算的浮點非確定性</strong>。要<strong>完全可重現（bit-for-bit）</strong>須把<strong>所有 seed 固定</strong>（初始化 / shuffle / dropout / augmentation）＋<strong>強制確定性運算</strong>（deterministic CUDA / 單執行緒）＋<strong>相同硬體與函式庫版本</strong>。又因損失曲面非凸、有很多局部解，不同隨機路徑會走到<strong>不同但表現相近</strong>的解；實務追求「<strong>結果穩定相近</strong>」而非「參數完全相同」，只有做<strong>可重現實驗</strong>（論文 / 除錯 / 對照）才刻意鎖死所有隨機。</p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
