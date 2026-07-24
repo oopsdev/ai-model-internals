@@ -355,7 +355,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <ul>
 <li>$\mathbf{x}$：輸入（上一層輸出或原始特徵）</li>
 <li>$\mathbf{w}$：權重（可學；代表「這神經元在找什麼樣式」）</li>
-<li>$b$：偏置（可學；調整激發門檻）</li>
+<li>$b$：偏置（可學；調整激發門檻）。<strong>單一神經元的 $b$ 是純量</strong>（一個數；斜體 $b$ 即純量記號）——$\mathbf{w},\mathbf{x}$ 是向量、$b$ 只是一個數。<strong>一整層</strong>才把各神經元的偏置疊成<strong>向量 $\mathbf{b}^{(l)}\in\mathbb{R}^m$</strong>（粗體、$m\times1$、每個神經元一個），對應 <a href="#8">§8</a> 的 $\mathbf{z}=\mathbf{W}\mathbf{a}+\mathbf{b}$。</li>
 <li>$\sigma$：激活函數（非線性，如 ReLU / sigmoid，見<a href="#9">§9</a>）</li>
 <li>$a$：輸出（激活值）。<strong>注意：單一神經元的 $a$ 是純量</strong>（一個數）——因為 $z=\mathbf{w}^\top\mathbf{x}+b$ 是一個內積結果（純量），$\sigma$ 作用後仍是純量。<strong>變成向量是「一整層」的事</strong>：把該層每個神經元的純量 $a$ 疊起來，才是向量 $\mathbf{a}^{(l)}$（就是 <a href="#8">§8</a> 說的「層輸出是向量」）。激活函數 $\sigma$ 多為<strong>逐元素 (element-wise)</strong> 作用——對向量就每個分量各算一次；softmax 例外，會跨元素一起算（<a href="#5.2">§5.2</a>）。</li>
 </ul>
