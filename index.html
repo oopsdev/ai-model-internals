@@ -1246,6 +1246,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p><strong>維度怎麼銜接（關鍵）</strong>：第 $l$ 層權重 $\mathbf{W}^{(l)}$ 是 $m_l\times m_{l-1}$ 矩陣——<strong>列數 = 這層神經元數 $m_l$、欄數 = 上一層輸出維度 $m_{l-1}$</strong>。故 $\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}$：$(m_l\times m_{l-1})(m_{l-1}\times1)=(m_l\times1)$，維度剛好對上、一路串下去。<strong>前一層輸出幾維，後一層 $\mathbf{W}$ 的欄數就是幾。</strong></p>
 <p><strong>數字例</strong>：$n=4 \to m_1=8 \to m_2=6 \to C=3$：$\mathbf{W}^{(1)}$ 為 $8\times4$、$\mathbf{W}^{(2)}$ 為 $6\times8$、$\mathbf{W}^{(3)}$ 為 $3\times6$；資料流維度 $4\to8\to6\to3$。</p>
+<p><strong>神經元數 vs 參數量（同一個例，別搞混）。</strong></p>
+<ul>
+<li><strong>神經元數</strong> = 各<strong>隱藏層 + 輸出層</strong>寬度相加（輸入層是特徵、不算）：$8+6+3=\mathbf{17}$。</li>
+<li><strong>參數量</strong>（權重 + 偏置，「幾 B 參數」講的是這個）：$\sum_l(m_l\times m_{l-1}+m_l)=(8{\times}4{+}8)+(6{\times}8{+}6)+(3{\times}6{+}3)=40+54+21=\mathbf{115}$。</li>
+<li>→ <strong>17 個神經元、115 個參數</strong>——兩者不同；模型大小 / 算力（<a href="#18">§18</a>、<a href="#20">§20</a>）看的是<strong>參數量</strong>，不是神經元數。CNN 則較少數神經元，看 <strong>filter 數 / 通道數與參數量</strong>（<a href="#12.4">§12.4</a>）。</li>
+</ul>
 <p><strong>全連接 (fully connected / Dense)</strong>：每個神經元連到上一層<strong>所有</strong>輸出（$\mathbf{W}$ 是滿矩陣）。CNN（<a href="#12">§12</a>）則是<strong>局部連接 + 權重共享</strong>（filter 只看局部），參數少很多——這是兩者的結構差異。各層維度誰決定：<strong>輸入 = 特徵數（資料）、輸出 = 任務、隱藏層寬 $m_l$ 與層數 $L$ = 超參數（<a href="#7">§7</a>、<a href="#8">§8</a>）</strong>。</p>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
 <p><strong>輸出是向量還是純量？</strong> 每一層的輸出 $\mathbf{a}^{(l)}$ 都是<strong>向量</strong>（該層所有神經元的激活值）；<strong>最終輸出看任務</strong>：多元分類 → 向量（C 個類別分數 / 機率）、生成 → 向量（詞表分布）；單一數值回歸、二元分類 → <strong>純量</strong>（一個數）。對比：<strong>損失永遠是純量</strong>——把預測和真值壓成「一個數」才能最小化（<a href="#4.1">§4.1</a>）。</p>
