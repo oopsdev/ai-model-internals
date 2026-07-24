@@ -311,7 +311,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td><strong>(訓練) 損失 → 反向 → 更新</strong></td><td>比對正確答案算損失、逐層算梯度、更新權重、重複多輪</td><td>交叉熵/MLE、鏈鎖律、梯度下降</td><td><a href="#2">§2</a>, <a href="#3">§3</a>, <a href="#4.2">§4.2</a>, <a href="#5">§5</a>, <a href="#7.2">§7.2</a></td></tr>
 </tbody>
 </table></div>
-<p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，<a href="#1.1">§1.1</a>）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。<strong>例：一張 9×9 影像、用 3×3 filter、每次滑一格 (stride 1)、不補邊 (padding 0)</strong> — 水平能放 $(9-3)/1+1=7$ 個位置、垂直也 7 個 → 特徵圖為 <strong>7×7</strong>（比原圖小一圈；輸出邊長公式見 <a href="#12.4">§12.4</a>）。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元的權重樣板</strong>（<a href="#1.2">§1.2</a>）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 <a href="#20">§20</a>。<strong>完整定義與幾何意義見<a href="#12">§12</a>。</strong>）</p>
+<p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，<a href="#1.1">§1.1</a>）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。<strong>例：一張 9×9 影像、用 3×3 filter、每次滑一格 (stride 1)、不補邊 (padding 0)</strong> — 水平能放 $(9-3)/1+1=7$ 個位置、垂直也 7 個 → 特徵圖為 <strong>7×7</strong>（比原圖小一圈；輸出邊長公式見 <a href="#12.4">§12.4</a>）。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元</strong>，是一組<strong>權重樣板</strong>（<a href="#1.2">§1.2</a>）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 <a href="#20">§20</a>。<strong>完整定義與幾何意義見<a href="#12">§12</a>。</strong>）</p>
 <p><strong>這段裡「神經元」是誰？—— 用 filter 代表。</strong> 對照如下：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>說明裡的元素</th><th>對應神經元的什麼</th></tr></thead>
