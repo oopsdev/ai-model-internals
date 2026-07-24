@@ -1273,6 +1273,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="10">10. 反向傳播推導 (Backpropagation)</h2>
+<p><strong>意義：反向傳播 = 高效算出「損失對每個參數的梯度 $\partial L/\partial w$」的演算法</strong>（用鏈鎖律，由輸出往輸入逐層把「誤差」傳回去）。</p>
+<p><strong>為什麼訓練需要它？</strong></p>
+<ul>
+<li><strong>訓練 = 梯度下降最小化損失</strong>：$\theta \leftarrow \theta - \eta\nabla_\theta L$（<a href="#4.2">§4.2</a>、<a href="#6">§6</a>）——每一步都需要<strong>每個參數的梯度 $\partial L/\partial w$</strong>（可能百萬～十億個）；沒有梯度就不知道每個權重「往哪調、調多少」。</li>
+<li><strong>暴力 / 數值法不可行</strong>：數值梯度（有限差分）每個參數要各跑一次前向 → $N$ 個參數 $N$ 次前向 → 天文數字。</li>
+<li><strong>反向傳播的價值</strong>：用鏈鎖律，<strong>一次反向就把所有參數的梯度算完</strong>（成本 ≈ 一次前向），且重複利用上游誤差 $\boldsymbol{\delta}$、不重算 → 才讓深度網路訓練<strong>可行</strong>。</li>
+</ul>
+<p><strong>直覺</strong>：前向算出「錯多少」（損失）；反向反推「<strong>每個權重對這個錯負多少責任</strong>（$\partial L/\partial w$）」，再按責任大小去調整——像考差了反推是哪些環節、各該負多少責任，再針對性地改。</p>
 <p><a href="#3.2">§3.2</a> 給了鏈鎖律；反向傳播就是<strong>把鏈鎖律有系統地、由輸出往輸入逐層套用</strong>，一次算出所有參數的梯度。</p>
 <p><strong>核心流程（計算圖）：</strong></p>
 <ol>
