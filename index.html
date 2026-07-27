@@ -1004,7 +1004,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="4">4. 線性回歸與損失函數</h2>
-<p>最小的「會學習」模型，把前三章串起來。</p>
+<p>線性回歸是<strong>最小的「會學習」模型</strong>，也是理解一切的起點——把前三章（線代、機率、微積分）串起來。</p>
+<p><strong>線性回歸是什麼？</strong> 用一條直線（高維是超平面）$\hat y = \mathbf{w}^\top\mathbf{x}+b$ 去擬合「輸入特徵 $\mathbf{x}$ 與<strong>連續數值</strong>目標 $y$」的關係。</p>
+<ul>
+<li><strong>用途</strong>：預測<strong>連續數值</strong>（回歸）——房價、頻寬、溫度、風險分數…；對比<strong>分類</strong>（預測離散類別，<a href="#5">§5</a>）。</li>
+<li><strong>幾何意義</strong>：在資料散點中找一條「<strong>最能穿過點雲</strong>」的直線。</li>
+<li><strong>為何是起點</strong>：$\mathbf{w}^\top\mathbf{x}+b$ 就是一次內積 + 偏置（<a href="#1.1">§1.1</a>、<a href="#1.2">§1.2</a>）；<strong>神經元 / 神經網路 ＝ 線性回歸 + 非線性的推廣</strong>（<a href="#1.2">§1.2</a>）。</li>
+</ul>
+<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。這正是線性回歸與損失函數的關係：<strong>模型（線性回歸）提出預測 → 損失衡量對錯 → 最佳化（<a href="#4.2">§4.2</a>）調參數讓損失最小</strong>。下面 4.1 就從「為什麼要算損失」講起。</p>
 <h3 id="4.1">4.1 模型與損失</h3>
 <p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（<a href="#4.2">§4.2</a> 用梯度下降往低處走）。</p>
 <p><strong>損失的意義。</strong></p>
