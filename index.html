@@ -1062,6 +1062,18 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h3 id="4.2">4.2 梯度下降套用到線性回歸（MSE）</h3>
 <p>把 4.1 的梯度下降，套到 <a href="#3">§3</a> 線性回歸的 MSE 上。對 $\mathbf{w}$ 取梯度：</p>
 <p>$$\nabla_{\mathbf{w}}L=\frac{2}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)\,\mathbf{x}_i$$</p>
+<details style="margin:.6em 0">
+<summary style="cursor:pointer;color:var(--accent);font-weight:700">這條公式怎麼來的？（點開看推導：對 MSE 用鏈鎖律 §4.3）</summary>
+<p>令<strong>殘差</strong> $r_i=\hat y_i-y_i$，則 $L=\frac1N\sum_i r_i^2$。</p>
+<p><strong>第 1 步——對平方微分（鏈鎖律 + 冪次法則）。</strong> 把 $r_i^2$ 看成「外層平方 ∘ 內層 $r_i$」，冪次法則 $\frac{d}{d\theta}(\cdot)^2=2(\cdot)(\cdot)'$：</p>
+<p>$$\frac{\partial L}{\partial\mathbf{w}}=\frac1N\sum_i\frac{\partial}{\partial\mathbf{w}}r_i^2=\frac1N\sum_i 2\,r_i\cdot\frac{\partial r_i}{\partial\mathbf{w}}$$</p>
+<p>那個 $2$ 就是平方微分掉下來的係數，配上 MSE 本來的 $\frac1N$ ＝ 係數 $\frac2N$。</p>
+<p><strong>第 2 步——殘差對 $\mathbf{w}$ 的梯度 ＝ $\mathbf{x}_i$。</strong> $r_i=\mathbf{w}^\top\mathbf{x}_i+(b-y_i)$，其中 $b-y_i$ 與 $\mathbf{w}$ 無關，所以 $\frac{\partial r_i}{\partial\mathbf{w}}=\frac{\partial(\mathbf{w}^\top\mathbf{x}_i)}{\partial\mathbf{w}}=\mathbf{x}_i$。逐分量看：$\mathbf{w}^\top\mathbf{x}_i=\sum_k w_k x_{ik}$，對 $w_j$ 偏微分只有 $k=j$ 那項留下 → $\frac{\partial}{\partial w_j}\sum_k w_k x_{ik}=x_{ij}$，疊成向量即 $\mathbf{x}_i$（呼應 <a href="#1.1">§1.1</a>：內積對其中一個向量的變化率就是另一個向量）。</p>
+<p><strong>合起來：</strong></p>
+<p>$$\frac{\partial L}{\partial\mathbf{w}}=\frac2N\sum_i r_i\,\mathbf{x}_i=\frac2N\sum_{i=1}^N\big(\hat y_i-y_i\big)\,\mathbf{x}_i$$</p>
+<p><strong>偏置 $b$ 同理</strong>（$\partial r_i/\partial b=1$）：$\dfrac{\partial L}{\partial b}=\dfrac2N\sum_i(\hat y_i-y_i)$。</p>
+<p><strong>為什麼是「誤差 × 輸入」？</strong> $r_i=\hat y_i-y_i$（誤差）決定往哪個方向、多用力修（猜太高就往下調）；$\mathbf{x}_i$（輸入）把誤差<strong>按特徵大小分攤到各權重</strong>——某特徵值越大、對這次預測貢獻越大，就為誤差負越多責任、被調越多。這個「誤差 × 輸入」形式在 backprop 最外層永遠會出現（<a href="#4.3">§4.3</a>、<a href="#10">§10</a>）。</p>
+</details>
 <p>再用梯度下降 $\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}L$。<strong>「預測誤差 $(\hat y-y)$ 乘輸入 $\mathbf{x}$」的形式會在神經網路反覆出現</strong> — backprop 最外層永遠是誤差項。</p>
 <blockquote><p><strong>工程意涵。</strong> 網路 AI 的「頻寬/健康預測」本質就是回歸；線性回歸是理解一切的起點。MSE 適合連續值，<strong>不適合分類</strong>（<a href="#5">§5</a> 換損失）。</p></blockquote>
 <h3 id="4.3">4.3 鏈鎖律 — 反向傳播的引擎</h3>
