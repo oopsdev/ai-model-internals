@@ -60,6 +60,15 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 .t-train th:nth-child(2),.t-infer th:nth-child(2),.t-gen th:nth-child(2){width:30%}
 .t-train th:nth-child(3),.t-infer th:nth-child(3),.t-gen th:nth-child(3){width:34%}
 .t-train th:nth-child(4),.t-infer th:nth-child(4),.t-gen th:nth-child(4){width:17%}
+.learning-paths{margin:1.2em 0 1.6em}
+.learning-paths>h2{border:0;margin:.2em 0 .3em;padding:0}
+.path-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.85em;margin:.9em 0}
+.path-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.85em 1.05em}
+.path-card h3{margin:.1em 0 .35em;color:var(--accent2);font-size:1.02em}
+.path-card ol{margin:.35em 0 .5em 1.25em}.path-card li{margin:.2em 0}
+.path-card .who{color:var(--muted);font-size:.87em;margin:.15em 0}
+.path-card .after{color:var(--warn);font-size:.83em;margin:.5em 0 0}
+.path-tree{background:#0b1220;border:1px solid var(--line);border-radius:8px;padding:.7em 1em;overflow-x:auto;font-size:.86em;color:#cbd5e1;line-height:1.55;margin:.6em 0}
 @media print{body{background:#fff;color:#111}.wrap{max-width:none}a{color:#06c}h2{color:#06c}h3{color:#080}
   strong,b{color:#b45309}code{background:#f4f4f4}blockquote{background:#f4faf7}
   th,td{border-color:#bbb}thead th,.t-train thead th,.t-infer thead th,.t-gen thead th{background:#eee;color:#111}}
@@ -80,6 +89,63 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </defs></svg>
 
 <p>這份是 <strong>ai-background-knowledge</strong> 的<strong>深入版</strong>：前者講「是什麼、用在哪」（中深、無數學），本文講「<strong>為什麼會動</strong>」— 含數學式、運算展開、神經網路內部推導。目標是讓工程師看懂模型內部運作，而不只是會呼叫 API。</p>
+
+<section class="learning-paths">
+<h2 id="start">我該從哪裡開始？</h2>
+<p>本文從線性代數一路到 CNN / Transformer / 量化 / GBDT，內容完整但長。<strong>不用從頭讀到尾</strong>——先選你的學習目標、按推薦順序讀；完整章節見下方<a href="#toc">目錄</a>。</p>
+<div class="path-cards">
+  <div class="path-card">
+    <h3>🚀 A：30 分鐘快速理解</h3>
+    <p class="who">適合：想先懂模型如何完成一次預測，不急著看完整推導。</p>
+    <ol>
+      <li><a href="#example">綜合範例：模型怎麼運作</a></li>
+      <li><a href="#8">前向傳播：如何算出答案</a></li>
+      <li><a href="#4.1">損失函數：怎麼知道錯多少</a></li>
+      <li><a href="#10">反向傳播：錯誤如何傳回每層</a></li>
+      <li><a href="#16">Transformer：LLM 如何用注意力</a></li>
+    </ol>
+    <p class="after">完成後：能用自己的話描述「輸入 → 預測 → 誤差 → 更新」。</p>
+  </div>
+  <div class="path-card">
+    <h3>📐 B：數學原理</h3>
+    <p class="who">適合：想真正看懂公式、梯度，與模型為何能學習。</p>
+    <ol>
+      <li><a href="#1">線性代數：向量、內積、矩陣乘法</a></li>
+      <li><a href="#2">機率統計：機率、似然、分布</a></li>
+      <li><a href="#3">微積分：導數、梯度、鏈鎖律</a></li>
+      <li><a href="#4">線性回歸與損失函數</a></li>
+      <li><a href="#5">Softmax 與交叉熵</a></li>
+      <li><a href="#6">梯度下降與 Adam</a></li>
+      <li><a href="#10">反向傳播推導</a></li>
+    </ol>
+    <p class="after">完成後：能手算小型模型的前向、損失、梯度與一次參數更新。</p>
+  </div>
+  <div class="path-card">
+    <h3>🛠️ C：工程選型與部署</h3>
+    <p class="who">適合：要選模型、估算硬體，或部署到中央／邊緣設備。</p>
+    <ol>
+      <li><a href="#12">CNN：影像與局部特徵</a></li>
+      <li><a href="#15">RNN/LSTM：時序與串流資料</a></li>
+      <li><a href="#16">Transformer：語言與長距依賴</a></li>
+      <li><a href="#c1">GBDT/LightGBM：表格資料</a></li>
+      <li><a href="#19">評估指標：怎麼判斷模型可用</a></li>
+      <li><a href="#20.2">數值格式：FP32 / BF16 / FP16 / INT</a></li>
+      <li><a href="#20.3">量化：模型如何縮小</a></li>
+      <li><a href="#20.1">GPU/NPU：硬體為什麼能加速</a></li>
+    </ol>
+    <p class="after">完成後：能依資料型態、延遲、記憶體、準確度需求，初步選模型與部署方式。</p>
+  </div>
+</div>
+<p><strong>路線 C 可先看「資料是什麼」挑架構：</strong></p>
+<pre class="path-tree">資料是什麼？
+├─ 影像 / 空間局部結構 → CNN（<a href="#12">§12</a>）
+├─ 時序 / 串流資料     → 1D-CNN、RNN/LSTM（<a href="#12">§12</a>、<a href="#15">§15</a>）
+├─ 語言 / 長距依賴     → Transformer（<a href="#16">§16</a>）
+└─ 表格 / 統計特徵     → GBDT、LightGBM（<a href="#c1">附錄 C</a>）
+                          ↓
+                 評估（<a href="#19">§19</a>）→ 量化（<a href="#20.3">§20.3</a>）→ GPU/NPU（<a href="#20.1">§20.1</a>）</pre>
+</section>
+
 <blockquote>
 <p><strong>符號約定。</strong> 純量用斜體 $x$；向量用粗體小寫 $\mathbf{x}$（預設欄向量）；矩陣用粗體大寫 $\mathbf{W}$；$\hat{y}$ 為預測、$y$ 為真值；$\eta$ 為學習率；$\theta$ 為參數集合。數學式以 MathJax 渲染。（「欄」＝直的 column、「列」＝橫的 row；本文一律用欄/列，避開兩岸定義相反的「行」。）</p>
 <details><summary style="cursor:pointer;color:var(--accent);font-weight:700">常用縮寫對照（點開查詢；讀本文不需先背這些，遇到再回查即可）</summary>
