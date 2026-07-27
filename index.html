@@ -1578,9 +1578,9 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <thead><tr><th>層</th><th>類型</th><th>超參數（人設）</th><th>輸出維度（公式算）</th></tr></thead>
 <tbody>
 <tr><td>—</td><td>輸入</td><td>（資料）32×32×3</td><td>32×32×3</td></tr>
-<tr><td>L1</td><td>Conv</td><td>3×3、$C_{out}$=32、s=1、p=1 → ReLU → MaxPool 2×2</td><td>32×32×32 → 16×16×32</td></tr>
-<tr><td>L2</td><td>Conv</td><td>3×3、$C_{out}$=64、s=1、p=1 → ReLU → MaxPool 2×2</td><td>16×16×64 → 8×8×64</td></tr>
-<tr><td>L3</td><td>Conv</td><td>3×3、$C_{out}$=128、s=1、p=1 → ReLU → MaxPool 2×2</td><td>8×8×128 → 4×4×128</td></tr>
+<tr><td>L1</td><td>Conv</td><td>3×3、$C_{out}$=32（<strong>32 個 filter</strong>，每個 3×3×3）、s=1、p=1 → ReLU → MaxPool 2×2</td><td>32×32×32 → 16×16×32</td></tr>
+<tr><td>L2</td><td>Conv</td><td>3×3、$C_{out}$=64（<strong>64 個 filter</strong>，每個 3×3×32）、s=1、p=1 → ReLU → MaxPool 2×2</td><td>16×16×64 → 8×8×64</td></tr>
+<tr><td>L3</td><td>Conv</td><td>3×3、$C_{out}$=128（<strong>128 個 filter</strong>，每個 3×3×64）、s=1、p=1 → ReLU → MaxPool 2×2</td><td>8×8×128 → 4×4×128</td></tr>
 <tr><td>—</td><td>Flatten</td><td>—</td><td>2048（=4·4·128）</td></tr>
 <tr><td>L4</td><td>全連接</td><td>神經元 256 + Dropout 0.5</td><td>256</td></tr>
 <tr><td>L5</td><td>全連接（輸出）</td><td>神經元 = 類別數 10 → softmax</td><td>10</td></tr>
