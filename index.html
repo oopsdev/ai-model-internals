@@ -1030,7 +1030,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p><strong>具體例子：線性回歸 + MSE。</strong> 線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
-<p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2">§2</a>）— 再次印證損失來自機率假設（完整推導見<a href="#d1">附錄 D</a>）。</p>
+<p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2.3">§2.3</a>）— 再次印證損失來自機率假設（完整推導見<a href="#d1">附錄 D</a>）。</p>
 <p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$；平方是為了懲罰大誤差、且對應高斯假設。</p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="線性回歸最小平方">
   <line x1="45" y1="165" x2="350" y2="165" stroke="#475569" marker-end="url(#ar-s)"/>
