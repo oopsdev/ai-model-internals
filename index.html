@@ -1253,7 +1253,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg></div><figcaption>全連接網路結構：輸入層（維度＝特徵數 n）→ 隱藏層（各 m 個神經元）→ 輸出層（維度＝任務決定）。每條線＝一個權重；每個神經元連到上一層所有輸出（全連接）。</figcaption></figure>
 <ul>
 <li><strong>輸入層</strong>：維度 = 特徵數 $n$（影像像素數、flow 特徵數…）——由<strong>資料</strong>決定。</li>
-<li><strong>隱藏層 $l$</strong>：$m_l$ 個神經元 → 輸出 $m_l$ 維向量；層寬 $m_l$ 是<strong>超參數</strong>（<a href="#7">§7</a>）。</li>
+<li><strong>隱藏層（第 $l$ 層）</strong>：有 $m_l$ 個神經元 → 輸出 $m_l$ 維向量。<strong>層數 $L$（幾層）與每層寬度 $m_l$（該層幾個神經元）都是超參數</strong>（$l$ 只是「第幾層」的索引，不是超參數）（<a href="#7">§7</a>、<a href="#8">§8</a>）。（<strong>CNN 對應</strong>：層寬 $m$ ≈ <strong>filter 個數 = 輸出通道 $C_{out}$</strong>，<a href="#12.6">§12.6</a>。）</li>
 <li><strong>輸出層</strong>：維度 = <strong>任務決定</strong>（多類 = 類別數 $C$、二元 / 回歸 = 1）。</li>
 </ul>
 <p><strong>維度怎麼銜接（關鍵）</strong>：第 $l$ 層權重 $\mathbf{W}^{(l)}$ 是 $m_l\times m_{l-1}$ 矩陣——<strong>列數 = 這層神經元數 $m_l$、欄數 = 上一層輸出維度 $m_{l-1}$</strong>。故 $\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}$：$(m_l\times m_{l-1})(m_{l-1}\times1)=(m_l\times1)$，維度剛好對上、一路串下去。<strong>前一層輸出幾維，後一層 $\mathbf{W}$ 的欄數就是幾。</strong></p>
