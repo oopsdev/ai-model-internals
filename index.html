@@ -1726,10 +1726,10 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="16">16. 注意力與 Transformer</h2>
-<p>RNN（<a href="#15">§15</a>）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置直接看全序列</strong>、一次算完。</p>
+<p>RNN（<a href="#15">§15</a>）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置能一次看其他位置</strong>、平行算完。（<strong>encoder</strong> 可看整條序列；<strong>自回歸 decoder（生成）</strong> 要加 <strong>causal mask</strong>——每個位置只能看自己與之前的 token、<strong>不能看未來</strong>，<a href="#17">§17</a>。）</p>
 <p><strong>注意力機制</strong>：每個位置產生 query $\mathbf{q}$、key $\mathbf{k}$、value $\mathbf{v}$。用 query 跟所有 key 做<strong>內積</strong>（＝對齊程度，<a href="#1.1">§1.1</a>）得分數，過 <strong>softmax</strong>（<a href="#5">§5</a>）變權重，再對 value 加權平均：</p>
-<p>$$\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d}}\Big)V$$</p>
-<p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（<a href="#1.1">§1.1</a>）＋ softmax（<a href="#5">§5</a>）＋ 矩陣乘法（<a href="#1.3">§1.3</a>）</strong>；除以 $\sqrt{d}$ 是為了數值穩定。</p>
+<p>$$\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}}\Big)V$$</p>
+<p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（<a href="#1.1">§1.1</a>）＋ softmax（<a href="#5">§5</a>）＋ 矩陣乘法（<a href="#1.3">§1.3</a>）</strong>。除以 $\sqrt{d_k}$（$d_k$＝key 維度）是<strong>縮放</strong>：$QK^\top$ 是 $d_k$ 項相乘相加、其方差隨 $d_k$ 增長，不縮放會讓 softmax 過度集中（飽和）、梯度變小、訓練不穩。</p>
 <figure><svg viewBox="0 0 480 160" role="img" aria-label="自注意力：query「it」對各 token 的注意力權重">
   <g font-size="12" text-anchor="middle">
     <rect x="25" y="100" width="60" height="30" rx="5" fill="#243449" stroke="#64748b"/><text x="55" y="120" fill="#e5e7eb">The</text>
@@ -1748,7 +1748,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="150" y="150" fill="#38bdf8" font-size="10" text-anchor="middle">最關注「cat」（權重最高＝線最粗）</text>
 </svg><figcaption>自注意力：query 用內積跟每個 token 的 key 比對齊、softmax 成權重（線越粗＝權重越高），再把各 token 的 value 加權平均。此例「it」最關注「cat」。</figcaption></figure>
 <p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（<a href="#11">§11</a>）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
-<blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心；但注意力對序列長度是 <strong>$O(n^2)$</strong>（每個位置看所有位置），長 context 很吃記憶體與算力（KV cache）——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心，但注意力成本要分兩種情況看：① <strong>訓練 / prefill</strong>：算完整的 $n\times n$ 注意力矩陣，時間與記憶體 ~ <strong>$O(n^2)$</strong>（每個位置對所有位置）。② <strong>自回歸生成</strong>：用 <strong>KV cache</strong> 存住已算過的 K/V、避免每步重算舊 token；但單次 decode 新 token 仍要讀取<strong>整個既有 cache</strong>，且 <strong>cache 容量隨序列長度線性增長</strong>。兩者都讓長 context 很吃記憶體與算力——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1770,7 +1770,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <h3 id="18.1">18.1 全量微調 vs 參數高效微調 (PEFT)</h3>
 <ul>
-<li><strong>全量微調</strong>：更新所有參數 → 效果好，但吃記憶體/儲存（每個任務存一份完整大模型）。</li>
+<li><strong>全量微調</strong>：更新所有參數 → <strong>自由度最高</strong>，但吃記憶體/儲存（每個任務存一份完整大模型），且<strong>不保證一定優於適當的 PEFT</strong>。</li>
 <li><strong>PEFT（參數高效微調）</strong>：只調一小部分參數，省很多。<strong>LoRA</strong> 是最常用的。</li>
 </ul>
 <h3 id="18.2">18.2 LoRA（低秩增量）</h3>
@@ -1778,9 +1778,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$\mathbf{W}'=\mathbf{W}+\Delta\mathbf{W}=\mathbf{W}+\mathbf{B}\mathbf{A}$$</p>
 <ul>
 <li><strong>為什麼省</strong>：原本要學 $d\times d$ 個數，現在只學 $2dr$ 個（$r\ll d$）→ 參數量、記憶體大減，還能<strong>多個 LoRA 切換</strong>（同一底模型掛不同小增量）。</li>
-<li><strong>數學根</strong>：接回 <a href="#1.3">§1.3</a> 矩陣乘法——用兩個瘦矩陣相乘做權重更新的<strong>低秩近似</strong>（與 SVD 低秩概念同源）。</li>
+<li><strong>數學根</strong>：接回 <a href="#1.3">§1.3</a> 矩陣乘法——用兩個瘦矩陣 $\mathbf{B},\mathbf{A}$ 把<strong>權重更新 $\Delta\mathbf{W}$ 限制為低秩</strong>（低秩參數化）。注意這是<strong>約束「更新」的秩</strong>（假設任務適配所需的改變是低秩的），<strong>不是用 SVD 去近似原權重 $\mathbf{W}$</strong>。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> LoRA 讓你<strong>用小算力把大模型客製化</strong>（自家資料微調）。實務取捨：<strong>RAG</strong>（不改模型、外掛知識庫，知識即時可更新）vs <strong>微調/LoRA</strong>（把知識/風格烙進模型）——你的產品線兩者可並用。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> LoRA 讓你<strong>用小算力把大模型客製化</strong>。<strong>RAG 與微調解決的是不同問題，別混用</strong>：</p>
+<ul>
+<li><strong>RAG</strong>：注入<strong>外部、可更新、可追溯</strong>的知識（不改模型、外掛知識庫，知識即時可換）。</li>
+<li><strong>微調 / LoRA</strong>：調整<strong>行為、格式、語氣、任務策略與領域適配</strong>。</li>
+<li>微調<strong>也可能吸收一些知識，但不保證準確回憶、可更新性或來源可追溯</strong>——要可靠地注入事實、且要能更新 / 查來源，用 RAG。</li>
+</ul>
+<p>你的產品線常<strong>兩者並用</strong>（RAG 給知識、微調給風格與任務適配）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -2059,12 +2065,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>特徵</strong>：flow 統計（封包大小、時序、上下行量…）——即 <a href="#12.7">§12.7</a> / nfstream 產出的<strong>表格特徵</strong>；資料集 NSL-KDD、UNSW-NB15、CICIDS2017。</li>
 <li><strong>實證架構</strong>：
   <ul>
-  <li><strong>LightGBM + Autoencoder</strong>：AE 壓縮/降噪 → LightGBM 分類 → <strong>二元 99.41%、多類 98.7% 準確率</strong>。（<strong>Autoencoder 自編碼器</strong>：用神經網路把輸入<strong>壓縮成精簡表示再重建</strong>，藉此學到<strong>降噪 / 低維特徵</strong>；此處當 LightGBM 的前處理特徵抽取器。屬 NN 的一種，教材主體未涵蓋。）</li>
+  <li><strong>LightGBM + Autoencoder</strong>：AE 壓縮/降噪 → LightGBM 分類，在標準資料集上可達<strong>很高的準確率</strong>。（<strong>Autoencoder 自編碼器</strong>：用神經網路把輸入<strong>壓縮成精簡表示再重建</strong>，藉此學到<strong>降噪 / 低維特徵</strong>；此處當 LightGBM 的前處理特徵抽取器。屬 NN 的一種，教材主體未涵蓋。）</li>
   <li><strong>1D-CNN + LightGBM（混合）</strong>：1D-CNN 抽特徵、LightGBM 當分類器——<strong>DL 抽特徵、GBDT 做決策</strong>，兩者互補。</li>
   </ul>
 </li>
 <li><strong>為何選它</strong>：流量特徵本質是<strong>表格型</strong> → 樹模型擅長；訓練快、推論輕、<strong>CPU 就能跑、模型小</strong> → <strong>適合邊緣即時</strong>（呼應判別式 ML 邊緣線）。</li>
 </ul>
+<blockquote><p><strong>數字要謹慎看（本文只作定性示意）。</strong> 資安資料集常因<strong>類別不平衡、資料洩漏 (data leakage)、train/test 切法</strong>而<strong>容易得到異常高的 accuracy</strong>。引用任何準確率務必附<strong>資料集、train/test split、二元/多類定義、是否處理不平衡與洩漏、是否只看 accuracy（還是 precision/recall/F1）、原始論文來源</strong>——否則「漂亮的精確數字」反而降低可信度。此處只說明「GBDT 適合流量表格分類」的<strong>定性</strong>結論，不以特定數字為準。</p></blockquote>
 
 <h3>C.8 小結</h3>
 <p>NN 不是萬能：<strong>表格資料優先考慮 GBDT（LightGBM）</strong>，影像 / 序列才用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）LightGBM 是<strong>輕量首選</strong>。侷限：對特徵工程敏感、小資料易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / 正則化）、不吃原始序列/影像。</p>
