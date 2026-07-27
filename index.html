@@ -229,8 +229,9 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <li><a href="#a1">A. 餘弦定律 (Law of Cosines)</a></li>
 <li><a href="#b1">B. 貝氏定理推導</a></li>
 <li><a href="#c1">C. 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</a></li>
+<li><a href="#d1">D. MSE ＝ 高斯誤差下的最大似然（推導）</a></li>
 </ol>
-<blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
+<blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1029,7 +1030,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p><strong>具體例子：線性回歸 + MSE。</strong> 線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
-<p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2">§2</a>）— 再次印證損失來自機率假設。</p>
+<p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2">§2</a>）— 再次印證損失來自機率假設（完整推導見<a href="#d1">附錄 D</a>）。</p>
 <p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$；平方是為了懲罰大誤差、且對應高斯假設。</p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="線性回歸最小平方">
   <line x1="45" y1="165" x2="350" y2="165" stroke="#475569" marker-end="url(#ar-s)"/>
@@ -2151,8 +2152,41 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>NN 不是萬能：<strong>表格資料優先考慮 GBDT（LightGBM）</strong>，影像 / 序列才用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）LightGBM 是<strong>輕量首選</strong>。侷限：對特徵工程敏感、小資料易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / 正則化）、不吃原始序列/影像。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
+<h2 id="d1">附錄 D — MSE ＝ 高斯誤差下的最大似然（推導）</h2>
+<p>4.1 說「MSE 其實是『假設誤差服從高斯分布』下的<strong>最大似然 (MLE)</strong>」。這裡把它推出來——說明<strong>為什麼平方誤差不是隨便挑的</strong>，而是一個明確機率假設的必然結果。</p>
+
+<h3>D.1 假設：誤差服從高斯分布</h3>
+<p>線性回歸假設真值 $y_i$ 等於模型預測 $\hat y_i=\mathbf{w}^\top\mathbf{x}_i+b$ 再加上一個<strong>隨機誤差 $\varepsilon_i$</strong>：</p>
+$$y_i = \mathbf{w}^\top\mathbf{x}_i + b + \varepsilon_i,\qquad \varepsilon_i \overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,\sigma^2)$$
+<p>也就是誤差<strong>平均為 0</strong>（模型不系統性偏高或偏低）、<strong>變異數固定 $\sigma^2$</strong>、各筆資料<strong>獨立同分布</strong>。等價地說，給定輸入 $\mathbf{x}_i$，真值 $y_i$ 以 $\hat y_i$ 為中心呈高斯分布：</p>
+$$y_i\mid\mathbf{x}_i\ \sim\ \mathcal{N}(\hat y_i,\ \sigma^2)$$
+
+<h3>D.2 寫出似然</h3>
+<p>單筆資料的機率密度（高斯 PDF，見 2.1 表）：</p>
+$$p(y_i\mid\mathbf{x}_i)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y_i-\hat y_i)^2}{2\sigma^2}\right)$$
+<p>因各筆獨立，整份資料的<strong>似然</strong>是連乘（<a href="#2">§2.3</a>）：</p>
+$$L(\mathbf{w},b)=\prod_{i=1}^{N}p(y_i\mid\mathbf{x}_i)$$
+
+<h3>D.3 取對數（連乘 → 連加）</h3>
+<p>連乘難處理，取<strong>對數似然</strong>（log 單調遞增，最大化 $L$ 等價於最大化 $\log L$）：</p>
+$$\log L=\sum_{i=1}^{N}\left[-\tfrac12\log(2\pi\sigma^2)-\frac{(y_i-\hat y_i)^2}{2\sigma^2}\right]=-\frac{N}{2}\log(2\pi\sigma^2)-\frac{1}{2\sigma^2}\sum_{i=1}^{N}(y_i-\hat y_i)^2$$
+
+<h3>D.4 對 $\mathbf{w},b$ 最大化 ＝ 對 MSE 最小化</h3>
+<p>右邊第一項 $-\tfrac N2\log(2\pi\sigma^2)$ <strong>與 $\mathbf{w},b$ 無關</strong>（常數）；第二項前面的 $\tfrac{1}{2\sigma^2}$ 是<strong>正的常數</strong>。所以「調 $\mathbf{w},b$ 讓 $\log L$ 最大」只剩下一件事——讓 $\sum(y_i-\hat y_i)^2$ <strong>最小</strong>：</p>
+$$\arg\max_{\mathbf{w},b}\ \log L\ =\ \arg\min_{\mathbf{w},b}\ \sum_{i=1}^{N}(y_i-\hat y_i)^2\ =\ \arg\min_{\mathbf{w},b}\ \underbrace{\frac1N\sum_{i=1}^{N}(y_i-\hat y_i)^2}_{\text{MSE}}$$
+<p>（除以 $N$ 也是正常數，不影響 $\arg\min$。）</p>
+$$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最小化 MSE}\ }$$
+
+<h3>D.5 意涵</h3>
+<ul>
+<li><strong>平方不是任意選的</strong>：它直接來自高斯 PDF 指數項裡的 $(y-\hat y)^2$。換一種誤差假設就換一種損失——例如假設誤差服從<strong>拉普拉斯分布</strong>，MLE 會變成最小化<strong>絕對誤差 (MAE, $\sum|y_i-\hat y_i|$)</strong>。</li>
+<li><strong>呼應「選損失＝做假設」</strong>（4.1、<a href="#2">§2.3</a>）：MSE ↔ 高斯、交叉熵 ↔ 類別分布，都是最大似然的特例。</li>
+<li><strong>$\sigma^2$ 去哪了</strong>：它不影響 $\arg\min$（不改變最佳 $\mathbf{w},b$），但會影響對數似然的絕對值；若也要估 $\sigma^2$，對它取偏導＝0 會得到「$\sigma^2$ ＝殘差的平均平方」，正是最小化後的 MSE 本身。</li>
+</ul>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+
 <div class="note">
-<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C 均已完成初稿：線代、機率統計、微積分、線性/邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自回歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D 均已完成初稿：線代、機率統計、微積分、線性/邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自回歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
