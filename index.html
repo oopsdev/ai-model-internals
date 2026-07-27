@@ -1572,6 +1572,41 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 判別式 ML 邊緣線很吃 CNN 的特性：<strong>1D-CNN</strong> 掃封包大小 / 方向序列抓「加密流量局部指紋」、<strong>2D-CNN</strong> 做影像瑕疵 / 監控——都因<strong>參數少、平移不變、邊緣 NPU 為卷積最佳化</strong>而輕量好落地。反之，需長依賴或無網格結構的任務要換架構。</p></blockquote>
 
+<h3>12.8 完整範例：深度-5 CNN（超參數 + 維度追蹤 + 參數量）</h3>
+<p>把 <a href="#12.4">§12.4</a>（尺寸公式）、<a href="#12.6">§12.6</a>（誰決定）、<a href="#8">§8</a>（參數量）串成一個具體例子。任務：32×32 RGB 影像分 10 類。<strong>深度 5 = 5 個有權重的層</strong>（池化 / ReLU / dropout 無權重，不算深度）：3 卷積 + 2 全連接。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>類型</th><th>超參數（人設）</th><th>輸出維度（公式算）</th></tr></thead>
+<tbody>
+<tr><td>—</td><td>輸入</td><td>（資料）32×32×3</td><td>32×32×3</td></tr>
+<tr><td>L1</td><td>Conv</td><td>3×3、$C_{out}$=32、s=1、p=1 → ReLU → MaxPool 2×2</td><td>32×32×32 → 16×16×32</td></tr>
+<tr><td>L2</td><td>Conv</td><td>3×3、$C_{out}$=64、s=1、p=1 → ReLU → MaxPool 2×2</td><td>16×16×64 → 8×8×64</td></tr>
+<tr><td>L3</td><td>Conv</td><td>3×3、$C_{out}$=128、s=1、p=1 → ReLU → MaxPool 2×2</td><td>8×8×128 → 4×4×128</td></tr>
+<tr><td>—</td><td>Flatten</td><td>—</td><td>2048（=4·4·128）</td></tr>
+<tr><td>L4</td><td>全連接</td><td>神經元 256 + Dropout 0.5</td><td>256</td></tr>
+<tr><td>L5</td><td>全連接（輸出）</td><td>神經元 = 類別數 10 → softmax</td><td>10</td></tr>
+</tbody>
+</table></div>
+<p>（尺寸用 $(W-F+2P)/S+1$：如 L1 $(32-3+2)/1+1=32$。）<strong>全域超參數</strong>：$\eta$=0.001、batch=64、epoch 上限=50（+早停）、Adam、weight decay $\lambda$=1e-4、dropout=0.5、MaxPool 2×2。</p>
+<p><strong>三類數字</strong>（呼應 <a href="#12.6">§12.6</a>）：</p>
+<ul>
+<li><strong>超參數（人設、可自由調）</strong>：filter 大小、每層 $C_{out}$（32/64/128）、stride、padding、FC 寬度 256、<strong>深度=5</strong>、$\eta$ / batch / epoch / dropout / $\lambda$ / pool 大小。</li>
+<li><strong>計算決定（公式算出、不能亂填）</strong>：特徵圖尺寸 32→16→8→4、flatten 長度 2048。</li>
+<li><strong>資料 / 任務決定</strong>：輸入 32×32×3（資料）、輸出 10（類別數）。</li>
+</ul>
+<p><strong>參數量 ≈ 62 萬</strong>（Conv 每層 $(F^2C_{in}+1)C_{out}$、FC $(\text{輸入}+1)\times\text{輸出}$）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>計算</th><th>參數</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>$(3^2{\cdot}3+1){\cdot}32$</td><td>896</td></tr>
+<tr><td>L2</td><td>$(3^2{\cdot}32+1){\cdot}64$</td><td>18,496</td></tr>
+<tr><td>L3</td><td>$(3^2{\cdot}64+1){\cdot}128$</td><td>73,856</td></tr>
+<tr><td>L4</td><td>$(2048+1){\cdot}256$</td><td>524,544</td></tr>
+<tr><td>L5</td><td>$(256+1){\cdot}10$</td><td>2,570</td></tr>
+<tr><td><strong>合計</strong></td><td></td><td><strong>≈ 620,362</strong></td></tr>
+</tbody>
+</table></div>
+<p><strong>FC 層（L4）吃掉大半參數</strong>——這也是現代 CNN 愛用 global pooling 取代大 FC 的原因（呼應 <a href="#12.7">§12.7</a> 變長序列的 global pooling）。</p>
+
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="13">13. Tokenization — 把文字變成 token</h2>
