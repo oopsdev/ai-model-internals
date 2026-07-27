@@ -1075,6 +1075,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>為什麼是「誤差 × 輸入」？</strong> $r_i=\hat y_i-y_i$（誤差）決定往哪個方向、多用力修（猜太高就往下調）；$\mathbf{x}_i$（輸入）把誤差<strong>按特徵大小分攤到各權重</strong>——某特徵值越大、對這次預測貢獻越大，就為誤差負越多責任、被調越多。這個「誤差 × 輸入」形式在 backprop 最外層永遠會出現（<a href="#4.3">§4.3</a>、<a href="#10">§10</a>）。</p>
 </details>
 <p>再用梯度下降 $\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}L$。<strong>「預測誤差 $(\hat y-y)$ 乘輸入 $\mathbf{x}$」的形式會在神經網路反覆出現</strong> — backprop 最外層永遠是誤差項。</p>
+<p>這是最基本的<strong>全批次梯度下降</strong>（每步用<strong>全部</strong>資料算一次梯度）。實務上資料量大、還要走得又快又穩——<strong>用多少資料算一步</strong>（mini-batch / SGD）、<strong>步伐怎麼調</strong>（動量 momentum、Adam、學習率排程），是 <a href="#6">§6</a> 的主題（先讀完 <a href="#5">§5</a> 的分類損失，再進 §6）。</p>
 <blockquote><p><strong>工程意涵。</strong> 網路 AI 的「頻寬/健康預測」本質就是回歸；線性回歸是理解一切的起點。MSE 適合連續值，<strong>不適合分類</strong>（<a href="#5">§5</a> 換損失）。</p></blockquote>
 <h3 id="4.3">4.3 鏈鎖律 — 反向傳播的引擎</h3>
 <p><strong>鏈鎖律 (chain rule) — 複合函數的「影響力連乘」。</strong> 神經網路是層層複合 $L=f_k(f_{k-1}(\cdots f_1(\mathbf{x})))$：$w$ 先影響 $z$、$z$ 影響 $a$、$a$ 影響 $L$。<span class="geo">直覺：</span>$w$ 對 $L$ 的<strong>總影響率＝沿路每一段影響率相乘</strong>（像齒輪傳動、一環扣一環）：</p>
