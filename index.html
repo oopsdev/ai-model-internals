@@ -147,6 +147,8 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
                  評估（<a href="#19">§19</a>）→ 量化（<a href="#20.3">§20.3</a>）→ GPU/NPU（<a href="#20.1">§20.1</a>）</pre>
 </section>
 
+<blockquote><p><strong>想直接看程式碼？</strong> 配套導讀 <strong><a href="ml-training-walkthrough.html">一支腳本看完整個學習過程</a></strong> 用純 NumPy 從零手刻 <strong>線性回歸 → 2 層 MLP</strong>（再附 PyTorch 對照），把「前向 → 損失 → 反向 → 更新」跑成一支可執行腳本，每段都連回本教材對應章節。先讀理論再對照程式碼、或先跑腳本遇到不懂再回查，都可以。</p></blockquote>
+
 <blockquote>
 <p><strong>符號約定。</strong> 純量用斜體 $x$；向量用粗體小寫 $\mathbf{x}$（預設欄向量）；矩陣用粗體大寫 $\mathbf{W}$；$\hat{y}$ 為預測、$y$ 為真值；$\eta$ 為學習率；$\theta$ 為參數集合；$\sigma(\cdot)$ 為激活函數（如 sigmoid／ReLU，<a href="#9">§9</a>）——注意 $\sigma$、$\sigma^2$ 在機率與正規化語境<strong>另表標準差／變異數</strong>（<a href="#2">§2</a>、<a href="#11">§11</a>）；$\odot$ 為<strong>逐元素相乘</strong> (element-wise / Hadamard)；$\nabla$ 為梯度（<a href="#4.1">§4.1</a>）。數學式以 MathJax 渲染。（「欄」＝直的 column、「列」＝橫的 row；本文一律用欄/列，避開兩岸定義相反的「行」。）</p>
 <details><summary style="cursor:pointer;color:var(--accent);font-weight:700">常用縮寫對照（點開查詢；讀本文不需先背這些，遇到再回查即可）</summary>
