@@ -92,7 +92,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 
 <section class="learning-paths">
 <h2 id="start">我該從哪裡開始？</h2>
-<p>本文從線性代數一路到 CNN / Transformer / 量化 / GBDT，內容完整但長。<strong>不用從頭讀到尾</strong>——先選你的學習目標、按推薦順序讀；完整章節見下方<a href="#toc">目錄</a>。</p>
+<p>本文從線性代數一路到 CNN / Transformer / 量化 / GBDT，內容完整但長。<strong>不用從頭讀到尾</strong>——先選你的學習目標、按推薦順序讀；完整章節見下方<a href="#toc">目錄</a>。（不熟的縮寫如 CNN／Transformer／GBDT，見下方<a href="#abbr">縮寫對照表</a>。）</p>
 <div class="path-cards">
   <div class="path-card">
     <h3>🚀 A：30 分鐘快速理解</h3>
@@ -151,7 +151,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 
 <blockquote>
 <p><strong>符號約定。</strong> 純量用斜體 $x$；向量用粗體小寫 $\mathbf{x}$（預設欄向量）；矩陣用粗體大寫 $\mathbf{W}$；$\hat{y}$ 為預測、$y$ 為真值；$\eta$ 為學習率；$\theta$ 為參數集合；$\sigma(\cdot)$ 為激活函數（如 sigmoid／ReLU，<a href="#9">§9</a>）——注意 $\sigma$、$\sigma^2$ 在機率與正規化語境<strong>另表標準差／變異數</strong>（<a href="#2">§2</a>、<a href="#11">§11</a>）；$\odot$ 為<strong>逐元素相乘</strong> (element-wise / Hadamard)；$\nabla$ 為梯度（<a href="#4.1">§4.1</a>）。數學式以 MathJax 渲染。（「欄」＝直的 column、「列」＝橫的 row；本文一律用欄/列，避開兩岸定義相反的「行」。）</p>
-<details><summary style="cursor:pointer;color:var(--accent);font-weight:700">常用縮寫對照（點開查詢；讀本文不需先背這些，遇到再回查即可）</summary>
+<details id="abbr"><summary style="cursor:pointer;color:var(--accent);font-weight:700">常用縮寫對照（點開查詢；讀本文不需先背這些，遇到再回查即可）</summary>
 <div class="tablewrap"><table>
 <thead><tr><th>縮寫</th><th>全名</th><th>意義</th></tr></thead>
 <tbody>
@@ -166,6 +166,9 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <tr><td>CNN</td><td>Convolutional Neural Network</td><td>卷積神經網路（影像/序列，<a href="#12">§12</a>）</td></tr>
 <tr><td>RNN / LSTM</td><td>Recurrent Neural Network / Long Short-Term Memory</td><td>循環神經網路 / 長短期記憶（序列）</td></tr>
 <tr><td>Transformer</td><td>—</td><td>注意力為主的架構（LLM 骨幹）</td></tr>
+<tr><td>GBDT / GBM</td><td>Gradient Boosting Decision Tree / Machine</td><td>梯度提升（決策）樹；判別式 ML 主力，表格資料常勝 NN（<a href="#c1">附錄 C</a>）</td></tr>
+<tr><td>LightGBM</td><td>Light Gradient Boosting Machine</td><td>微軟的高效 GBDT 實作（<a href="#c1">附錄 C</a> 主角）</td></tr>
+<tr><td>XGBoost</td><td>eXtreme Gradient Boosting</td><td>另一知名 GBDT 實作</td></tr>
 <tr><td>FFN</td><td>Feed-Forward Network</td><td>前饋層（Transformer 內）</td></tr>
 <tr><td>LLM</td><td>Large Language Model</td><td>大型語言模型</td></tr>
 <tr><td>RAG</td><td>Retrieval-Augmented Generation</td><td>檢索增強生成（知識庫）</td></tr>
