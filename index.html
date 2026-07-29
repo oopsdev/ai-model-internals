@@ -90,6 +90,22 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 
 <p>這份是 <strong>ai-background-knowledge</strong> 的<strong>深入版</strong>：前者講「是什麼、用在哪」（中深、無數學），本文講「<strong>為什麼會動</strong>」— 含數學式、運算展開、神經網路內部推導。目標是讓工程師看懂模型內部運作，而不只是會呼叫 API。</p>
 
+<h2 id="landscape">先看定位：AI / ML / 深度學習</h2>
+<p>開始前先建立全景——本教材談的模型落在哪裡：<strong>深度學習（多層神經網路）是機器學習的一支</strong>，CNN / RNN / Transformer 都是它的架構；而 <strong>GBDT / LightGBM</strong> 雖是 ML 主力，卻<strong>不是神經網路、不算深度學習</strong>（<a href="#c1">附錄 C</a> 專門與 NN 對照）。</p>
+<pre>
+AI（人工智慧）
+└─ ML（機器學習）
+   ├─ Deep Learning（深度學習＝多層神經網路）
+   │    ├─ MLP（全連接）
+   │    ├─ CNN（卷積，影像/空間）        → <a href="#12">§12</a>
+   │    ├─ RNN / LSTM（序列）             → <a href="#15">§15</a>
+   │    └─ Transformer（注意力，LLM 骨幹）→ <a href="#16">§16</a>
+   └─ 非深度學習的 ML
+        ├─ 線性/邏輯回歸                  → <a href="#3">§3</a>、<a href="#5">§5</a>
+        └─ GBDT / LightGBM（決策樹集成，不是神經網路 → 不算 DL）→ <a href="#c1">附錄 C</a>
+</pre>
+<p>「深」＝<strong>多層</strong>堆疊；單一神經元或單層一般不算深度學習。CNN 天生多層，是標準的 DL 成員。</p>
+
 <section class="learning-paths">
 <h2 id="start">我該從哪裡開始？</h2>
 <p>本文從線性代數一路到 CNN / Transformer / 量化 / GBDT，內容完整但長。<strong>不用從頭讀到尾</strong>——先選你的學習目標、按推薦順序讀；完整章節見下方<a href="#toc">目錄</a>。（不熟的縮寫如 CNN／Transformer／GBDT，見下方<a href="#abbr">縮寫對照表</a>。）</p>
