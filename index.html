@@ -1440,6 +1440,16 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p><strong>直覺</strong>：前向算出「錯多少」（損失）；反向反推「<strong>每個權重對這個錯負多少責任</strong>（$\partial L/\partial w$）」，再按責任大小去調整——像考差了反推是哪些環節、各該負多少責任，再針對性地改。</p>
 <p><a href="#4.3">§4.3</a> 給了鏈鎖律；反向傳播就是<strong>把鏈鎖律有系統地、由輸出往輸入逐層套用</strong>，一次算出所有參數的梯度。</p>
+
+<p><strong>以「神經元」為單位看偏導 / 梯度 / δ。</strong> 把「個體」定成一顆神經元（一組旋鈕：權重 $w_1,\dots,w_n$ 加偏置 $b$），這三個量各有具體落點：</p>
+<ul>
+<li><strong>偏導 $\partial L/\partial w_j$ — 單一旋鈕的影響率。</strong> 只轉這顆神經元的第 $j$ 條輸入權重、其他不動，損失變多少＝這條連結對總損失的「單獨責任」（正 → 該調小、負 → 該調大、$\approx0$ → 無關緊要）。</li>
+<li><strong>梯度 — 把這顆神經元所有旋鈕的偏導疊成向量</strong> $\big(\tfrac{\partial L}{\partial w_1},\dots,\tfrac{\partial L}{\partial b}\big)$。<strong>方向</strong>＝這顆神經元「往哪調損失上升最快」（反方向就是該怎麼調才最快降損失）；<strong>長度</strong>＝它對損失多敏感（長＝負很大責任、要大調；短＝微調、甚至「學不動」）。</li>
+<li><strong>δ — 神經元的「責任」，最自然的神經元層級梯度。</strong> $\boldsymbol{\delta}=\partial L/\partial z$（對加權輸入 $z$ 的偏導）＝「這顆神經元的輸出該為總損失負多少責任」。每條權重的偏導再由它拆出來（呼應 <a href="#4.2">§4.2</a> 的「誤差 × 輸入」）：</li>
+</ul>
+<p>$$\frac{\partial L}{\partial w_j}=\underbrace{\delta}_{\text{神經元的責任}}\times\underbrace{a_j^{(\text{前一層})}}_{\text{那條輸入多活躍}}$$</p>
+<p><strong>白話：一條連結該調多少 ＝（這顆神經元錯多少 $\delta$）×（那條輸入當時多活躍 $a_j$）。</strong> 責任大且輸入活躍 → 大調；神經元沒責任（$\delta\approx0$）或輸入沒在動（$a_j\approx0$）→ 幾乎不動（這也是「沒被激活的連結學不動」的由來）。<strong>下面就是把這個 $\delta$ 由輸出往輸入逐層算出來。</strong></p>
+
 <p><strong>核心流程（計算圖）：</strong></p>
 <ol>
 <li><strong>前向</strong>：算出各層 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$ 與損失 $L$，順手存起來。</li>
