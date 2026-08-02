@@ -1039,6 +1039,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h3 id="3.2">3.2 二元分類：Sigmoid + 二元交叉熵</h3>
 <p>要輸出機率 (0~1)，把線性輸出 $z=\mathbf{w}^\top\mathbf{x}+b$ 過 <strong>sigmoid</strong>：</p>
 <p>$$\sigma(z)=\frac{1}{1+e^{-z}}\in(0,1)$$</p>
+<blockquote><p><strong>sigmoid 也是「激活函數」的一員。</strong> 邏輯迴歸就是<strong>線性 + sigmoid</strong>——等於一個「用 sigmoid 當激活」的神經元（<a href="#1.2">§1.2</a>）。這裡 sigmoid 放在<strong>輸出層</strong>，作用是「把分數壓成機率」；激活函數的<strong>通論（含 ReLU 等隱藏層激活、為何要非線性）見 <a href="#8">§8</a></strong>。</p></blockquote>
 <p><span class="geo">幾何意義。</span> Sigmoid 是一條 <strong>S 形曲線，把整條實數線「壓」進 (0,1)</strong>：$z=0$ 時輸出 0.5（決策臨界），$z$ 很大趨近 1、很小趨近 0。剛好可當「屬於正類的機率」。</p>
 <figure><svg viewBox="0 0 380 185" role="img" aria-label="Sigmoid 函數曲線">
   <line x1="30" y1="150" x2="350" y2="150" stroke="#475569" marker-end="url(#ar-s)"/>
@@ -1416,6 +1417,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <hr>
 <h2 id="8">8. 激活函數 (Activation Functions)</h2>
 <p><strong>為什麼一定要非線性？</strong> 沒有激活，多層只是矩陣連乘＝一個矩陣（<a href="#1.3">§1.3.1</a>），再多層也只能學線性邊界。激活 $\sigma$ 提供<strong>非線性轉換</strong>，讓多層能逼近任意複雜函數、扭轉空間（<a href="#1.2">§1.2</a>、<a href="#1.3">§1.3.1</a>）。</p>
+<blockquote><p><strong>激活函數的兩種角色（別混淆）。</strong> <strong>隱藏層</strong>用 ReLU / tanh <strong>引入非線性</strong>（本節重點）；<strong>輸出層</strong>用 <strong>sigmoid（二元）/ softmax（多類）</strong> 把 logits 轉成<strong>機率</strong>——那正是 <a href="#3.2">§3.2</a> 邏輯迴歸、<a href="#3.3">§3.3</a> Softmax 在做的事（邏輯迴歸 ＝ 線性 + sigmoid 激活的單一神經元）。同一個 sigmoid，放<strong>隱藏層是為非線性</strong>、放<strong>輸出層是為機率</strong>；隱藏層現在多改用 ReLU（sigmoid 兩端飽和會<strong>梯度消失</strong>，見下）。</p></blockquote>
 <div class="tablewrap"><table>
 <thead><tr><th>函數</th><th>公式</th><th>特性 / 何時用</th></tr></thead>
 <tbody>
