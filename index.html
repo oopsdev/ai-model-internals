@@ -252,8 +252,9 @@ AI（人工智慧）
 <li><a href="#c1">C. 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</a></li>
 <li><a href="#d1">D. MSE ＝ 高斯誤差下的最大似然（推導）</a></li>
 <li><a href="#e1">E. 迴歸分析基礎</a></li>
+<li><a href="#f1">F. 熵 &amp; 交叉熵 (Entropy / Cross-Entropy)</a></li>
 </ol>
-<blockquote><p><a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A/B/C/D/E 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
+<blockquote><p><a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A/B/C/D/E/F 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -2309,9 +2310,76 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 <h3>E.5 與本教材的銜接</h3>
 <p>迴歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複迴歸</strong> → <a href="#3">主題 3</a>、神經元的線性部分（<a href="#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="#d1">附錄 D</a>、<a href="#2.3">§2.3</a>；<strong>非線性迴歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="#layer-output">§1.3.1</a>、<a href="#11">§11</a>）；<strong>評估</strong> → $R^2$／MSE 等迴歸指標（<a href="#18">§18.2</a>）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="f1">附錄 F — 熵 (Entropy) &amp; 交叉熵 (Cross-Entropy)</h2>
+<p><a href="#3.2">§3.2</a> / <a href="#3.3">§3.3</a> 用<strong>交叉熵</strong>當分類損失、<a href="#2.3">§2.3</a> 說它是<strong>負對數似然</strong>。本附錄補上背後的資訊理論：資訊量 → 熵 → 交叉熵 → KL 散度，以及為什麼分類用它。</p>
+
+<h3>F.1 資訊量：越意外，資訊越多</h3>
+<p>一個機率為 $p$ 的事件發生時，帶來的<strong>資訊量</strong>定義為 $I = -\log p$。</p>
+<ul>
+<li><strong>越不可能的事發生，資訊越多</strong>（越「驚訝」）：太陽升起（$p\approx1$）→ $I\approx0$（沒新意）；中樂透（$p$ 極小）→ $I$ 很大。</li>
+<li>為什麼用 $-\log$：要讓「兩獨立事件一起發生的資訊 ＝ 各自資訊相加」（$-\log(p_1p_2)=-\log p_1-\log p_2$），且機率越小資訊越大。</li>
+<li>單位：$\log_2$ → <strong>bit</strong>；$\ln$（自然對數）→ <strong>nat</strong>（ML 多用 nat）。</li>
+</ul>
+
+<h3>F.2 熵：一個分布的「平均資訊量／不確定性」</h3>
+<p>把分布 $p$ 的資訊量取<strong>期望</strong>，就是<strong>熵 (entropy)</strong>：</p>
+<p>$$H(p) = -\sum_x p(x)\log p(x) = \mathbb{E}_{x\sim p}[-\log p(x)]$$</p>
+<ul>
+<li>直覺：<strong>分布越均勻（越不確定）→ 熵越大；越集中（越確定）→ 熵越小</strong>。它量化「這個分布有多不確定／多亂」。</li>
+<li>例：公平硬幣 $H=1$ bit（最不確定）；兩面都正的硬幣 $H=0$（完全確定）；公平骰子 $H=\log_2 6\approx2.58$ bits。</li>
+<li><strong>用途</strong>：量化不確定性；<strong>資料壓縮的理論下限</strong>（Shannon）——無損編碼平均至少要 $H$ bits/符號。</li>
+</ul>
+<figure><svg viewBox="0 0 420 210" role="img" aria-label="二元熵曲線：H(p) 在 p=0.5 最高、兩端為 0">
+  <line x1="60" y1="170" x2="380" y2="170" stroke="#475569" stroke-width="1.3"/>
+  <line x1="60" y1="30" x2="60" y2="170" stroke="#475569" stroke-width="1.3"/>
+  <polyline points="60,170 90,109 120,76 150,55 180,44 210,40 240,44 270,55 300,76 330,109 360,170" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="210" y1="40" x2="210" y2="170" stroke="#64748b" stroke-width="1" stroke-dasharray="4 3"/>
+  <circle cx="210" cy="40" r="4" fill="#fbbf24"/>
+  <text x="210" y="28" fill="#fcd34d" font-size="11" text-anchor="middle">最不確定（H=1）</text>
+  <text x="60" y="185" fill="#94a3b8" font-size="10" text-anchor="middle">0</text>
+  <text x="210" y="185" fill="#94a3b8" font-size="10" text-anchor="middle">0.5</text>
+  <text x="360" y="185" fill="#94a3b8" font-size="10" text-anchor="middle">1</text>
+  <text x="220" y="200" fill="#94a3b8" font-size="11">p（正類機率）</text>
+  <text x="30" y="46" fill="#94a3b8" font-size="11">H(p)</text>
+  <text x="66" y="165" fill="#34d399" font-size="9">確定</text>
+  <text x="338" y="165" fill="#34d399" font-size="9">確定</text>
+</svg><figcaption>二元熵 $H(p)$：$p=0.5$（五五波）最不確定、熵最高；兩端（$p=0$ 或 $1$，結果確定）熵為 0。</figcaption></figure>
+
+<h3>F.3 交叉熵：用「錯的分布」描述「真實分布」的成本</h3>
+<p>若真實分布是 $p$，但你<strong>以為</strong>是 $q$，用 $q$ 去描述 $p$ 的資料，平均成本就是<strong>交叉熵</strong>：</p>
+<p>$$H(p,q) = -\sum_x p(x)\log q(x)$$</p>
+<ul>
+<li>直覺：<strong>用錯誤的信念 $q$ 去描述真實 $p$，要多付代價</strong>。$q$ 越接近 $p$，交叉熵越小；$q=p$ 時最小（＝熵 $H(p)$）。</li>
+<li><strong>在 ML</strong>：$p$ ＝ 真實標籤（one-hot，如「貓」＝ $[1,0,0]$），$q$ ＝ 模型預測機率（如 $[0.7,0.2,0.1]$）。交叉熵損失 $L=-\sum_k y_k\log\hat y_k = -\log\hat y_{\text{真類}}$——因 $y$ 是 one-hot，只剩「<strong>真類機率的負對數</strong>」。<strong>最小化交叉熵 ＝ 把真類的預測機率推高</strong>（<a href="#3.2">§3.2</a>、<a href="#3.3">§3.3</a>）。</li>
+<li>例：真實 $[1,0,0]$、預測 $[0.7,0.2,0.1]$ → $L=-\ln 0.7\approx0.357$ nat；預測更準 $[0.99,\dots]$ → $L\approx0.01$。</li>
+</ul>
+
+<h3>F.4 KL 散度：交叉熵 − 熵 ＝ 兩分布的差距</h3>
+<p>$$D_{\mathrm{KL}}(p\,\|\,q)=H(p,q)-H(p)=\sum_x p(x)\log\frac{p(x)}{q(x)}\ \ge 0$$</p>
+<ul>
+<li><strong>交叉熵 ＝ 熵 ＋ KL 散度</strong>。KL 散度 ＝「用 $q$ 近似 $p$ 多付的成本」＝ 兩分布的<strong>不對稱距離</strong>（$\ge0$，$p=q$ 時為 0）。</li>
+<li><strong>分類時 $p$ 是 one-hot → $H(p)=0$</strong>，所以<strong>最小化交叉熵 ＝ 最小化 KL 散度 ＝ 讓預測 $q$ 逼近真實 $p$</strong>。</li>
+</ul>
+
+<h3>F.5 為什麼分類用交叉熵當損失（用途）</h3>
+<ul>
+<li><strong>＝ 最大似然</strong>：$-\log\hat y_{\text{真類}}$ 就是<strong>負對數似然</strong>（<a href="#2.3">§2.3</a>）。最小化交叉熵 ＝ 最大化「模型給正確答案的機率」——和 MSE＝高斯 MLE（<a href="#d1">附錄 D</a>）是同一套「損失來自最大似然」的邏輯，只是分類假設<strong>類別分布</strong>、迴歸假設高斯。</li>
+<li><strong>梯度漂亮</strong>：softmax + 交叉熵的梯度化簡成 $\hat y - y$（<a href="#9">§9</a> 的 $\boldsymbol\delta^{(L)}$），數值穩定又好算。</li>
+<li><strong>比 MSE 適合分類</strong>：交叉熵對「<strong>很有信心卻答錯</strong>」懲罰極重（$\hat y_{\text{真類}}\to0$ 時 $-\log\to\infty$），逼模型快速修正；MSE 配 sigmoid 會在飽和區<strong>梯度消失</strong>、學很慢。</li>
+<li><strong>兩種形式</strong>：二元用<strong>二元交叉熵 BCE</strong>（<a href="#3.2">§3.2</a>），多類用<strong>交叉熵</strong>（<a href="#3.3">§3.3</a>）。</li>
+</ul>
+
+<h3>F.6 一句話</h3>
+<ul>
+<li><strong>熵</strong> ＝ 一個分布的平均不確定性（自己對自己的交叉熵）；</li>
+<li><strong>交叉熵</strong> ＝ 用預測分布 $q$ 描述真實分布 $p$ 的平均成本，$=H(p)+D_{\mathrm{KL}}(p\|q)$；</li>
+<li><strong>分類最小化交叉熵</strong> ＝ 讓預測機率逼近真實標籤 ＝ 負對數似然的最大似然（<a href="#3.2">§3.2</a> / <a href="#3.3">§3.3</a>、<a href="#2.3">§2.3</a>）。</li>
+</ul>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
-<a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A/B/C/D/E 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A/B/C/D/E/F 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎、附錄 F 熵 &amp; 交叉熵。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
