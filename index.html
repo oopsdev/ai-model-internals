@@ -253,8 +253,9 @@ AI（人工智慧）
 <li><a href="#b1">B. 貝氏定理推導</a></li>
 <li><a href="#c1">C. 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</a></li>
 <li><a href="#d1">D. MSE ＝ 高斯誤差下的最大似然（推導）</a></li>
+<li><a href="#e1">E. 回歸分析基礎</a></li>
 </ol>
-<blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
+<blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D/E 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -961,7 +962,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="3">3. 線性回歸與損失函數</h2>
-<p>線性回歸是<strong>最小的「會學習」模型</strong>，也是理解一切的起點——把前兩章（線代、機率）串起來，並帶出下一章（微積分與梯度）要解的問題。</p>
+<p>線性回歸是<strong>最小的「會學習」模型</strong>，也是理解一切的起點——把前兩章（線代、機率）串起來，並帶出下一章（微積分與梯度）要解的問題。（回歸分析的統計背景——意義、自變數／應變數的關係、常見回歸形式——見<a href="#e1">附錄 E</a>。）</p>
 <p><strong>線性回歸是什麼？</strong> 用一條直線（高維是超平面）$\hat y = \mathbf{w}^\top\mathbf{x}+b$ 去擬合「輸入特徵 $\mathbf{x}$ 與<strong>連續數值</strong>目標 $y$」的關係。</p>
 <ul>
 <li><strong>用途</strong>：預測<strong>連續數值</strong>（回歸）——房價、頻寬、溫度、風險分數…；對比<strong>分類</strong>（預測離散類別，<a href="#5">§5</a>）。</li>
@@ -2241,9 +2242,71 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 <li><strong>$\sigma^2$ 去哪了</strong>：它不影響 $\arg\min$（不改變最佳 $\mathbf{w},b$），但會影響對數似然的絕對值；若也要估 $\sigma^2$，對它取偏導＝0 會得到「$\sigma^2$ ＝殘差的平均平方」，正是最小化後的 MSE 本身。</li>
 </ul>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="e1">附錄 E — 回歸分析基礎</h2>
+<p>主題 3 從「線性回歸 + 損失」切入，直接談怎麼學參數。本附錄退一步，補上<strong>回歸分析 (regression analysis)</strong> 的統計背景：它在做什麼、自變數與應變數的關係、原理，以及常見的回歸形式。</p>
+
+<h3>E.1 回歸分析在做什麼（意義）</h3>
+<p><strong>回歸分析</strong>研究<strong>兩個或多個變數之間的關係</strong>——它們是否<strong>相關</strong>、相關的<strong>方向</strong>（正相關 / 負相關）與<strong>強度</strong>，並據此<strong>建立一個數學模型</strong>，好讓我們能<strong>觀察特定自變數、預測應變數</strong>。</p>
+<ul>
+<li><strong>核心目標</strong>：由給定的自變數，估計應變數的<strong>條件期望值</strong> $E[y\mid x]$——也就是「在 $x$ 是這個值的條件下，$y$ 平均會是多少」。回歸函數本質上就是這條<strong>條件平均</strong>曲線。</li>
+<li>一句話：<strong>回歸 ＝ 找出「$x\to y$ 的平均趨勢」，並用來預測。</strong></li>
+<li>注意：回歸量的是<strong>相關與預測</strong>，<strong>不等於因果</strong>（$x,y$ 相關不代表 $x$ 造成 $y$；常見誤區）。</li>
+</ul>
+
+<h3>E.2 自變數與應變數的關係（定義）</h3>
+<ul>
+<li><strong>自變數 (independent variable，又稱預測變數 / 特徵 feature) $x$</strong>：輸入、用來解釋或預測的變數。</li>
+<li><strong>應變數 (dependent variable，又稱反應變數 / 目標 target) $y$</strong>：輸出、被預測的量；它的值「依賴」自變數。</li>
+</ul>
+<p>兩者的關係寫成：</p>
+<p>$$y = f(x) + \varepsilon$$</p>
+<p>其中 $f(x)$ 是<strong>回歸函數</strong>（系統性、可預測的部分，$f(x)=E[y\mid x]$），$\varepsilon$ 是<strong>隨機誤差</strong>（雜訊、量不到的因素，平均為 0）。回歸就是從資料<strong>估計出 $f$</strong>。<strong>相關的方向與強度</strong>常用兩個量描述：<strong>相關係數 $r$</strong>（$-1\sim1$，正負表方向、絕對值表線性相關強度）、<strong>決定係數 $R^2$</strong>（模型解釋了應變數多少比例的變異，<a href="#19">§19.2</a>）。</p>
+
+<h3>E.3 回歸分析的原理</h3>
+<p><strong>原理一句話</strong>：目的在於<strong>找出一條最能代表所有觀測資料的函數曲線</strong>——稱為<strong>回歸估計式（回歸方程）</strong> $\hat y=f(x)$；用這條曲線<strong>代表應變數（因變數）與自變數之間的關係</strong>，再據以預測。具體分四步：</p>
+<ol>
+<li><strong>假設關係形式</strong>：先設定 $f$ 的形態（直線、多項式、多變數線性…），留下待定的<strong>參數</strong>（如 $\mathbf{w}, b$）。</li>
+<li><strong>用資料擬合參數</strong>：調參數讓模型<strong>最貼合資料</strong>——通常最小化<strong>殘差平方和</strong>（＝最小平方 / MSE，<a href="#3.1">§3.1</a>）。在「誤差服從高斯分布」假設下，這等價於<strong>最大似然</strong>（<a href="#d1">附錄 D</a>）。</li>
+<li><strong>預測</strong>：把新的自變數代入擬合好的 $f$，得到 $\hat y$，即估計的 $E[y\mid x]$。</li>
+<li><strong>評估</strong>：看 $R^2$、殘差圖、參數顯著性，判斷模型好壞與是否過擬合（<a href="#7">§7</a>、<a href="#19">§19.2</a>）。</li>
+</ol>
+
+<h3>E.4 常用的回歸形式</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>形式</th><th>模型</th><th>用途 / 特性</th></tr></thead>
+<tbody>
+<tr><td><strong>線性回歸</strong>（單變數 simple linear）</td><td>$\hat y = wx + b$</td><td>一個自變數、一條直線；最基本，看單一因子與 $y$ 的線性趨勢</td></tr>
+<tr><td><strong>複回歸 / 多元回歸</strong>（multiple linear）</td><td>$\hat y = w_1x_1+\dots+w_nx_n+b=\mathbf{w}^\top\mathbf{x}+b$</td><td><strong>多個自變數同時</strong>影響 $y$（房價 ＝ 坪數 ＋ 地段 ＋ 屋齡…）；就是內積 ＋ 偏置，<strong>神經元的線性部分</strong>（<a href="#1.2">§1.2</a>）</td></tr>
+<tr><td><strong>多項式回歸</strong>（polynomial）</td><td>$\hat y = w_0+w_1x+w_2x^2+\dots+w_dx^d$</td><td>描述<strong>彎曲（非線性）趨勢</strong>；雖對 $x$ 非線性，但<strong>對參數仍是線性</strong>，可用同一套最小平方求解。次數 $d$ 太高易<strong>過擬合</strong>（<a href="#7">§7</a>）</td></tr>
+</tbody></table></div>
+<figure><svg viewBox="0 0 660 210" role="img" aria-label="線性回歸用直線、多項式回歸用曲線擬合同一組資料">
+  <rect x="20" y="25" width="290" height="160" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="165" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">線性回歸（直線）</text>
+  <line x1="40" y1="170" x2="300" y2="170" stroke="#475569" stroke-width="1"/>
+  <line x1="40" y1="40" x2="40" y2="170" stroke="#475569" stroke-width="1"/>
+  <line x1="50" y1="155" x2="295" y2="60" stroke="#34d399" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="70" cy="150" r="3.5"/><circle cx="110" cy="120" r="3.5"/><circle cx="150" cy="128" r="3.5"/><circle cx="190" cy="95" r="3.5"/><circle cx="230" cy="88" r="3.5"/><circle cx="270" cy="62" r="3.5"/></g>
+  <rect x="350" y="25" width="290" height="160" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="495" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">多項式回歸（曲線）</text>
+  <line x1="370" y1="170" x2="630" y2="170" stroke="#475569" stroke-width="1"/>
+  <line x1="370" y1="40" x2="370" y2="170" stroke="#475569" stroke-width="1"/>
+  <path d="M380,80 Q430,175 500,150 Q570,125 625,55" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="390" cy="90" r="3.5"/><circle cx="430" cy="150" r="3.5"/><circle cx="470" cy="158" r="3.5"/><circle cx="520" cy="145" r="3.5"/><circle cx="560" cy="120" r="3.5"/><circle cx="610" cy="70" r="3.5"/></g>
+</svg><figcaption>同一組資料：<strong>線性回歸</strong>用一條直線抓「平均趨勢」；<strong>多項式回歸</strong>加高次項把線彎起來、貼合曲線關係（次數太高會過擬合）。兩者都靠最小平方擬合。</figcaption></figure>
+<ul>
+<li><strong>線性回歸</strong>：關係接近直線時最簡潔、可解釋性高。</li>
+<li><strong>複回歸</strong>：真實問題多半多因子，這是最常用的形式；也正是本教材「$\mathbf{w}^\top\mathbf{x}+b$」的由來。</li>
+<li><strong>多項式回歸</strong>：資料呈曲線時，用高次項把「直線」彎起來；本質是把 $x,x^2,\dots$ 當成<strong>新特徵</strong>餵給複回歸（特徵工程的雛形）。</li>
+<li><strong>延伸</strong>：輸出改成「機率」就是<strong>邏輯回歸</strong>（分類，<a href="#5">§5</a>）；用「多層 ＋ 非線性 $\sigma$」達成更一般的非線性回歸，就是<strong>神經網路</strong>（<a href="#1.2">§1.2</a>、<a href="#12">§12</a>）。</li>
+</ul>
+
+<h3>E.5 與本教材的銜接</h3>
+<p>回歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複回歸</strong> → <a href="#3">主題 3</a>、神經元的線性部分（<a href="#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="#d1">附錄 D</a>、<a href="#2.3">§2.3</a>；<strong>非線性回歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="#layer-output">§1.3.1</a>、<a href="#12">§12</a>）；<strong>評估</strong> → $R^2$／MSE 等回歸指標（<a href="#19">§19.2</a>）。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
-<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D 均已完成初稿：線代、機率統計、線性回歸、微積分、邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自回歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D/E 均已完成初稿：線代、機率統計、線性回歸、微積分、邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自回歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 回歸分析基礎。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
