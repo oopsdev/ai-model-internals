@@ -719,7 +719,7 @@ AI（人工智慧）
 <tbody>
 <tr><td>距離 / 相似度</td><td>兩點距離 $\lVert\mathbf{a}-\mathbf{b}\rVert$ → KNN、分群、異常偵測</td></tr>
 <tr><td><strong>正則化</strong> (regularization)</td><td>懲罰權重 $\lVert\mathbf{w}\rVert$ 防過擬合（L1 稀疏／L2 平滑，<a href="#6">§6</a>）</td></tr>
-<tr><td><strong>正規化</strong> (normalization)</td><td>$\mathbf{x}/\lVert\mathbf{x}\rVert$ 做單位向量、Layer/Batch Norm（1.5、<a href="#10">§10</a>）</td></tr>
+<tr><td><strong>正規化</strong> (normalization)</td><td>$\mathbf{x}/\lVert\mathbf{x}\rVert$ 做單位向量、Layer/Batch Norm（<a href="#1.5">§1.5</a>、<a href="#10">§10</a>）</td></tr>
 <tr><td>餘弦相似度</td><td>除以範數消掉長度 → Embedding 語意檢索（<a href="#13">§13</a>）</td></tr>
 <tr><td>損失函數</td><td>MSE ＝殘差的 L2 範數平方 $\lVert\hat{\mathbf{y}}-\mathbf{y}\rVert^2$（<a href="#3">§3</a>）</td></tr>
 <tr><td>梯度裁剪 (gradient clipping)</td><td>限制梯度大小 $\lVert\nabla\rVert$ 穩定訓練（<a href="#5">§5</a>）</td></tr>
@@ -962,10 +962,10 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h2 id="3">3. 迴歸、分類與損失函數</h2>
 <p><strong>本章一次談判別式監督學習的兩大任務——迴歸與分類——以及它們的損失函數。</strong> 兩者<strong>都是「預測」</strong>（給輸入、出一個猜測），差別只在<strong>預測的東西是什麼型態</strong>、因此配不同的損失：</p>
 <ul>
-<li><strong>$y$ 是連續數值</strong>（房價、延遲、溫度、風險分數）→ 用<strong>線性迴歸</strong>，損失用 <strong>MSE</strong>（3.1）。</li>
-<li><strong>$y$ 是離散類別</strong>（貓/狗、惡意/正常、A/B/C）→ 用<strong>邏輯迴歸 / Softmax</strong>，損失用<strong>交叉熵</strong>（3.2–3.4）——<strong>分類不要用線性迴歸 / MSE</strong>：線性輸出沒有 $(0,1)$ 界線、也不對應機率，硬套會學不動（原因見 <a href="#3.2">§3.2</a>）。</li>
+<li><strong>$y$ 是連續數值</strong>（房價、延遲、溫度、風險分數）→ 用<strong>線性迴歸</strong>，損失用 <strong>MSE</strong>（<a href="#3.1">§3.1</a>）。</li>
+<li><strong>$y$ 是離散類別</strong>（貓/狗、惡意/正常、A/B/C）→ 用<strong>邏輯迴歸 / Softmax</strong>，損失用<strong>交叉熵</strong>（<a href="#3.2">§3.2</a>–<a href="#3.4">§3.4</a>）——<strong>分類不要用線性迴歸 / MSE</strong>：線性輸出沒有 $(0,1)$ 界線、也不對應機率，硬套會學不動（原因見 <a href="#3.2">§3.2</a>）。</li>
 </ul>
-<p>兩者<strong>骨架都是 $\mathbf{w}^\top\mathbf{x}+b$</strong>，差別只在<strong>輸出怎麼用 ＋ 配哪種損失</strong>。<strong>本章先講迴歸（3.1，線性迴歸 + MSE）、再講分類（3.2–3.4，Sigmoid / Softmax + 交叉熵）。</strong></p>
+<p>兩者<strong>骨架都是 $\mathbf{w}^\top\mathbf{x}+b$</strong>，差別只在<strong>輸出怎麼用 ＋ 配哪種損失</strong>。<strong>本章先講迴歸（<a href="#3.1">§3.1</a>，線性迴歸 + MSE）、再講分類（<a href="#3.2">§3.2</a>–<a href="#3.4">§3.4</a>，Sigmoid / Softmax + 交叉熵）。</strong></p>
 <p>線性迴歸是<strong>最小的「會學習」模型</strong>，也是理解一切的起點——把前兩章（線代、機率）串起來，並帶出下一章（微積分與梯度）要解的問題。（迴歸分析的統計背景——意義、自變數／應變數的關係、常見迴歸形式——見<a href="#e1">附錄 E</a>。）</p>
 <p><strong>線性迴歸是什麼？</strong> 用一條直線（高維是超平面）$\hat y = \mathbf{w}^\top\mathbf{x}+b$ 去擬合「輸入特徵 $\mathbf{x}$ 與<strong>連續數值</strong>目標 $y$」的關係。</p>
 <ul>
@@ -973,7 +973,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>幾何意義</strong>：在資料散點中找一條「<strong>最能穿過點雲</strong>」的直線。</li>
 <li><strong>為何是「起點」</strong>：線性迴歸的算式 $\mathbf{w}^\top\mathbf{x}+b$（內積 <a href="#1.1">§1.1</a> 再加偏置）<strong>正是神經元的第一步</strong>（<a href="#1.2">§1.2</a>）——神經元只是在它後面<strong>多接一個非線性 $\sigma$</strong>：$a=\sigma(\mathbf{w}^\top\mathbf{x}+b)$。演進鏈：<strong>線性迴歸 → 加 $\sigma$ ＝ 一個神經元 → 一排 ＝ 一層 → 多層堆疊 ＝ 神經網路</strong>。也就是說，最複雜的網路拆到<strong>最小積木</strong>就是這條線性迴歸式子——懂它（怎麼算、怎麼學）就懂了整個網路的基本單元，所以從它學起。</li>
 </ul>
-<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點到線的<strong>垂直距離（殘差）整體最小</strong>——點越貼線越好（詳見 3.1 幾何意義）。這正是線性迴歸與損失函數的關係：<strong>模型（線性迴歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
+<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點到線的<strong>垂直距離（殘差）整體最小</strong>——點越貼線越好（詳見 <a href="#3.1">§3.1</a> 幾何意義）。這正是線性迴歸與損失函數的關係：<strong>模型（線性迴歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
 <h3 id="3.1">3.1 模型與損失</h3>
 <p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（下一章 <a href="#4">§4</a> 用梯度下降往低處走）。</p>
 <p><strong>損失的意義。</strong></p>
@@ -2223,7 +2223,7 @@ $$y_i = \mathbf{w}^\top\mathbf{x}_i + b + \varepsilon_i,\qquad \varepsilon_i \ov
 $$y_i\mid\mathbf{x}_i\ \sim\ \mathcal{N}(\hat y_i,\ \sigma^2)$$
 
 <h3>D.2 寫出似然</h3>
-<p>單筆資料的機率密度（高斯 PDF，見 2.1 表）：</p>
+<p>單筆資料的機率密度（高斯 PDF，見 <a href="#2.1">§2.1</a> 表）：</p>
 $$p(y_i\mid\mathbf{x}_i)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y_i-\hat y_i)^2}{2\sigma^2}\right)$$
 <p>因各筆獨立，整份資料的<strong>似然</strong>是連乘（<a href="#2">§2.3</a>）：</p>
 $$L(\mathbf{w},b)=\prod_{i=1}^{N}p(y_i\mid\mathbf{x}_i)$$
@@ -2241,7 +2241,7 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 <h3>D.5 意涵</h3>
 <ul>
 <li><strong>平方不是任意選的</strong>：它直接來自高斯 PDF 指數項裡的 $(y-\hat y)^2$。換一種誤差假設就換一種損失——例如假設誤差服從<strong>拉普拉斯分布</strong>，MLE 會變成最小化<strong>絕對誤差 (MAE, $\sum|y_i-\hat y_i|$)</strong>。</li>
-<li><strong>呼應「選損失＝做假設」</strong>（3.1、<a href="#2">§2.3</a>）：MSE ↔ 高斯、交叉熵 ↔ 類別分布，都是最大似然的特例。</li>
+<li><strong>呼應「選損失＝做假設」</strong>（<a href="#3.1">§3.1</a>、<a href="#2.3">§2.3</a>）：MSE ↔ 高斯、交叉熵 ↔ 類別分布，都是最大似然的特例。</li>
 <li><strong>$\sigma^2$ 去哪了</strong>：它不影響 $\arg\min$（不改變最佳 $\mathbf{w},b$），但會影響對數似然的絕對值；若也要估 $\sigma^2$，對它取偏導＝0 會得到「$\sigma^2$ ＝殘差的平均平方」，正是最小化後的 MSE 本身。</li>
 </ul>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
