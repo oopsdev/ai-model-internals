@@ -1011,6 +1011,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>達到它有兩條路。</strong> <strong>閉式解</strong>（最小平方／正規方程 $\mathbf{w}=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$）一步算到精確最小；或<strong>梯度下降</strong>（<a href="#4.2">§4.2</a>）逐步逼近。因為是凸的，兩者收斂到同一答案。</li>
 </ul>
 <p><span class="geo">分類 vs 回歸（一張圖看懂）。</span> 同一堆資料點：<strong>分類是拿超平面把點雲「切開」</strong>（判在哪一側/哪一區）；<strong>回歸是拿一條線「穿過」點雲</strong>（讓點盡量貼近、預測數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上，差別只在輸出怎麼用 — 分類看落在哪一側（argmax），回歸直接讀數值。</p>
+<p><strong>線性回歸 vs 邏輯回歸 — 何時用哪個（別誤會）。</strong> 別把本章的「線性回歸 + MSE」當成所有任務的通法——<strong>它是「回歸（預測連續數值）」專用的</strong>。怎麼選看<strong>應變數 $y$ 的型態</strong>：</p>
+<ul>
+<li><strong>$y$ 是連續數值</strong>（房價、延遲、溫度、風險分數）→ 用<strong>線性回歸</strong>，損失用 <strong>MSE</strong>（本章）。</li>
+<li><strong>$y$ 是離散類別</strong>（貓/狗、惡意/正常、A/B/C）→ 用<strong>邏輯回歸 / Softmax</strong>，損失用<strong>交叉熵</strong>（<a href="#5">§5</a>）——<strong>分類不要用線性回歸 / MSE</strong>：線性輸出沒有 $(0,1)$ 界線、也不對應機率，硬套會學不動（原因 <a href="#5">§5</a> 會說明）。</li>
+</ul>
+<p>兩者的<strong>骨架都是 $\mathbf{w}^\top\mathbf{x}+b$</strong>（上圖「切開 vs 穿過」），差別只在<strong>輸出怎麼用 ＋ 配哪種損失</strong>。本章先把「<strong>回歸 + MSE</strong>」講透；分類那條（<strong>Sigmoid / Softmax + 交叉熵</strong>）留到 <a href="#5">§5</a> 深入。</p>
 <figure><svg viewBox="0 0 660 230" role="img" aria-label="分類是用超平面切開點雲，回歸是用一條線穿過點雲">
   <rect x="20" y="45" width="280" height="155" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
   <text x="160" y="35" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">分類：用超平面「切開」</text>
