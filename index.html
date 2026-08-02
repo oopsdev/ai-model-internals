@@ -101,7 +101,7 @@ AI（人工智慧）
    │    ├─ RNN / LSTM（序列）             → <a href="#15">§15</a>
    │    └─ Transformer（注意力，LLM 骨幹）→ <a href="#16">§16</a>
    └─ 非深度學習的 ML
-        ├─ 線性/邏輯回歸                  → <a href="#3">§3</a>、<a href="#5">§5</a>
+        ├─ 線性/邏輯迴歸                  → <a href="#3">§3</a>、<a href="#5">§5</a>
         └─ GBDT / LightGBM（決策樹集成，不是神經網路 → 不算 DL）→ <a href="#c1">附錄 C</a>
 </pre>
 <p>「深」＝<strong>多層</strong>堆疊；單一神經元或單層一般不算深度學習。CNN 天生多層，是標準的 DL 成員。</p>
@@ -129,7 +129,7 @@ AI（人工智慧）
     <ol>
       <li><a href="#1">線性代數：向量、內積、矩陣乘法</a></li>
       <li><a href="#2">機率統計：機率、似然、分布</a></li>
-      <li><a href="#3">線性回歸與損失函數</a></li>
+      <li><a href="#3">線性迴歸與損失函數</a></li>
       <li><a href="#4">微積分：導數、梯度、鏈鎖律</a></li>
       <li><a href="#5">Softmax 與交叉熵</a></li>
       <li><a href="#6">梯度下降與 Adam</a></li>
@@ -163,7 +163,7 @@ AI（人工智慧）
                  評估（<a href="#19">§19</a>）→ 量化（<a href="#20.3">§20.3</a>）→ GPU/NPU（<a href="#20.1">§20.1</a>）</pre>
 </section>
 
-<blockquote><p><strong>想直接看程式碼？</strong> 配套導讀 <strong><a href="ml-training-walkthrough.html">一支腳本看完整個學習過程</a></strong> 用純 NumPy 從零手刻 <strong>線性回歸 → 2 層 MLP</strong>（再附 PyTorch 對照），把「前向 → 損失 → 反向 → 更新」跑成一支可執行腳本，每段都連回本教材對應章節。先讀理論再對照程式碼、或先跑腳本遇到不懂再回查，都可以。</p></blockquote>
+<blockquote><p><strong>想直接看程式碼？</strong> 配套導讀 <strong><a href="ml-training-walkthrough.html">一支腳本看完整個學習過程</a></strong> 用純 NumPy 從零手刻 <strong>線性迴歸 → 2 層 MLP</strong>（再附 PyTorch 對照），把「前向 → 損失 → 反向 → 更新」跑成一支可執行腳本，每段都連回本教材對應章節。先讀理論再對照程式碼、或先跑腳本遇到不懂再回查，都可以。</p></blockquote>
 
 <blockquote>
 <p><strong>符號約定。</strong> 純量用斜體 $x$；向量用粗體小寫 $\mathbf{x}$（預設欄向量）；矩陣用粗體大寫 $\mathbf{W}$；$\hat{y}$ 為預測、$y$ 為真值；$\eta$ 為學習率；$\theta$ 為參數集合；$\sigma(\cdot)$ 為激活函數（如 sigmoid／ReLU，<a href="#9">§9</a>）——注意 $\sigma$、$\sigma^2$ 在機率與正規化語境<strong>另表標準差／變異數</strong>（<a href="#2">§2</a>、<a href="#11">§11</a>）；$\odot$ 為<strong>逐元素相乘</strong> (element-wise / Hadamard)；$\nabla$ 為梯度（<a href="#4.1">§4.1</a>）。數學式以 MathJax 渲染。（「欄」＝直的 column、「列」＝橫的 row；本文一律用欄/列，避開兩岸定義相反的「行」。）</p>
@@ -172,7 +172,7 @@ AI（人工智慧）
 <thead><tr><th>縮寫</th><th>全名</th><th>意義</th></tr></thead>
 <tbody>
 <tr><td>matmul / GEMM</td><td>matrix multiply / General Matrix Multiply</td><td>矩陣乘法（GEMM 是函式庫/硬體術語）</td></tr>
-<tr><td>MSE</td><td>Mean Squared Error</td><td>均方誤差（回歸損失）</td></tr>
+<tr><td>MSE</td><td>Mean Squared Error</td><td>均方誤差（迴歸損失）</td></tr>
 <tr><td>MLE</td><td>Maximum Likelihood Estimation</td><td>最大似然估計</td></tr>
 <tr><td>CE / BCE</td><td>(Binary) Cross-Entropy</td><td>交叉熵 / 二元交叉熵（分類損失）</td></tr>
 <tr><td>GD / SGD</td><td>(Stochastic) Gradient Descent</td><td>(隨機)梯度下降；SGD 每步用小批資料估梯度（§6）</td></tr>
@@ -219,9 +219,9 @@ AI（人工智慧）
 </ol>
 <p><strong>Part II · 從線性模型到學習</strong></p>
 <ol start="3">
-<li><a href="#3">線性回歸與損失函數</a></li>
+<li><a href="#3">線性迴歸與損失函數</a></li>
 <li><a href="#4">微積分與梯度 — 導數、偏導、鏈鎖律</a></li>
-<li><a href="#5">邏輯回歸、Sigmoid、Softmax 與交叉熵</a></li>
+<li><a href="#5">邏輯迴歸、Sigmoid、Softmax 與交叉熵</a></li>
 </ol>
 <p><strong>Part III · 神經網路與訓練</strong></p>
 <ol start="6">
@@ -239,7 +239,7 @@ AI（人工智慧）
 <li><a href="#14">Embedding 與向量表示</a></li>
 <li><a href="#15">RNN / LSTM — 序列建模</a></li>
 <li><a href="#16">注意力與 Transformer</a></li>
-<li><a href="#17">自回歸生成與取樣</a></li>
+<li><a href="#17">自迴歸生成與取樣</a></li>
 <li><a href="#18">訓練目標與微調 (Fine-tuning / LoRA)</a></li>
 </ol>
 <p><strong>Part V · 評估與部署</strong></p>
@@ -253,7 +253,7 @@ AI（人工智慧）
 <li><a href="#b1">B. 貝氏定理推導</a></li>
 <li><a href="#c1">C. 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</a></li>
 <li><a href="#d1">D. MSE ＝ 高斯誤差下的最大似然（推導）</a></li>
-<li><a href="#e1">E. 回歸分析基礎</a></li>
+<li><a href="#e1">E. 迴歸分析基礎</a></li>
 </ol>
 <blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D/E 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
@@ -314,7 +314,7 @@ AI（人工智慧）
   <g stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="170" y1="340" x2="185" y2="340"/><line x1="335" y1="340" x2="350" y2="340"/><line x1="500" y1="340" x2="515" y2="340"/>
   </g>
-  <text x="590" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">↻ 接龍（自回歸）</text>
+  <text x="590" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">↻ 接龍（自迴歸）</text>
 </svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 激活 + softmax</strong>」；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（<a href="#20">§20</a>）。</figcaption></figure>
 <p><strong>看出共通性</strong>：把 <strong>1.1–1.5（線代）＋ 3（微積分）＋ 5（softmax/交叉熵）</strong> 學通，三種網路就都通了 — 推論是訓練的前向段、生成是推論加接龍。下面三張表是同一張圖的細節：</p>
 <div class="tablewrap"><table class="t-train">
@@ -617,13 +617,13 @@ AI（人工智慧）
 <p><strong>3D 版：單位立方體 → 平行六面體。</strong> 換成 3×3 矩陣，它作用在 3D 空間：<strong>三個欄向量</strong>張成一個<strong>平行六面體 (parallelepiped)</strong>，det = 它的<strong>體積</strong>。單位立方體（體積 1）被拉成這個平行六面體，體積就是 |det|。例 $\mathbf{A}=\mathrm{diag}(2,3,1)$：把立方體拉成 $2\times3\times1$ 的箱子，體積 $=2\times3\times1=6=\det\mathbf{A}$；det = 0 則壓扁成平面或線（體積 0）。同一個「大小放大的固定倍數」概念，2D 是面積、3D 是體積、n 維是 n 維體積。</p>
 <p><strong>行列式的應用。</strong> 它遠不只算面積，是線代的常用工具：</p>
 <ul>
-<li><strong>可逆性／線性相關（最常用的開關）</strong>：det ≠ 0 → <strong>可逆</strong> — 變換一對一、沒壓扁空間，能「倒帶」還原（存在反矩陣 $\mathbf{A}^{-1}$，$\mathbf{A}^{-1}\mathbf{A}=\mathbf{I}$），欄向量線性獨立；det = 0 → <strong>不可逆（奇異）</strong> — 空間被壓扁、不同輸入被壓到同一輸出（資訊丟失、還不回去），欄向量線性相關。它決定 $\mathbf{A}\mathbf{x}=\mathbf{b}$ 有沒有唯一解（回歸、共線性、正則化的根源）。</li>
+<li><strong>可逆性／線性相關（最常用的開關）</strong>：det ≠ 0 → <strong>可逆</strong> — 變換一對一、沒壓扁空間，能「倒帶」還原（存在反矩陣 $\mathbf{A}^{-1}$，$\mathbf{A}^{-1}\mathbf{A}=\mathbf{I}$），欄向量線性獨立；det = 0 → <strong>不可逆（奇異）</strong> — 空間被壓扁、不同輸入被壓到同一輸出（資訊丟失、還不回去），欄向量線性相關。它決定 $\mathbf{A}\mathbf{x}=\mathbf{b}$ 有沒有唯一解（迴歸、共線性、正則化的根源）。</li>
 <li><strong>解線性方程組</strong>：$\mathbf{A}\mathbf{x}=\mathbf{b}$，det ≠ 0 有唯一解、det = 0 無解或無限多（克拉瑪公式直接用 det 解）。</li>
 <li><strong>求特徵值</strong>：$\det(\mathbf{A}-\lambda\mathbf{I})=0$（見 <a href="#1.6">§1.6</a>，PCA／譜分析入口）。</li>
 <li><strong>幾何</strong>：三角形／多邊形面積、體積、判斷共線共面（det = 0）、方向（det 正負＝有無翻轉／鏡射）。</li>
 <li><strong>機率／ML</strong>：多元高斯分布的協方差 $\det\boldsymbol{\Sigma}$（機率密度歸一化常數）；換座標的 <strong>Jacobian 行列式</strong>（多重積分換元、生成模型 normalizing flows 用 $\log\lvert\det\mathbf{J}\rvert$）。</li>
 </ul>
-<p><strong>非方陣呢？</strong> 非方陣（列數 ≠ 欄數）<strong>沒有行列式</strong> — 因為它「進出不同維度」，沒有單一的體積倍率。要量體積改用 <strong>Gram 行列式</strong> $\sqrt{\det(\mathbf{A}^\top\mathbf{A})}$、要通用縮放用<strong>奇異值 (SVD)</strong>、要求逆用<strong>偽逆 (pseudoinverse)</strong>。ML 常把非方陣的資料矩陣 $\mathbf{X}$（$m$ 筆 × $n$ 特徵）湊成方陣 $\mathbf{X}^\top\mathbf{X}$ 來用（回歸的正規方程就是這樣）。</p>
+<p><strong>非方陣呢？</strong> 非方陣（列數 ≠ 欄數）<strong>沒有行列式</strong> — 因為它「進出不同維度」，沒有單一的體積倍率。要量體積改用 <strong>Gram 行列式</strong> $\sqrt{\det(\mathbf{A}^\top\mathbf{A})}$、要通用縮放用<strong>奇異值 (SVD)</strong>、要求逆用<strong>偽逆 (pseudoinverse)</strong>。ML 常把非方陣的資料矩陣 $\mathbf{X}$（$m$ 筆 × $n$ 特徵）湊成方陣 $\mathbf{X}^\top\mathbf{X}$ 來用（迴歸的正規方程就是這樣）。</p>
 
 <h3 id="layer-output">1.3.1 一層的輸出在幾何上是什麼？（換座標系＋非線性摺疊）</h3>
 <p>前面談的是「一層的線性部分 $\mathbf{W}\mathbf{x}+\mathbf{b}$」。但真正餵給下一層的，是再經過激活 $\mathbf{a}=\sigma(\mathbf{z})$ 的輸出。<strong>那個輸出向量 $\mathbf{a}$ 在幾何上代表什麼？</strong>由淺到深有四層意義：</p>
@@ -953,7 +953,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>訓練 ↔ 推論的閉環（MLE 找到的 θ 之後怎麼用）。</strong> MLE 找到的 $\theta^\star$ 就是<strong>模型的全部權重</strong>（所有 $\mathbf{W},\mathbf{b}$、filter、embedding…），訓練完<strong>固定下來、存成模型檔</strong>。推論時對<strong>新輸入 $x$</strong> 用同一組 $\theta^\star$ 跑<strong>前向傳播（<a href="#8">§8</a>）</strong>、算出：</p>
 <ul>
 <li><strong>分類</strong> → $P(y\mid x;\theta^\star)$ 各類機率（softmax，<a href="#5">§5</a>）→ argmax 取類別、或當信心分數調門檻；</li>
-<li><strong>回歸</strong> → 預測數值 $\hat y=f(x;\theta^\star)$；</li>
+<li><strong>迴歸</strong> → 預測數值 $\hat y=f(x;\theta^\star)$；</li>
 <li><strong>生成 / LLM</strong> → $P(\text{下一個 token}\mid \text{context};\theta^\star)$ → 取樣生成（<a href="#17">§17</a>）。</li>
 </ul>
 <p>所以<strong>訓練學參數、推論用參數，兩邊是同一個 $P(y\mid x;\theta)$</strong>——訓練時在<strong>訓練資料</strong>上把它調到最能解釋，推論時把它套到<strong>沒看過的 $x$</strong>；套得準不準就是<strong>泛化</strong>（<a href="#7">§7</a>）。</p>
@@ -961,15 +961,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="3">3. 線性回歸與損失函數</h2>
-<p>線性回歸是<strong>最小的「會學習」模型</strong>，也是理解一切的起點——把前兩章（線代、機率）串起來，並帶出下一章（微積分與梯度）要解的問題。（回歸分析的統計背景——意義、自變數／應變數的關係、常見回歸形式——見<a href="#e1">附錄 E</a>。）</p>
-<p><strong>線性回歸是什麼？</strong> 用一條直線（高維是超平面）$\hat y = \mathbf{w}^\top\mathbf{x}+b$ 去擬合「輸入特徵 $\mathbf{x}$ 與<strong>連續數值</strong>目標 $y$」的關係。</p>
+<h2 id="3">3. 線性迴歸與損失函數</h2>
+<p>線性迴歸是<strong>最小的「會學習」模型</strong>，也是理解一切的起點——把前兩章（線代、機率）串起來，並帶出下一章（微積分與梯度）要解的問題。（迴歸分析的統計背景——意義、自變數／應變數的關係、常見迴歸形式——見<a href="#e1">附錄 E</a>。）</p>
+<p><strong>線性迴歸是什麼？</strong> 用一條直線（高維是超平面）$\hat y = \mathbf{w}^\top\mathbf{x}+b$ 去擬合「輸入特徵 $\mathbf{x}$ 與<strong>連續數值</strong>目標 $y$」的關係。</p>
 <ul>
-<li><strong>用途</strong>：預測<strong>連續數值</strong>（回歸）——房價、頻寬、溫度、風險分數…；對比<strong>分類</strong>（預測離散類別，<a href="#5">§5</a>）。</li>
+<li><strong>用途</strong>：預測<strong>連續數值</strong>（迴歸）——房價、頻寬、溫度、風險分數…；對比<strong>分類</strong>（預測離散類別，<a href="#5">§5</a>）。</li>
 <li><strong>幾何意義</strong>：在資料散點中找一條「<strong>最能穿過點雲</strong>」的直線。</li>
-<li><strong>為何是「起點」</strong>：線性回歸的算式 $\mathbf{w}^\top\mathbf{x}+b$（內積 <a href="#1.1">§1.1</a> 再加偏置）<strong>正是神經元的第一步</strong>（<a href="#1.2">§1.2</a>）——神經元只是在它後面<strong>多接一個非線性 $\sigma$</strong>：$a=\sigma(\mathbf{w}^\top\mathbf{x}+b)$。演進鏈：<strong>線性回歸 → 加 $\sigma$ ＝ 一個神經元 → 一排 ＝ 一層 → 多層堆疊 ＝ 神經網路</strong>。也就是說，最複雜的網路拆到<strong>最小積木</strong>就是這條線性回歸式子——懂它（怎麼算、怎麼學）就懂了整個網路的基本單元，所以從它學起。</li>
+<li><strong>為何是「起點」</strong>：線性迴歸的算式 $\mathbf{w}^\top\mathbf{x}+b$（內積 <a href="#1.1">§1.1</a> 再加偏置）<strong>正是神經元的第一步</strong>（<a href="#1.2">§1.2</a>）——神經元只是在它後面<strong>多接一個非線性 $\sigma$</strong>：$a=\sigma(\mathbf{w}^\top\mathbf{x}+b)$。演進鏈：<strong>線性迴歸 → 加 $\sigma$ ＝ 一個神經元 → 一排 ＝ 一層 → 多層堆疊 ＝ 神經網路</strong>。也就是說，最複雜的網路拆到<strong>最小積木</strong>就是這條線性迴歸式子——懂它（怎麼算、怎麼學）就懂了整個網路的基本單元，所以從它學起。</li>
 </ul>
-<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點到線的<strong>垂直距離（殘差）整體最小</strong>——點越貼線越好（詳見 3.1 幾何意義）。這正是線性回歸與損失函數的關係：<strong>模型（線性回歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
+<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點到線的<strong>垂直距離（殘差）整體最小</strong>——點越貼線越好（詳見 3.1 幾何意義）。這正是線性迴歸與損失函數的關係：<strong>模型（線性迴歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
 <h3 id="3.1">3.1 模型與損失</h3>
 <p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（下一章 <a href="#4">§4</a> 用梯度下降往低處走）。</p>
 <p><strong>損失的意義。</strong></p>
@@ -981,16 +981,16 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>損失的應用（用在哪）。</strong></p>
 <ul>
 <li><strong>訓練</strong>：最小化損失＝學參數（<a href="#4">§4</a> 梯度下降、<a href="#10">§10</a>）。</li>
-<li><strong>挑損失＝挑任務</strong>：回歸用 MSE、分類用交叉熵（<a href="#5">§5</a>）——選錯損失會學不動。</li>
+<li><strong>挑損失＝挑任務</strong>：迴歸用 MSE、分類用交叉熵（<a href="#5">§5</a>）——選錯損失會學不動。</li>
 <li><strong>監控與早停</strong>：比較訓練集 vs 驗證集的損失曲線，判斷過擬合、決定訓練幾輪（<a href="#7">§7</a>）。</li>
 <li><strong>正則化</strong>：在損失上加懲罰項（L1/L2，<a href="#1.4">§1.4</a>）控制模型複雜度、抑制過擬合。</li>
 </ul>
-<p><strong>具體例子：線性回歸 + MSE。</strong> 線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
+<p><strong>具體例子：線性迴歸 + MSE。</strong> 線性迴歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
 <p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2.3">§2.3</a>）— 再次印證損失來自機率假設（完整推導見<a href="#d1">附錄 D</a>）。</p>
 <p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$。<strong>取平方有三個用意</strong>：① <strong>用平方去加大誤差造成的影響</strong>——誤差越大、平方後被放大越多（誤差 ×10 → 影響 ×100），逼模型優先修掉大偏離；② <strong>正負不抵銷</strong>——高估（$r>0$）、低估（$r<0$）平方後都變正值，不會互相消掉（直接加殘差會正負相消、假準）；③ <strong>平滑可微、好最佳化</strong>——$r^2$ 處處可微、梯度連續（$\tfrac{d}{dr}r^2=2r$）又是凸函數，梯度下降與閉式解都好算（絕對值 $|r|$ 在 0 點有尖角、不可微）。</p>
 <p><strong>平方也「對應高斯假設」是什麼意思？</strong> 白話說：用平方誤差，等於<strong>相信「真值大多落在預測值附近、離越遠越不可能，而且照鐘形（高斯）衰減」</strong>。因為高斯的機率密度 $e^{-\varepsilon^2/2\sigma^2}$ 的<strong>指數裡剛好是誤差的平方</strong> $\varepsilon^2$，所以「<strong>最小化平方和</strong>」其實就等於「<strong>假設誤差服從高斯、再做最大似然</strong>」——同一件事。換個誤差分布就換個損失（例如假設拉普拉斯分布 → 變成最小化<strong>絕對誤差 MAE</strong>）。這也是「選哪種損失＝對資料做哪種假設」（<a href="#2.3">§2.3</a>）的意思，完整推導見<a href="#d1">附錄 D</a>。</p>
-<figure><svg viewBox="0 0 380 195" role="img" aria-label="線性回歸最小平方">
+<figure><svg viewBox="0 0 380 195" role="img" aria-label="線性迴歸最小平方">
   <line x1="45" y1="165" x2="350" y2="165" stroke="#475569" marker-end="url(#ar-s)"/>
   <line x1="45" y1="30" x2="45" y2="165" stroke="#475569"/>
   <line x1="55" y1="150" x2="330" y2="50" stroke="#34d399" stroke-width="2.5"/>
@@ -1002,22 +1002,22 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
    <circle cx="190" cy="95" r="3.5"/><circle cx="220" cy="90" r="3.5"/><circle cx="260" cy="70" r="3.5"/><circle cx="300" cy="55" r="3.5"/></g>
   <text x="338" y="163" fill="#94a3b8" font-size="12">x</text>
   <text x="32" y="40" fill="#94a3b8" font-size="12">y</text>
-</svg><figcaption>線性回歸：找一條線讓各點到線的垂直誤差（虛線）平方和 (MSE) 最小</figcaption></figure>
+</svg><figcaption>線性迴歸：找一條線讓各點到線的垂直誤差（虛線）平方和 (MSE) 最小</figcaption></figure>
 
-<p><strong>這個「最小」是唯一的全域最小（線性回歸的特別之處）。</strong> 線性回歸求的就是「讓損失最小」的 $\mathbf{w},b$，但要講清楚三件事：</p>
+<p><strong>這個「最小」是唯一的全域最小（線性迴歸的特別之處）。</strong> 線性迴歸求的就是「讓損失最小」的 $\mathbf{w},b$，但要講清楚三件事：</p>
 <ul>
 <li><strong>是「直線家族內、訓練資料上」的最小，通常不是 0。</strong> 只找到「所有直線中 MSE 最小」的那條；資料的雜訊與非線性成分是<strong>消不掉的不可約誤差 (irreducible error)</strong>。換更彈性的模型（加 $\sigma$ 的網路、GBDT）可能得到更低的損失——「最小」是<strong>在你選定的線性家族之內</strong>。</li>
 <li><strong>損失面是凸的（碗形）→ 只有一個谷底 → 唯一的全域最小。</strong> 不管從哪初始化都收斂到同一組 $\mathbf{w},b$。<strong>這點很特別</strong>：神經網路的損失面<strong>非凸</strong>、坑坑窪窪，梯度下降只保證走到某個<strong>局部／夠好</strong>的最小（不保證全域）。</li>
 <li><strong>達到它有兩條路。</strong> <strong>閉式解</strong>（最小平方／正規方程 $\mathbf{w}=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$）一步算到精確最小；或<strong>梯度下降</strong>（<a href="#4.2">§4.2</a>）逐步逼近。因為是凸的，兩者收斂到同一答案。</li>
 </ul>
-<p><span class="geo">分類 vs 回歸（一張圖看懂）。</span> 同一堆資料點：<strong>分類是拿超平面把點雲「切開」</strong>（判在哪一側/哪一區）；<strong>回歸是拿一條線「穿過」點雲</strong>（讓點盡量貼近、預測數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上，差別只在輸出怎麼用 — 分類看落在哪一側（argmax），回歸直接讀數值。</p>
-<p><strong>線性回歸 vs 邏輯回歸 — 何時用哪個（別誤會）。</strong> 別把本章的「線性回歸 + MSE」當成所有任務的通法——<strong>它是「回歸（預測連續數值）」專用的</strong>。怎麼選看<strong>應變數 $y$ 的型態</strong>：</p>
+<p><span class="geo">分類 vs 迴歸（一張圖看懂）。</span> 同一堆資料點：<strong>分類是拿超平面把點雲「切開」</strong>（判在哪一側/哪一區）；<strong>迴歸是拿一條線「穿過」點雲</strong>（讓點盡量貼近、預測數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上，差別只在輸出怎麼用 — 分類看落在哪一側（argmax），迴歸直接讀數值。</p>
+<p><strong>線性迴歸 vs 邏輯迴歸 — 何時用哪個（別誤會）。</strong> 別把本章的「線性迴歸 + MSE」當成所有任務的通法——<strong>它是「迴歸（預測連續數值）」專用的</strong>。怎麼選看<strong>應變數 $y$ 的型態</strong>：</p>
 <ul>
-<li><strong>$y$ 是連續數值</strong>（房價、延遲、溫度、風險分數）→ 用<strong>線性回歸</strong>，損失用 <strong>MSE</strong>（本章）。</li>
-<li><strong>$y$ 是離散類別</strong>（貓/狗、惡意/正常、A/B/C）→ 用<strong>邏輯回歸 / Softmax</strong>，損失用<strong>交叉熵</strong>（<a href="#5">§5</a>）——<strong>分類不要用線性回歸 / MSE</strong>：線性輸出沒有 $(0,1)$ 界線、也不對應機率，硬套會學不動（原因 <a href="#5">§5</a> 會說明）。</li>
+<li><strong>$y$ 是連續數值</strong>（房價、延遲、溫度、風險分數）→ 用<strong>線性迴歸</strong>，損失用 <strong>MSE</strong>（本章）。</li>
+<li><strong>$y$ 是離散類別</strong>（貓/狗、惡意/正常、A/B/C）→ 用<strong>邏輯迴歸 / Softmax</strong>，損失用<strong>交叉熵</strong>（<a href="#5">§5</a>）——<strong>分類不要用線性迴歸 / MSE</strong>：線性輸出沒有 $(0,1)$ 界線、也不對應機率，硬套會學不動（原因 <a href="#5">§5</a> 會說明）。</li>
 </ul>
-<p>兩者的<strong>骨架都是 $\mathbf{w}^\top\mathbf{x}+b$</strong>（上圖「切開 vs 穿過」），差別只在<strong>輸出怎麼用 ＋ 配哪種損失</strong>。本章先把「<strong>回歸 + MSE</strong>」講透；分類那條（<strong>Sigmoid / Softmax + 交叉熵</strong>）留到 <a href="#5">§5</a> 深入。</p>
-<figure><svg viewBox="0 0 660 230" role="img" aria-label="分類是用超平面切開點雲，回歸是用一條線穿過點雲">
+<p>兩者的<strong>骨架都是 $\mathbf{w}^\top\mathbf{x}+b$</strong>（上圖「切開 vs 穿過」），差別只在<strong>輸出怎麼用 ＋ 配哪種損失</strong>。本章先把「<strong>迴歸 + MSE</strong>」講透；分類那條（<strong>Sigmoid / Softmax + 交叉熵</strong>）留到 <a href="#5">§5</a> 深入。</p>
+<figure><svg viewBox="0 0 660 230" role="img" aria-label="分類是用超平面切開點雲，迴歸是用一條線穿過點雲">
   <rect x="20" y="45" width="280" height="155" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
   <text x="160" y="35" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">分類：用超平面「切開」</text>
   <line x1="70" y1="60" x2="265" y2="188" stroke="#fbbf24" stroke-width="2.5"/>
@@ -1025,7 +1025,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <g fill="#64748b"><circle cx="70" cy="150" r="5.5"/><circle cx="100" cy="170" r="5.5"/><circle cx="85" cy="132" r="5.5"/><circle cx="115" cy="155" r="5.5"/></g>
   <text x="238" y="150" fill="#fcd34d" font-size="11" text-anchor="middle">邊界</text>
   <rect x="360" y="45" width="280" height="155" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
-  <text x="500" y="35" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">回歸：用一條線「穿過」</text>
+  <text x="500" y="35" fill="#e5e7eb" font-size="13" text-anchor="middle" font-weight="700">迴歸：用一條線「穿過」</text>
   <line x1="385" y1="188" x2="620" y2="188" stroke="#475569" stroke-width="1"/>
   <line x1="385" y1="60" x2="385" y2="188" stroke="#475569" stroke-width="1"/>
   <line x1="395" y1="172" x2="618" y2="72" stroke="#34d399" stroke-width="2.5"/>
@@ -1034,13 +1034,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <g fill="#fbbf24"><circle cx="420" cy="160" r="4"/><circle cx="440" cy="150" r="4"/><circle cx="480" cy="140" r="4"/><circle cx="500" cy="120" r="4"/><circle cx="540" cy="112" r="4"/><circle cx="560" cy="95" r="4"/><circle cx="600" cy="82" r="4"/></g>
   <text x="612" y="185" fill="#94a3b8" font-size="11">x</text>
   <text x="372" y="66" fill="#94a3b8" font-size="11">y</text>
-</svg><figcaption>同一件事的兩種目標 — 分類用超平面把點雲<strong>切開</strong>（判在哪一側）；回歸用一條線<strong>穿過</strong>點雲（讓殘差最小、輸出數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上。</figcaption></figure>
+</svg><figcaption>同一件事的兩種目標 — 分類用超平面把點雲<strong>切開</strong>（判在哪一側）；迴歸用一條線<strong>穿過</strong>點雲（讓殘差最小、輸出數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上。</figcaption></figure>
 
 <p><strong>算完損失、有了「錯多少」，接下來怎麼調參數讓它變小？</strong> 這正是下一章 <strong>§4 微積分與梯度</strong>要解的：先弄懂導數／偏導／梯度（往哪走），再把<strong>梯度下降</strong>就地套到上面的 MSE（<a href="#4.2">§4.2</a>），最後補上多層網路要用的<strong>鏈鎖律</strong>（<a href="#4.3">§4.3</a>、反向傳播的引擎）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="4">4. 微積分與梯度 — 導數、偏導、鏈鎖律</h2>
-<p>上一章（<a href="#3">§3</a>）我們有了要最小化的損失 $L(\theta)$（線性回歸的 MSE）。<strong>怎麼往更小走？靠梯度。</strong></p>
+<p>上一章（<a href="#3">§3</a>）我們有了要最小化的損失 $L(\theta)$（線性迴歸的 MSE）。<strong>怎麼往更小走？靠梯度。</strong></p>
 <h3 id="4.1">4.1 導數、偏導與梯度（Derivative / Partial Derivative / Gradient）</h3>
 <p><strong>導數 (derivative) $\dfrac{dL}{d\theta}$ — 變化率（切線斜率，tangent slope）。</strong> <span class="geo">定義：</span>$\theta$ 動一點點時 $L$ 跟著變多少的比率（$\lim_{\Delta\theta\to0}\frac{\Delta L}{\Delta\theta}$，即切線斜率）。<span class="geo">物理意義：</span>斜率為正 → $L$ 上升、為負 → 下降、為 0 → 平地（<strong>駐點 (stationary / critical point)</strong>：谷底/山頂/鞍點 saddle point）。<span class="geo">用途：</span>它告訴我們「往哪個方向調、調多少」能降低損失。</p>
 <p><strong>偏導 (partial derivative) $\dfrac{\partial L}{\partial\theta_j}$ — 多變數時「只動一個旋鈕」的變化率</strong>（固定其他參數，看這一個對 $L$ 的單獨影響）。</p>
@@ -1097,8 +1097,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="120" y="66" fill="#fdba74" font-size="11">指向最陡上坡</text>
 </svg><figcaption>梯度永遠<strong>垂直於等高線</strong>、指向鄰近最陡的上坡方向；沿等高線走（切向）高度不變。往 $-\nabla f$ 走＝下山最快，即梯度下降。</figcaption></figure>
 <p><strong>數字例：</strong> $\nabla f=(3,4)$ → 上升最快方向 $(3,4)/5=(0.6,0.8)$、最陡坡度 $|(3,4)|=5$；往 $(-0.8,0.6)$（垂直）走沿等高線；往 $-\nabla f$ 走＝下山最快，正是梯度下降 $\theta\leftarrow\theta-\eta\nabla f$（<a href="#4.2">§4.2</a>）。</p>
-<h3 id="4.2">4.2 梯度下降套用到線性回歸（MSE）</h3>
-<p>把 4.1 的梯度下降，套到 <a href="#3">§3</a> 線性回歸的 MSE 上。對 $\mathbf{w}$ 取梯度：</p>
+<h3 id="4.2">4.2 梯度下降套用到線性迴歸（MSE）</h3>
+<p>把 4.1 的梯度下降，套到 <a href="#3">§3</a> 線性迴歸的 MSE 上。對 $\mathbf{w}$ 取梯度：</p>
 <p>$$\nabla_{\mathbf{w}}L=\frac{2}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)\,\mathbf{x}_i$$</p>
 <details style="margin:.6em 0">
 <summary style="cursor:pointer;color:var(--accent);font-weight:700">這條公式怎麼來的？（點開看推導：對 MSE 用鏈鎖律 §4.3）</summary>
@@ -1114,7 +1114,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </details>
 <p>再用梯度下降 $\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}L$。<strong>「預測誤差 $(\hat y-y)$ 乘輸入 $\mathbf{x}$」的形式會在神經網路反覆出現</strong> — backprop 最外層永遠是誤差項。</p>
 <p>這是最基本的<strong>全批次梯度下降</strong>（每步用<strong>全部</strong>資料算一次梯度）。實務上資料量大、還要走得又快又穩——<strong>用多少資料算一步</strong>（mini-batch / SGD）、<strong>步伐怎麼調</strong>（動量 momentum、Adam、學習率排程），是 <a href="#6">§6</a> 的主題（先讀完 <a href="#5">§5</a> 的分類損失，再進 §6）。</p>
-<blockquote><p><strong>工程意涵。</strong> 網路 AI 的「頻寬/健康預測」本質就是回歸；線性回歸是理解一切的起點。MSE 適合連續值，<strong>不適合分類</strong>（<a href="#5">§5</a> 換損失）。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 網路 AI 的「頻寬/健康預測」本質就是迴歸；線性迴歸是理解一切的起點。MSE 適合連續值，<strong>不適合分類</strong>（<a href="#5">§5</a> 換損失）。</p></blockquote>
 <h3 id="4.3">4.3 鏈鎖律 — 反向傳播的引擎</h3>
 <p><strong>鏈鎖律 (chain rule) — 複合函數的「影響力連乘」。</strong> 神經網路是層層複合 $L=f_k(f_{k-1}(\cdots f_1(\mathbf{x})))$：$w$ 先影響 $z$、$z$ 影響 $a$、$a$ 影響 $L$。<span class="geo">直覺：</span>$w$ 對 $L$ 的<strong>總影響率＝沿路每一段影響率相乘</strong>（像齒輪傳動、一環扣一環）：</p>
 <p>$$\frac{dL}{dw}=\frac{dL}{da}\cdot\frac{da}{dz}\cdot\frac{dz}{dw}$$</p>
@@ -1125,7 +1125,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="5">5. 邏輯回歸、Sigmoid、Softmax 與交叉熵</h2>
+<h2 id="5">5. 邏輯迴歸、Sigmoid、Softmax 與交叉熵</h2>
 <p>分類模型的數學核心 — 幾乎所有分類器（含神經網路輸出層）都用這套。</p>
 <h3 id="5.1">5.1 二元分類：Sigmoid + 二元交叉熵</h3>
 <p>要輸出機率 (0~1)，把線性輸出 $z=\mathbf{w}^\top\mathbf{x}+b$ 過 <strong>sigmoid</strong>：</p>
@@ -1383,7 +1383,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ul>
 <li><strong>輸入層</strong>：維度 = 特徵數 $n$（影像像素數、flow 特徵數…）——由<strong>資料</strong>決定。</li>
 <li><strong>隱藏層（第 $l$ 層）</strong>：有 $m_l$ 個神經元 → 輸出 $m_l$ 維向量。<strong>層數 $L$（幾層）與每層寬度 $m_l$（該層幾個神經元）都是超參數</strong>（$l$ 只是「第幾層」的索引，不是超參數）（<a href="#7">§7</a>、<a href="#8">§8</a>）。（<strong>CNN 對應</strong>：層寬 $m$ ≈ <strong>filter 個數 = 輸出通道 $C_{out}$</strong>，<a href="#12.6">§12.6</a>。）</li>
-<li><strong>輸出層</strong>：維度 = <strong>任務決定</strong>（多類 = 類別數 $C$、二元 / 回歸 = 1）。</li>
+<li><strong>輸出層</strong>：維度 = <strong>任務決定</strong>（多類 = 類別數 $C$、二元 / 迴歸 = 1）。</li>
 </ul>
 <p><strong>維度怎麼銜接（關鍵）</strong>：第 $l$ 層權重 $\mathbf{W}^{(l)}$ 是 $m_l\times m_{l-1}$ 矩陣——<strong>列數 = 這層神經元數 $m_l$、欄數 = 上一層輸出維度 $m_{l-1}$</strong>。故 $\mathbf{W}^{(l)}\mathbf{a}^{(l-1)}$：$(m_l\times m_{l-1})(m_{l-1}\times1)=(m_l\times1)$，維度剛好對上、一路串下去。<strong>前一層輸出幾維，後一層 $\mathbf{W}$ 的欄數就是幾。</strong></p>
 <p><strong>數字例</strong>：$n=4 \to m_1=8 \to m_2=6 \to C=3$：$\mathbf{W}^{(1)}$ 為 $8\times4$、$\mathbf{W}^{(2)}$ 為 $6\times8$、$\mathbf{W}^{(3)}$ 為 $3\times6$；資料流維度 $4\to8\to6\to3$。</p>
@@ -1395,7 +1395,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p><strong>全連接 (fully connected / Dense)</strong>：每個神經元連到上一層<strong>所有</strong>輸出（$\mathbf{W}$ 是滿矩陣）。CNN（<a href="#12">§12</a>）則是<strong>局部連接 + 權重共享</strong>（filter 只看局部），參數少很多——這是兩者的結構差異。各層維度誰決定：<strong>輸入 = 特徵數（資料）、輸出 = 任務、隱藏層寬 $m_l$ 與層數 $L$ = 超參數（<a href="#7">§7</a>、<a href="#8">§8</a>）</strong>。</p>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
-<p><strong>輸出是向量還是純量？</strong> 每一層的輸出 $\mathbf{a}^{(l)}$ 都是<strong>向量</strong>（該層所有神經元的激活值）；<strong>最終輸出看任務</strong>：多元分類 → 向量（C 個類別分數 / 機率）、生成 → 向量（詞表分布）；單一數值回歸、二元分類 → <strong>純量</strong>（一個數）。對比：<strong>損失永遠是純量</strong>——把預測和真值壓成「一個數」才能最小化（<a href="#3.1">§3.1</a>）。</p>
+<p><strong>輸出是向量還是純量？</strong> 每一層的輸出 $\mathbf{a}^{(l)}$ 都是<strong>向量</strong>（該層所有神經元的激活值）；<strong>最終輸出看任務</strong>：多元分類 → 向量（C 個類別分數 / 機率）、生成 → 向量（詞表分布）；單一數值迴歸、二元分類 → <strong>純量</strong>（一個數）。對比：<strong>損失永遠是純量</strong>——把預測和真值壓成「一個數」才能最小化（<a href="#3.1">§3.1</a>）。</p>
 <p><strong>輸出的內容是什麼形式？</strong>（上面講「維度」＝幾個數；這裡講「內容」＝那些數代表什麼。）取決於任務與最後一層有沒有過 softmax / 激活：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>形式</th><th>是什麼</th><th>何時</th></tr></thead>
@@ -1403,15 +1403,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td><strong>原始分數 (logits)</strong></td><td>最後一層線性輸出 $\mathbf{z}^{(L)}=\mathbf{W}\mathbf{a}+\mathbf{b}$，<strong>任意實數（可正可負）</strong></td><td>分類的中間輸出（過 softmax 前）</td></tr>
 <tr><td><strong>機率分布</strong></td><td>logits 過 <strong>softmax</strong>（多類）/ <strong>sigmoid</strong>（二元）→ 各值 ∈ (0,1)、多類總和 = 1</td><td>分類的可解讀輸出（<a href="#5">§5</a>）</td></tr>
 <tr><td><strong>類別標籤</strong></td><td>對機率取 <strong>argmax</strong> → 單一離散類別（如「貓」）</td><td>最終決策</td></tr>
-<tr><td><strong>預測數值</strong></td><td>回歸：輸出層<strong>不過激活（線性）</strong>→ 一個實數（如 68ms）</td><td>回歸（<a href="#3">§3</a>）</td></tr>
+<tr><td><strong>預測數值</strong></td><td>迴歸：輸出層<strong>不過激活（線性）</strong>→ 一個實數（如 68ms）</td><td>迴歸（<a href="#3">§3</a>）</td></tr>
 <tr><td><strong>下一個 token 分布</strong></td><td>對<strong>整個詞表</strong> softmax → 長度＝詞表大小的機率向量 → 取樣</td><td>LLM 生成（<a href="#17">§17</a>）</td></tr>
 </tbody>
 </table></div>
-<p>流程：<code>logits →（softmax/sigmoid）→ 機率 →（argmax/取樣）→ 類別/token</code>；回歸則直接給數值。</p>
+<p>流程：<code>logits →（softmax/sigmoid）→ 機率 →（argmax/取樣）→ 類別/token</code>；迴歸則直接給數值。</p>
 <p><strong>要算幾層（$L$）由誰決定？是超參數，架構設計時就固定。</strong> 層數（深度 $L$）跟 embedding 維度 $d$（<a href="#14">§14</a>）、CNN 通道數（<a href="#12.6">§12.6</a>）一樣，是<strong>訓練前人為設定的超參數</strong>，不是訓練學出來、也不是推論時動態決定的——<strong>訓練與推論跑的層數相同</strong>，前向就照這個固定層數一路算到底。例：ResNet-50 有 50 層、GPT-3 有 96 層 Transformer 區塊。<strong>怎麼定 $L$</strong>：靠經驗 + 實驗（調參）看驗證集（<a href="#7">§7</a>）。層數多 → 表達力強、能學更複雜的階層特徵（<a href="#1.3">§1.3.1</a>），但參數多、算力/記憶體貴、更難訓練（梯度消失，需殘差連接 + 正規化 <a href="#11">§11</a>）、易過擬合；層數少 → 可能學不夠。實務多沿用經典架構（ResNet、Transformer 變體）再微調。</p>
 <ul>
 <li>這就是<strong>推論</strong>時做的全部事（導覽圖的推論線）；每一層的幾何意義是「換座標系 + 非線性摺疊」（<a href="#1.3">§1.3.1</a>）。</li>
-<li><strong>推論 = 每筆輸入跑一次前向</strong>（用訓練好、<strong>固定</strong>的 w、b，不更新，<a href="#2.3">§2.3</a>）：來一筆算一次——分類 / 回歸<strong>每筆一次</strong>；<strong>LLM 生成則每個 token 各一次</strong>（自回歸，<a href="#17">§17</a>）。「一次前向」本身是逐層很多層運算，只是<strong>沒有反向那一遍</strong>（所以推論比訓練輕）。</li>
+<li><strong>推論 = 每筆輸入跑一次前向</strong>（用訓練好、<strong>固定</strong>的 w、b，不更新，<a href="#2.3">§2.3</a>）：來一筆算一次——分類 / 迴歸<strong>每筆一次</strong>；<strong>LLM 生成則每個 token 各一次</strong>（自迴歸，<a href="#17">§17</a>）。「一次前向」本身是逐層很多層運算，只是<strong>沒有反向那一遍</strong>（所以推論比訓練輕）。</li>
 <li>前向時會<strong>順手存下各層的 $\mathbf{z}^{(l)},\mathbf{a}^{(l)}$</strong>，因為反向傳播（<a href="#10">§10</a>）要用它們。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> 推論成本 ≈ 前向一遍的矩陣乘法量（FLOPs，<a href="#20">§20</a>）；記憶體要放參數 ＋（訓練時）各層激活值。</p></blockquote>
@@ -1441,7 +1441,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <g font-size="11" font-weight="700"><text x="300" y="50" fill="#34d399">ReLU</text><text x="332" y="74" fill="#38bdf8">sigmoid</text><text x="336" y="104" fill="#fbbf24">tanh</text></g>
 </svg><figcaption>ReLU（綠，負區 0、正區線性）、sigmoid（藍，壓到 0~1、兩端飽和）、tanh（黃，壓到 −1~1、以 0 為中心）。兩端「平掉」＝梯度消失，這是 ReLU 較不會的問題。</figcaption></figure>
 <p><strong>梯度消失</strong>：sigmoid/tanh 在兩端很平（導數 → 0），深層堆疊會讓梯度越傳越小、學不動——這是 ReLU 勝出的主因（正區導數恆為 1）。</p>
-<blockquote><p><strong>工程意涵。</strong> 隱藏層預設 <strong>ReLU</strong>（快、少梯度消失）；<strong>輸出層看任務</strong>：回歸用線性（不加激活）、二元分類 sigmoid、多元分類 softmax。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 隱藏層預設 <strong>ReLU</strong>（快、少梯度消失）；<strong>輸出層看任務</strong>：迴歸用線性（不加激活）、二元分類 sigmoid、多元分類 softmax。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1866,7 +1866,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="16">16. 注意力與 Transformer</h2>
-<p>RNN（<a href="#15">§15</a>）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置能一次看其他位置</strong>、平行算完。（<strong>encoder</strong> 可看整條序列；<strong>自回歸 decoder（生成）</strong> 要加 <strong>causal mask</strong>——每個位置只能看自己與之前的 token、<strong>不能看未來</strong>，<a href="#17">§17</a>。）</p>
+<p>RNN（<a href="#15">§15</a>）逐步計算、難平行、長距弱。<strong>注意力 (attention)</strong> 讓序列裡<strong>每個位置能一次看其他位置</strong>、平行算完。（<strong>encoder</strong> 可看整條序列；<strong>自迴歸 decoder（生成）</strong> 要加 <strong>causal mask</strong>——每個位置只能看自己與之前的 token、<strong>不能看未來</strong>，<a href="#17">§17</a>。）</p>
 <p><strong>注意力機制</strong>：每個位置產生 query $\mathbf{q}$、key $\mathbf{k}$、value $\mathbf{v}$。用 query 跟所有 key 做<strong>內積</strong>（＝對齊程度，<a href="#1.1">§1.1</a>）得分數，過 <strong>softmax</strong>（<a href="#5">§5</a>）變權重，再對 value 加權平均：</p>
 <p>$$\text{Attention}(Q,K,V)=\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}}\Big)V$$</p>
 <p>直覺：<strong>每個 token 問「我該關注誰」</strong>——跟誰的 key 越對齊（內積大），就給越高權重、把它的 value 拿更多。這是「<strong>內容相關的動態加權平均</strong>」。整個機制全是前面的數學：<strong>內積（<a href="#1.1">§1.1</a>）＋ softmax（<a href="#5">§5</a>）＋ 矩陣乘法（<a href="#1.3">§1.3</a>）</strong>。除以 $\sqrt{d_k}$（$d_k$＝key 維度）是<strong>縮放</strong>：$QK^\top$ 是 $d_k$ 項相乘相加、其方差隨 $d_k$ 增長，不縮放會讓 softmax 過度集中（飽和）、梯度變小、訓練不穩。</p>
@@ -1888,12 +1888,12 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="150" y="150" fill="#38bdf8" font-size="10" text-anchor="middle">最關注「cat」（權重最高＝線最粗）</text>
 </svg><figcaption>自注意力：query 用內積跟每個 token 的 key 比對齊、softmax 成權重（線越粗＝權重越高），再把各 token 的 value 加權平均。此例「it」最關注「cat」。</figcaption></figure>
 <p><strong>Transformer 區塊</strong> = 多頭注意力 (multi-head) ＋ 前饋層 FFN ＋ LayerNorm（<a href="#11">§11</a>）＋ 殘差連接，堆疊 $N$ 層。<strong>為什麼強</strong>：<strong>可平行</strong>（整個序列一次算）、<strong>長距</strong>（任兩位置直接相連）、易堆疊 → 成為 <strong>LLM 的骨幹</strong>。</p>
-<blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心，但注意力成本要分兩種情況看：① <strong>訓練 / prefill</strong>：算完整的 $n\times n$ 注意力矩陣，時間與記憶體 ~ <strong>$O(n^2)$</strong>（每個位置對所有位置）。② <strong>自回歸生成</strong>：用 <strong>KV cache</strong> 存住已算過的 K/V、避免每步重算舊 token；但單次 decode 新 token 仍要讀取<strong>整個既有 cache</strong>，且 <strong>cache 容量隨序列長度線性增長</strong>。兩者都讓長 context 很吃記憶體與算力——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> Transformer 是 LLM 核心，但注意力成本要分兩種情況看：① <strong>訓練 / prefill</strong>：算完整的 $n\times n$ 注意力矩陣，時間與記憶體 ~ <strong>$O(n^2)$</strong>（每個位置對所有位置）。② <strong>自迴歸生成</strong>：用 <strong>KV cache</strong> 存住已算過的 K/V、避免每步重算舊 token；但單次 decode 新 token 仍要讀取<strong>整個既有 cache</strong>，且 <strong>cache 容量隨序列長度線性增長</strong>。兩者都讓長 context 很吃記憶體與算力——這是 LLM 留中央、需大 VRAM 的主因之一。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="17">17. 自回歸生成與取樣</h2>
-<p>LLM 怎麼「生成」？——<strong>逐字接龍（自回歸）</strong>：每步用前文預測<strong>下一個 token 的機率分布</strong>（對整個詞表做 softmax，<a href="#5.2">§5.2</a>），選一個、接回輸入、再預測下一個，重複。</p>
+<h2 id="17">17. 自迴歸生成與取樣</h2>
+<p>LLM 怎麼「生成」？——<strong>逐字接龍（自迴歸）</strong>：每步用前文預測<strong>下一個 token 的機率分布</strong>（對整個詞表做 softmax，<a href="#5.2">§5.2</a>），選一個、接回輸入、再預測下一個，重複。</p>
 <ul>
 <li>本質：<strong>生成 = 一連串「對詞表的分類」</strong>（見 ai-background-knowledge <a href="#1.1">§1.1</a>）。</li>
 <li><strong>取樣策略</strong>（怎麼從機率分布選字）：<strong>greedy</strong>（取最高＝argmax，穩定但單調）、<strong>temperature（溫度）</strong>（高溫發散有創意、低溫保守穩定）、<strong>top-k / top-p (nucleus)</strong>（只從前 $k$ 個 / 累積到 $p$ 的候選取樣，兼顧品質與多樣）。</li>
@@ -1935,7 +1935,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>先回答一個常見問題：有沒有「一個值」代表模型訓練的好壞？</strong> 有，但要分清是哪個值、在哪份資料上算：</p>
 <ul>
 <li><strong>損失 (loss)</strong>：訓練時<strong>直接最小化</strong>的目標值（<a href="#3">§3</a>），越低代表越貼合資料。<strong>但只看「訓練集損失」會被過擬合騙</strong>（訓練集很低、真實表現卻差）。</li>
-<li><strong>評估指標 (metric)</strong>：把「好壞」翻成人看得懂的分數，依任務不同（見下 <a href="#19.1">§19.1</a>–<a href="#19.3">§19.3</a>）——分類看 accuracy / F1 / AUC、回歸看 MSE / R²、LLM 看 perplexity、檢索看 Recall@k。</li>
+<li><strong>評估指標 (metric)</strong>：把「好壞」翻成人看得懂的分數，依任務不同（見下 <a href="#19.1">§19.1</a>–<a href="#19.3">§19.3</a>）——分類看 accuracy / F1 / AUC、迴歸看 MSE / R²、LLM 看 perplexity、檢索看 Recall@k。</li>
 <li><strong>關鍵：要在「沒看過的資料」上算才算數。</strong> 真正代表模型好壞的，是<strong>驗證 / 測試集</strong>（<a href="#7">§7</a>）上的損失或主要指標；實務會同時看「訓練 vs 驗證」兩條損失曲線來判斷過擬合（<a href="#7">§7</a>）。</li>
 </ul>
 <p><strong>一句話：訓練過程看「損失」、評模型好壞看「驗證 / 測試集上的主要指標」；沒有放諸四海皆準的單一值，要依任務挑對指標。</strong></p>
@@ -1960,7 +1960,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>F1</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的調和平均。</li>
 <li><strong>ROC / AUC</strong>：調不同門檻畫出的曲線 / 曲線下面積，衡量整體區辨力。</li>
 </ul>
-<h3 id="19.2">19.2 回歸</h3>
+<h3 id="19.2">19.2 迴歸</h3>
 <p><strong>MSE / MAE</strong>：均方 / 平均絕對誤差（<a href="#3">§3</a>、<a href="#1.4">§1.4</a>）；<strong>R²</strong>：模型解釋了多少變異。</p>
 <h3 id="19.3">19.3 生成 / 檢索</h3>
 <ul>
@@ -2116,7 +2116,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>本教材主體講神經網路，但<strong>判別式 ML 的另一大主力是「梯度提升決策樹 (GBDT)」</strong>——在<strong>表格 / 結構化資料</strong>上常比 NN 更準、更快、更輕。<a href="#12.7">§12.7</a> 提過「表格資料 → 樹模型 (GBDT)」，本附錄補上它並與 NN 對照。<strong>因涉及教材主體（NN）未涵蓋的概念，先在 C.1 補齊先備知識（決策樹、集成學習），Autoencoder 於 C.6 就地說明。</strong></p>
 
 <h3>C.1 先備知識：決策樹與集成學習（教材未涵蓋，先補）</h3>
-<p><strong>決策樹 (Decision Tree)。</strong> 一棵樹用「一連串 if-else 問題」把資料切開：每個內部節點依<strong>某特徵的門檻</strong>分岔（例：「封包大小 &gt; 500?」），一路走到<strong>葉節點</strong>得到預測（分類看葉內多數類、回歸看葉內平均）。挑分岔點的準則：分類用<strong>不純度</strong>（Gini / 熵）下降最多、回歸用<strong>變異數</strong>下降最多。優點：好解釋、不需正規化；缺點：<strong>單棵易過擬合、不穩</strong>（所以要集成）。</p>
+<p><strong>決策樹 (Decision Tree)。</strong> 一棵樹用「一連串 if-else 問題」把資料切開：每個內部節點依<strong>某特徵的門檻</strong>分岔（例：「封包大小 &gt; 500?」），一路走到<strong>葉節點</strong>得到預測（分類看葉內多數類、迴歸看葉內平均）。挑分岔點的準則：分類用<strong>不純度</strong>（Gini / 熵）下降最多、迴歸用<strong>變異數</strong>下降最多。優點：好解釋、不需正規化；缺點：<strong>單棵易過擬合、不穩</strong>（所以要集成）。</p>
 <p><strong>集成學習 (Ensemble)：把很多弱模型合成強模型。</strong> 兩大流派：</p>
 <ul>
 <li><strong>Bagging（並行、降變異）</strong>：各自獨立訓練多棵樹，再投票 / 平均 → 代表 <strong>隨機森林 (Random Forest)</strong>。</li>
@@ -2221,7 +2221,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>3.1 說「MSE 其實是『假設誤差服從高斯分布』下的<strong>最大似然 (MLE)</strong>」。這裡把它推出來——說明<strong>為什麼平方誤差不是隨便挑的</strong>，而是一個明確機率假設的必然結果。</p>
 
 <h3>D.1 假設：誤差服從高斯分布</h3>
-<p>線性回歸假設真值 $y_i$ 等於模型預測 $\hat y_i=\mathbf{w}^\top\mathbf{x}_i+b$ 再加上一個<strong>隨機誤差 $\varepsilon_i$</strong>：</p>
+<p>線性迴歸假設真值 $y_i$ 等於模型預測 $\hat y_i=\mathbf{w}^\top\mathbf{x}_i+b$ 再加上一個<strong>隨機誤差 $\varepsilon_i$</strong>：</p>
 $$y_i = \mathbf{w}^\top\mathbf{x}_i + b + \varepsilon_i,\qquad \varepsilon_i \overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,\sigma^2)$$
 <p>也就是誤差<strong>平均為 0</strong>（模型不系統性偏高或偏低）、<strong>變異數固定 $\sigma^2$</strong>、各筆資料<strong>獨立同分布</strong>。等價地說，給定輸入 $\mathbf{x}_i$，真值 $y_i$ 以 $\hat y_i$ 為中心呈高斯分布：</p>
 $$y_i\mid\mathbf{x}_i\ \sim\ \mathcal{N}(\hat y_i,\ \sigma^2)$$
@@ -2250,15 +2250,15 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 </ul>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="e1">附錄 E — 回歸分析基礎</h2>
-<p>主題 3 從「線性回歸 + 損失」切入，直接談怎麼學參數。本附錄退一步，補上<strong>回歸分析 (regression analysis)</strong> 的統計背景：它在做什麼、自變數與應變數的關係、原理，以及常見的回歸形式。</p>
+<h2 id="e1">附錄 E — 迴歸分析基礎</h2>
+<p>主題 3 從「線性迴歸 + 損失」切入，直接談怎麼學參數。本附錄退一步，補上<strong>迴歸分析 (regression analysis)</strong> 的統計背景：它在做什麼、自變數與應變數的關係、原理，以及常見的迴歸形式。</p>
 
-<h3>E.1 回歸分析在做什麼（意義）</h3>
-<p><strong>回歸分析</strong>研究<strong>兩個或多個變數之間的關係</strong>——它們是否<strong>相關</strong>、相關的<strong>方向</strong>（正相關 / 負相關）與<strong>強度</strong>，並據此<strong>建立一個數學模型</strong>，好讓我們能<strong>觀察特定自變數、預測應變數</strong>。</p>
+<h3>E.1 迴歸分析在做什麼（意義）</h3>
+<p><strong>迴歸分析</strong>研究<strong>兩個或多個變數之間的關係</strong>——它們是否<strong>相關</strong>、相關的<strong>方向</strong>（正相關 / 負相關）與<strong>強度</strong>，並據此<strong>建立一個數學模型</strong>，好讓我們能<strong>觀察特定自變數、預測應變數</strong>。</p>
 <ul>
-<li><strong>核心目標</strong>：由給定的自變數，估計應變數的<strong>條件期望值</strong> $E[y\mid x]$——也就是「在 $x$ 是這個值的條件下，$y$ 平均會是多少」。回歸函數本質上就是這條<strong>條件平均</strong>曲線。</li>
-<li>一句話：<strong>回歸 ＝ 找出「$x\to y$ 的平均趨勢」，並用來預測。</strong></li>
-<li>注意：回歸量的是<strong>相關與預測</strong>，<strong>不等於因果</strong>（$x,y$ 相關不代表 $x$ 造成 $y$；常見誤區）。</li>
+<li><strong>核心目標</strong>：由給定的自變數，估計應變數的<strong>條件期望值</strong> $E[y\mid x]$——也就是「在 $x$ 是這個值的條件下，$y$ 平均會是多少」。迴歸函數本質上就是這條<strong>條件平均</strong>曲線。</li>
+<li>一句話：<strong>迴歸 ＝ 找出「$x\to y$ 的平均趨勢」，並用來預測。</strong></li>
+<li>注意：迴歸量的是<strong>相關與預測</strong>，<strong>不等於因果</strong>（$x,y$ 相關不代表 $x$ 造成 $y$；常見誤區）。</li>
 </ul>
 
 <h3>E.2 自變數與應變數的關係（定義）</h3>
@@ -2268,10 +2268,10 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 </ul>
 <p>兩者的關係寫成：</p>
 <p>$$y = f(x) + \varepsilon$$</p>
-<p>其中 $f(x)$ 是<strong>回歸函數</strong>（系統性、可預測的部分，$f(x)=E[y\mid x]$），$\varepsilon$ 是<strong>隨機誤差</strong>（雜訊、量不到的因素，平均為 0）。回歸就是從資料<strong>估計出 $f$</strong>。<strong>相關的方向與強度</strong>常用兩個量描述：<strong>相關係數 $r$</strong>（$-1\sim1$，正負表方向、絕對值表線性相關強度）、<strong>決定係數 $R^2$</strong>（模型解釋了應變數多少比例的變異，<a href="#19">§19.2</a>）。</p>
+<p>其中 $f(x)$ 是<strong>迴歸函數</strong>（系統性、可預測的部分，$f(x)=E[y\mid x]$），$\varepsilon$ 是<strong>隨機誤差</strong>（雜訊、量不到的因素，平均為 0）。迴歸就是從資料<strong>估計出 $f$</strong>。<strong>相關的方向與強度</strong>常用兩個量描述：<strong>相關係數 $r$</strong>（$-1\sim1$，正負表方向、絕對值表線性相關強度）、<strong>決定係數 $R^2$</strong>（模型解釋了應變數多少比例的變異，<a href="#19">§19.2</a>）。</p>
 
-<h3>E.3 回歸分析的原理</h3>
-<p><strong>原理一句話</strong>：目的在於<strong>找出一條最能代表所有觀測資料的函數曲線</strong>——稱為<strong>回歸估計式（回歸方程）</strong> $\hat y=f(x)$；用這條曲線<strong>代表應變數（因變數）與自變數之間的關係</strong>，再據以預測。具體分四步：</p>
+<h3>E.3 迴歸分析的原理</h3>
+<p><strong>原理一句話</strong>：目的在於<strong>找出一條最能代表所有觀測資料的函數曲線</strong>——稱為<strong>迴歸估計式（迴歸方程）</strong> $\hat y=f(x)$；用這條曲線<strong>代表應變數（因變數）與自變數之間的關係</strong>，再據以預測。具體分四步：</p>
 <ol>
 <li><strong>假設關係形式</strong>：先設定 $f$ 的形態（直線、多項式、多變數線性…），留下待定的<strong>參數</strong>（如 $\mathbf{w}, b$）。</li>
 <li><strong>用資料擬合參數</strong>：調參數讓模型<strong>最貼合資料</strong>——通常最小化<strong>殘差平方和</strong>（＝最小平方 / MSE，<a href="#3.1">§3.1</a>）。在「誤差服從高斯分布」假設下，這等價於<strong>最大似然</strong>（<a href="#d1">附錄 D</a>）。</li>
@@ -2279,41 +2279,41 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 <li><strong>評估</strong>：看 $R^2$、殘差圖、參數顯著性，判斷模型好壞與是否過擬合（<a href="#7">§7</a>、<a href="#19">§19.2</a>）。</li>
 </ol>
 
-<h3>E.4 常用的回歸形式</h3>
+<h3>E.4 常用的迴歸形式</h3>
 <div class="tablewrap"><table>
 <thead><tr><th>形式</th><th>模型</th><th>用途 / 特性</th></tr></thead>
 <tbody>
-<tr><td><strong>線性回歸</strong>（單變數 simple linear）</td><td>$\hat y = wx + b$</td><td>一個自變數、一條直線；最基本，看單一因子與 $y$ 的線性趨勢</td></tr>
-<tr><td><strong>複回歸 / 多元回歸</strong>（multiple linear）</td><td>$\hat y = w_1x_1+\dots+w_nx_n+b=\mathbf{w}^\top\mathbf{x}+b$</td><td><strong>多個自變數同時</strong>影響 $y$（房價 ＝ 坪數 ＋ 地段 ＋ 屋齡…）；就是內積 ＋ 偏置，<strong>神經元的線性部分</strong>（<a href="#1.2">§1.2</a>）</td></tr>
-<tr><td><strong>多項式回歸</strong>（polynomial）</td><td>$\hat y = w_0+w_1x+w_2x^2+\dots+w_dx^d$</td><td>描述<strong>彎曲（非線性）趨勢</strong>；雖對 $x$ 非線性，但<strong>對參數仍是線性</strong>，可用同一套最小平方求解。次數 $d$ 太高易<strong>過擬合</strong>（<a href="#7">§7</a>）</td></tr>
+<tr><td><strong>線性迴歸</strong>（單變數 simple linear）</td><td>$\hat y = wx + b$</td><td>一個自變數、一條直線；最基本，看單一因子與 $y$ 的線性趨勢</td></tr>
+<tr><td><strong>複迴歸 / 多元迴歸</strong>（multiple linear）</td><td>$\hat y = w_1x_1+\dots+w_nx_n+b=\mathbf{w}^\top\mathbf{x}+b$</td><td><strong>多個自變數同時</strong>影響 $y$（房價 ＝ 坪數 ＋ 地段 ＋ 屋齡…）；就是內積 ＋ 偏置，<strong>神經元的線性部分</strong>（<a href="#1.2">§1.2</a>）</td></tr>
+<tr><td><strong>多項式迴歸</strong>（polynomial）</td><td>$\hat y = w_0+w_1x+w_2x^2+\dots+w_dx^d$</td><td>描述<strong>彎曲（非線性）趨勢</strong>；雖對 $x$ 非線性，但<strong>對參數仍是線性</strong>，可用同一套最小平方求解。次數 $d$ 太高易<strong>過擬合</strong>（<a href="#7">§7</a>）</td></tr>
 </tbody></table></div>
-<figure><svg viewBox="0 0 660 210" role="img" aria-label="線性回歸用直線、多項式回歸用曲線擬合同一組資料">
+<figure><svg viewBox="0 0 660 210" role="img" aria-label="線性迴歸用直線、多項式迴歸用曲線擬合同一組資料">
   <rect x="20" y="25" width="290" height="160" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
-  <text x="165" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">線性回歸（直線）</text>
+  <text x="165" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">線性迴歸（直線）</text>
   <line x1="40" y1="170" x2="300" y2="170" stroke="#475569" stroke-width="1"/>
   <line x1="40" y1="40" x2="40" y2="170" stroke="#475569" stroke-width="1"/>
   <line x1="50" y1="155" x2="295" y2="60" stroke="#34d399" stroke-width="2.5"/>
   <g fill="#fbbf24"><circle cx="70" cy="150" r="3.5"/><circle cx="110" cy="120" r="3.5"/><circle cx="150" cy="128" r="3.5"/><circle cx="190" cy="95" r="3.5"/><circle cx="230" cy="88" r="3.5"/><circle cx="270" cy="62" r="3.5"/></g>
   <rect x="350" y="25" width="290" height="160" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
-  <text x="495" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">多項式回歸（曲線）</text>
+  <text x="495" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">多項式迴歸（曲線）</text>
   <line x1="370" y1="170" x2="630" y2="170" stroke="#475569" stroke-width="1"/>
   <line x1="370" y1="40" x2="370" y2="170" stroke="#475569" stroke-width="1"/>
   <path d="M380,80 Q430,175 500,150 Q570,125 625,55" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
   <g fill="#fbbf24"><circle cx="390" cy="90" r="3.5"/><circle cx="430" cy="150" r="3.5"/><circle cx="470" cy="158" r="3.5"/><circle cx="520" cy="145" r="3.5"/><circle cx="560" cy="120" r="3.5"/><circle cx="610" cy="70" r="3.5"/></g>
-</svg><figcaption>同一組資料：<strong>線性回歸</strong>用一條直線抓「平均趨勢」；<strong>多項式回歸</strong>加高次項把線彎起來、貼合曲線關係（次數太高會過擬合）。兩者都靠最小平方擬合。</figcaption></figure>
+</svg><figcaption>同一組資料：<strong>線性迴歸</strong>用一條直線抓「平均趨勢」；<strong>多項式迴歸</strong>加高次項把線彎起來、貼合曲線關係（次數太高會過擬合）。兩者都靠最小平方擬合。</figcaption></figure>
 <ul>
-<li><strong>線性回歸</strong>：關係接近直線時最簡潔、可解釋性高。</li>
-<li><strong>複回歸</strong>：真實問題多半多因子，這是最常用的形式；也正是本教材「$\mathbf{w}^\top\mathbf{x}+b$」的由來。</li>
-<li><strong>多項式回歸</strong>：資料呈曲線時，用高次項把「直線」彎起來；本質是把 $x,x^2,\dots$ 當成<strong>新特徵</strong>餵給複回歸（特徵工程的雛形）。</li>
-<li><strong>延伸</strong>：輸出改成「機率」就是<strong>邏輯回歸</strong>（分類，<a href="#5">§5</a>）；用「多層 ＋ 非線性 $\sigma$」達成更一般的非線性回歸，就是<strong>神經網路</strong>（<a href="#1.2">§1.2</a>、<a href="#12">§12</a>）。</li>
+<li><strong>線性迴歸</strong>：關係接近直線時最簡潔、可解釋性高。</li>
+<li><strong>複迴歸</strong>：真實問題多半多因子，這是最常用的形式；也正是本教材「$\mathbf{w}^\top\mathbf{x}+b$」的由來。</li>
+<li><strong>多項式迴歸</strong>：資料呈曲線時，用高次項把「直線」彎起來；本質是把 $x,x^2,\dots$ 當成<strong>新特徵</strong>餵給複迴歸（特徵工程的雛形）。</li>
+<li><strong>延伸</strong>：輸出改成「機率」就是<strong>邏輯迴歸</strong>（分類，<a href="#5">§5</a>）；用「多層 ＋ 非線性 $\sigma$」達成更一般的非線性迴歸，就是<strong>神經網路</strong>（<a href="#1.2">§1.2</a>、<a href="#12">§12</a>）。</li>
 </ul>
 
 <h3>E.5 與本教材的銜接</h3>
-<p>回歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複回歸</strong> → <a href="#3">主題 3</a>、神經元的線性部分（<a href="#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="#d1">附錄 D</a>、<a href="#2.3">§2.3</a>；<strong>非線性回歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="#layer-output">§1.3.1</a>、<a href="#12">§12</a>）；<strong>評估</strong> → $R^2$／MSE 等回歸指標（<a href="#19">§19.2</a>）。</p>
+<p>迴歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複迴歸</strong> → <a href="#3">主題 3</a>、神經元的線性部分（<a href="#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="#d1">附錄 D</a>、<a href="#2.3">§2.3</a>；<strong>非線性迴歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="#layer-output">§1.3.1</a>、<a href="#12">§12</a>）；<strong>評估</strong> → $R^2$／MSE 等迴歸指標（<a href="#19">§19.2</a>）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
-<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D/E 均已完成初稿：線代、機率統計、線性回歸、微積分、邏輯回歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自回歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 回歸分析基礎。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A/B/C/D/E 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
