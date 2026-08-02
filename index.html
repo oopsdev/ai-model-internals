@@ -988,7 +988,8 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>具體例子：線性回歸 + MSE。</strong> 線性回歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
 <p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2.3">§2.3</a>）— 再次印證損失來自機率假設（完整推導見<a href="#d1">附錄 D</a>）。</p>
-<p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$。<strong>取平方有三個用意</strong>：① <strong>用平方去加大誤差造成的影響</strong>——誤差越大、平方後被放大越多（誤差 ×10 → 影響 ×100），逼模型優先修掉大偏離；② <strong>正負不抵銷</strong>——高估（$r>0$）、低估（$r<0$）平方後都變正值，不會互相消掉（直接加殘差會正負相消、假準）；③ <strong>平滑可微、好最佳化</strong>——$r^2$ 處處可微、梯度連續（$\tfrac{d}{dr}r^2=2r$）又是凸函數，梯度下降與閉式解都好算（絕對值 $|r|$ 在 0 點有尖角、不可微）。（平方也對應「誤差服從高斯」的假設，見<a href="#d1">附錄 D</a>。）</p>
+<p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$。<strong>取平方有三個用意</strong>：① <strong>用平方去加大誤差造成的影響</strong>——誤差越大、平方後被放大越多（誤差 ×10 → 影響 ×100），逼模型優先修掉大偏離；② <strong>正負不抵銷</strong>——高估（$r>0$）、低估（$r<0$）平方後都變正值，不會互相消掉（直接加殘差會正負相消、假準）；③ <strong>平滑可微、好最佳化</strong>——$r^2$ 處處可微、梯度連續（$\tfrac{d}{dr}r^2=2r$）又是凸函數，梯度下降與閉式解都好算（絕對值 $|r|$ 在 0 點有尖角、不可微）。</p>
+<p><strong>平方也「對應高斯假設」是什麼意思？</strong> 白話說：用平方誤差，等於<strong>相信「真值大多落在預測值附近、離越遠越不可能，而且照鐘形（高斯）衰減」</strong>。因為高斯的機率密度 $e^{-\varepsilon^2/2\sigma^2}$ 的<strong>指數裡剛好是誤差的平方</strong> $\varepsilon^2$，所以「<strong>最小化平方和</strong>」其實就等於「<strong>假設誤差服從高斯、再做最大似然</strong>」——同一件事。換個誤差分布就換個損失（例如假設拉普拉斯分布 → 變成最小化<strong>絕對誤差 MAE</strong>）。這也是「選哪種損失＝對資料做哪種假設」（<a href="#2.3">§2.3</a>）的意思，完整推導見<a href="#d1">附錄 D</a>。</p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="線性回歸最小平方">
   <line x1="45" y1="165" x2="350" y2="165" stroke="#475569" marker-end="url(#ar-s)"/>
   <line x1="45" y1="30" x2="45" y2="165" stroke="#475569"/>
