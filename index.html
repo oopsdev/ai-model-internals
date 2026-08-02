@@ -1014,7 +1014,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <ul>
 <li><strong>是「直線家族內、訓練資料上」的最小，通常不是 0。</strong> 只找到「所有直線中 MSE 最小」的那條；資料的雜訊與非線性成分是<strong>消不掉的不可約誤差 (irreducible error)</strong>。換更彈性的模型（加 $\sigma$ 的網路、GBDT）可能得到更低的損失——「最小」是<strong>在你選定的線性家族之內</strong>。</li>
 <li><strong>損失面是凸的（碗形）→ 只有一個谷底 → 唯一的全域最小。</strong> 不管從哪初始化都收斂到同一組 $\mathbf{w},b$。<strong>這點很特別</strong>：神經網路的損失面<strong>非凸</strong>、坑坑窪窪，梯度下降只保證走到某個<strong>局部／夠好</strong>的最小（不保證全域）。</li>
-<li><strong>達到它有兩條路。</strong> <strong>閉式解</strong>（最小平方／正規方程 $\mathbf{w}=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$）一步算到精確最小；或<strong>梯度下降</strong>（<a href="#4.2">§4.2</a>）逐步逼近。因為是凸的，兩者收斂到同一答案。</li>
+<li><strong>達到它有兩條路。</strong> ① <strong>閉式解</strong>（又稱<strong>解析解</strong>，analytical / closed-form）——用<strong>一條公式一步算出精確答案</strong>：最小平方／正規方程 $\mathbf{w}=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$。② <strong>梯度下降</strong>（<a href="#4.2">§4.2</a>，屬<strong>數值解</strong>：用迭代<strong>逐步逼近</strong>）。線性迴歸之所以<strong>有解析解</strong>，是因為 MSE 是<strong>凸二次、導數為線性</strong>，設導數=0 是一組線性方程組、能解出封閉公式；<strong>但一旦加了非線性 $\sigma$ 或換成交叉熵（邏輯迴歸 <a href="#3.2">§3.2</a>、神經網路），方程就解不開——沒有解析解，只能用梯度下降</strong>。因為線性迴歸是凸的，兩條路收斂到同一答案。</li>
 </ul>
 <p><span class="geo">分類 vs 迴歸（一張圖看懂）。</span> 同一堆資料點：<strong>分類是拿超平面把點雲「切開」</strong>（判在哪一側/哪一區）；<strong>迴歸是拿一條線「穿過」點雲</strong>（讓點盡量貼近、預測數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上，差別只在輸出怎麼用 — 分類看落在哪一側（argmax），迴歸直接讀數值。</p>
 <figure><svg viewBox="0 0 660 230" role="img" aria-label="分類是用超平面切開點雲，迴歸是用一條線穿過點雲">
