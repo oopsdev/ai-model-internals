@@ -891,10 +891,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <thead><tr><th>分布</th><th>定義</th><th>長相</th><th>用在哪</th></tr></thead>
 <tbody>
 <tr><td>常態 / 高斯 Normal</td><td>$p(x)=\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$</td><td>鐘形曲線（μ 中心、σ 胖瘦），連續 PDF</td><td>最常見；MSE 損失背後的假設、雜訊模型</td></tr>
-<tr><td>伯努利 Bernoulli</td><td>$P(X{=}1)=p,\ P(X{=}0)=1{-}p$</td><td>兩根長條（0/1），離散 PMF</td><td>二元分類（是/否、正常/惡意）</td></tr>
+<tr><td>伯努利 Bernoulli</td><td>$P(X{=}1)=p,\ P(X{=}0)=1{-}p$</td><td>兩根長條（0/1），離散 PMF</td><td>二元分類（是/否、正常/惡意）；Dropout 抽樣</td></tr>
+<tr><td>二項式 Binomial</td><td>$P(K{=}k)=\dbinom{n}{k}p^k(1-p)^{n-k}$</td><td>$n{+}1$ 根長條（成功次數 $0\dots n$），離散 PMF</td><td>$n$ 次伯努利的成功數；ML 訓練少直接用，主要在<strong>評估統計</strong>（準確率信賴區間、A/B 測試）</td></tr>
 <tr><td>類別 Categorical</td><td>$P(X{=}k)=p_k,\ \textstyle\sum_k p_k=1$</td><td>K 根長條，離散 PMF</td><td>多元分類、LLM 下一個 token（softmax 輸出）</td></tr>
 </tbody>
 </table></div>
+<blockquote><p><strong>伯努利 ↔ 二項式：特例／相加。</strong> 二項式就是 <strong>$n$ 個獨立同參數伯努利之和</strong>（數成功幾次）：$K=\sum_i X_i$、期望 $np$、變異數 $np(1-p)$；反過來<strong>伯努利 ＝ Binomial$(1,p)$</strong>。比喻：伯努利＝一題是非題（對/錯），二項式＝十題答對幾題（0～10）。（ML 二元分類每個樣本是一次伯努利，但每樣本 $p=\sigma(z)$ 依 $x$ 不同 → 是「不同參數的伯努利連乘」而非單一二項式，所以<strong>訓練用伯努利/交叉熵、二項式主要用在評估</strong>。）</p></blockquote>
+<blockquote><p><strong>分布 ↔ 損失 ↔ 最大似然（一條線）。</strong> 選一個分布當「資料怎麼生成」的假設，它的<strong>負對數似然就是損失</strong>：<strong>高斯 → MSE</strong>（迴歸，<a href="#d1">附錄 D</a>）、<strong>伯努利 → 二元交叉熵 BCE</strong>（<a href="#3.2">§3.2</a>）、<strong>類別 → 交叉熵</strong>（<a href="#3.3">§3.3</a>、<a href="#f1">附錄 F</a>）。這就是「選損失＝對資料做哪種假設」的另一面（<a href="#2.3">§2.3</a>）。</p></blockquote>
 <figure><svg viewBox="0 0 660 185" role="img" aria-label="三種常見分布的圖形：伯努利、類別、常態">
   <text x="112" y="20" fill="#e5e7eb" font-size="12.5" text-anchor="middle" font-weight="700">伯努利 (p=0.7)</text>
   <line x1="30" y1="150" x2="205" y2="150" stroke="#475569" stroke-width="1"/>
