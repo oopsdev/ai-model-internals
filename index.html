@@ -423,7 +423,30 @@ AI（人工智慧）
 <h2 id="1">1. 線性代數 — 向量、矩陣、內積</h2>
 <p>神經網路的每一層，本質就是<strong>矩陣乘法 + 非線性轉換</strong>。先把語言備齊。</p>
 <h3 id="1.1">1.1 向量與內積 — 投影與量測對齊程度</h3>
-<p>一個 $n$ 維向量 $\mathbf{x}=(x_1,x_2,\dots,x_n)^\top$ 可看成一個資料點的特徵（例如一條 flow 的封包數、bytes、時長…）。<strong>內積 (dot product)</strong> 是最核心的運算：</p>
+<p>一個 $n$ 維向量 $\mathbf{x}=(x_1,x_2,\dots,x_n)^\top$ 可看成一個資料點的<strong>特徵向量 (feature vector)</strong>：每一維 $x_i$ 是一個<strong>特徵 (feature，輸入變數／欄位)</strong>（例如一條 flow 的封包數、bytes、時長…）。</p>
+<details style="margin:.6em 0">
+<summary style="cursor:pointer;color:var(--accent);font-weight:700">什麼可以當特徵？好特徵的條件（點開）</summary>
+<p><strong>硬條件（不符合就不能當特徵）：</strong></p>
+<ul>
+<li><strong>能變成數值</strong>：模型吃數字向量——連續量直接用；類別要<strong>編碼</strong>（one-hot／embedding，<a href="#12">§12</a>、<a href="#13">§13</a>）；文字要 tokenize + embedding。</li>
+<li><strong>推論時可取得、且不洩漏答案</strong>：特徵在真正預測的當下必須拿得到，且<strong>不能直接或間接包含目標 $y$</strong>（<strong>資料洩漏 data leakage</strong> → 準確率假高、上線就垮；<a href="#c1">附錄 C</a>）。</li>
+</ul>
+<p><strong>好特徵的條件（符合才有用，否則是雜訊）：</strong></p>
+<ul>
+<li><strong>相關性</strong>：和目標有關（有預測力）；無關特徵只增維度、更易過擬合（<a href="#6">§6</a>、<a href="#e1">附錄 E</a>）。</li>
+<li><strong>有變異</strong>：不是常數（常數特徵資訊量＝0）。</li>
+<li><strong>不冗餘</strong>：別和其他特徵高度相關（冗餘、線性模型不穩）；可用 PCA 去相關降維（<a href="#1.6">§1.6</a>）。</li>
+<li><strong>尺度合理</strong>：各維範圍別差太多，否則梯度／距離被大尺度那維主導 → 正規化（<a href="#1.5">§1.5</a>）。</li>
+<li><strong>穩定、低雜訊、少缺失</strong>：量測可靠、train 與上線分布一致。</li>
+</ul>
+<p><strong>傳統 ML vs 深度學習：</strong></p>
+<ul>
+<li><strong>傳統 ML（線性/邏輯迴歸、GBDT）</strong>：特徵靠<strong>人工設計挑選 (feature engineering)</strong>，上面軟條件很重要。</li>
+<li><strong>深度學習（NN/CNN/Transformer）</strong>：<strong>自動學特徵</strong>（餵接近原始的輸入，網路內部逐層長出有用特徵，<a href="#layer-output">§1.3.1</a>、<a href="#11">§11</a>）；放寬人工挑選，<strong>但硬條件（可編碼、可取得、不洩漏）任何模型都躲不掉</strong>。</li>
+</ul>
+<p>（注意：本文「<strong>特徵 (feature)</strong>」指輸入變數／欄位；<a href="#1.6">§1.6</a> 的「<strong>特徵值／特徵向量</strong>」是 eigenvalue／eigenvector，中文撞名、意思不同。）</p>
+</details>
+<p><strong>內積 (dot product)</strong> 是最核心的運算：</p>
 <p>$$\mathbf{w}\cdot\mathbf{x} = \mathbf{w}^\top\mathbf{x} = \sum_{i=1}^{n} w_i x_i$$</p>
 <p>它衡量兩向量的「對齊程度」。幾何上 $\mathbf{w}^\top\mathbf{x} = \lVert\mathbf{w}\rVert\,\lVert\mathbf{x}\rVert\cos\phi$，其中 $\lVert\mathbf{x}\rVert=\sqrt{\sum_i x_i^2}$ 是長度、$\phi$ 是夾角。<strong>一個神經元做的就是一次內積 $\mathbf{w}^\top\mathbf{x}$ 加偏置 $b$</strong>，代表「用權重量測輸入有多符合某樣式」。（注：這裡的「對齊」是方向與長度的綜合分數；純方向的相似度需先正規化，見 <a href="#1.5">§1.5</a>。）</p>
 <p><span class="geo">幾何意義。</span> 內積 = 「$\mathbf{a}$ 投影到 $\mathbf{b}$ 方向的長度 $\lVert\mathbf{a}\rVert\cos\phi$」再乘上 $\lVert\mathbf{b}\rVert$。夾角越小、投影越長、內積越大。</p>
