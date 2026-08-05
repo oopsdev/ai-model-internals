@@ -254,8 +254,9 @@ AI（人工智慧）
 <li><a href="#e1">E. 迴歸分析基礎</a></li>
 <li><a href="#f1">F. 熵 &amp; 交叉熵 (Entropy / Cross-Entropy)</a></li>
 <li><a href="#g1">G. 特徵工程 (Feature Engineering)</a></li>
+<li><a href="#h1">H. 高斯密度函數的證明</a></li>
 </ol>
-<blockquote><p><a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A/B/C/D/E/F/G 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
+<blockquote><p><a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A–H 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -914,7 +915,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <div class="tablewrap"><table>
 <thead><tr><th>分布</th><th>定義</th><th>長相</th><th>用在哪</th></tr></thead>
 <tbody>
-<tr><td>常態 / 高斯 Normal</td><td>$p(x)=\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$</td><td>鐘形曲線（μ 中心、σ 胖瘦），連續 PDF</td><td>最常見；MSE 損失背後的假設、雜訊模型</td></tr>
+<tr><td>常態 / 高斯 Normal</td><td>$p(x)=\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$<br>（前面常數的證明見 <a href="#h1">附錄 H</a>）</td><td>鐘形曲線（μ 中心、σ 胖瘦），連續 PDF</td><td>最常見；MSE 損失背後的假設、雜訊模型</td></tr>
 <tr><td>伯努利 Bernoulli</td><td>$P(X{=}1)=p,\ P(X{=}0)=1{-}p$</td><td>兩根長條（0/1），離散 PMF</td><td>二元分類（是/否、正常/惡意）；Dropout 抽樣</td></tr>
 <tr><td>二項式 Binomial</td><td>$P(K{=}k\mid n,p)=\dbinom{n}{k}p^k(1-p)^{n-k}$</td><td>$n{+}1$ 根長條（成功次數 $0\dots n$），離散 PMF</td><td>$n$ 次伯努利的成功數；ML 訓練少直接用，主要在<strong>評估統計</strong>（準確率信賴區間、A/B 測試）</td></tr>
 <tr><td>類別 Categorical</td><td>$P(X{=}k)=p_k,\ \textstyle\sum_k p_k=1$</td><td>K 根長條，離散 PMF</td><td>多元分類、LLM 下一個 token（softmax 輸出）</td></tr>
@@ -2465,9 +2466,36 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <h3>G.9 一句話</h3>
 <p><strong>特徵工程 ＝ 用數學把原始資料變成好特徵</strong>：相關性用 <strong>Pearson $r$ / 互資訊</strong>、變異用 <strong>Var</strong>、冗餘用 <strong>相關矩陣 / VIF</strong>、尺度用 <strong>標準化 / Min-Max / log</strong>；選擇分<strong>過濾（統計量）、包裝（看模型）、嵌入（L1／樹重要度）</strong>三類。深度學習把「學特徵」自動化，但<strong>表格資料仍靠人工特徵工程 + GBDT</strong>。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="h1">附錄 H — 高斯分布密度函數的證明（歸一化常數）</h2>
+<p><a href="#2.1">§2.1</a> 的常態分布、<a href="#d1">附錄 D</a> 的 MSE＝高斯 MLE，都用到高斯機率密度函數 (PDF)：</p>
+<p>$$p(x)=\frac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</p>
+<p>指數項 $e^{-(x-\mu)^2/2\sigma^2}$ 是「<strong>鐘形</strong>」的來源（離中心 $\mu$ 越遠、機率照平方指數衰減）；前面的 $\dfrac{1}{\sigma\sqrt{2\pi}}$ 是<strong>歸一化常數</strong>，作用是讓<strong>全機率 $\int_{-\infty}^{\infty}p(x)\,dx=1$</strong>。本附錄證明這個常數<strong>為什麼是 $\dfrac{1}{\sigma\sqrt{2\pi}}$</strong>——關鍵是<strong>高斯積分</strong>。</p>
+
+<h3>H.1 核心：高斯積分 $\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz=\sqrt{2\pi}$</h3>
+<p>令 $I=\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz$。這個積分<strong>沒有初等原函數</strong>，但用「<strong>平方後轉極座標</strong>」的技巧就解得開：</p>
+<p><strong>第 1 步——平方成二重積分。</strong> 把 $I$ 乘自己（換啞變數 $y$），合成平面上的二重積分：</p>
+<p>$$I^2=\left(\int_{-\infty}^{\infty}e^{-x^2/2}dx\right)\!\left(\int_{-\infty}^{\infty}e^{-y^2/2}dy\right)=\iint_{\mathbb{R}^2} e^{-\frac{x^2+y^2}{2}}\,dx\,dy$$</p>
+<p><strong>第 2 步——轉極座標。</strong> 令 $x=r\cos\theta,\ y=r\sin\theta$，則 $x^2+y^2=r^2$、面積元 $dx\,dy=r\,dr\,d\theta$：</p>
+<p>$$I^2=\int_{0}^{2\pi}\!\!\int_{0}^{\infty} e^{-r^2/2}\,r\,dr\,d\theta$$</p>
+<p><strong>第 3 步——算積分。</strong> 內層對 $r$ 換元 $u=r^2/2$（$du=r\,dr$）：$\int_0^\infty e^{-u}\,du=1$；外層 $\int_0^{2\pi}d\theta=2\pi$。所以</p>
+<p>$$I^2=2\pi\times 1=2\pi\quad\Rightarrow\quad \boxed{\,I=\sqrt{2\pi}\,}$$</p>
+<p>（$r\,dr$ 這個多出來的 $r$ 是關鍵——它正好讓 $e^{-r^2/2}r$ 有初等原函數，這就是「轉極座標」奏效的原因。）</p>
+
+<h3>H.2 代回一般 $\mu,\sigma$，解出歸一化常數</h3>
+<p>設常數 $C$ 使 $\int_{-\infty}^{\infty} C\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=1$。換元 $z=\dfrac{x-\mu}{\sigma}$（$dx=\sigma\,dz$）：</p>
+<p>$$\int_{-\infty}^{\infty} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\sigma\int_{-\infty}^{\infty} e^{-z^2/2}\,dz\overset{\text{H.1}}{=}\sigma\sqrt{2\pi}$$</p>
+<p>所以 $C\cdot\sigma\sqrt{2\pi}=1\Rightarrow C=\dfrac{1}{\sigma\sqrt{2\pi}}$。代回即得</p>
+<p>$$\boxed{\;p(x)=\frac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}\;}$$</p>
+<p>歸一化常數證畢——它就是<strong>為了把鐘形曲線的面積調成 1</strong>（合法機率密度的條件）。</p>
+
+<h3>H.3 順帶：$\mu,\sigma$ 的意義</h3>
+<p>代定義可驗證（$\mu,\sigma^2$ 正是這個分布的期望與變異數）：$\ \mathbb{E}[x]=\int x\,p(x)\,dx=\mu$、$\ \mathrm{Var}(x)=\int (x-\mu)^2 p(x)\,dx=\sigma^2$。所以 <strong>$\mu$＝鐘形的中心、$\sigma$＝胖瘦</strong>（<a href="#2.1">§2.1</a>）。</p>
+<blockquote><p><strong>注意：這裡證的是「歸一化」，不是「為什麼是鐘形」。</strong> 指數裡「負的平方」這個<strong>形狀</strong>本身是另一回事——它可由<strong>最大熵</strong>（固定均值/變異數下最不確定的分布）或<strong>中央極限定理</strong>（大量獨立小效應之和趨近高斯）導出，屬更進階主題。本附錄只證：一旦採用這個形狀，前面的常數必為 $\frac{1}{\sigma\sqrt{2\pi}}$ 才會是合法機率密度。</p></blockquote>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <div class="note">
-<a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A/B/C/D/E/F 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎、附錄 F 熵 &amp; 交叉熵、附錄 G 特徵工程。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A–H 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎、附錄 F 熵 &amp; 交叉熵、附錄 G 特徵工程、附錄 H 高斯密度函數證明。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
