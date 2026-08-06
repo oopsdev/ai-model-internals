@@ -208,6 +208,7 @@ AI（人工智慧）
 <p id="toc"><strong>目錄</strong>（點章節可跳轉）：</p>
 <p><strong>導覽</strong></p>
 <ul style="list-style:none;margin-left:0">
+<li><a href="#pipeline">ML 完整管線 — 每一步對應哪一章</a></li>
 <li><a href="#map">數學觀念 × 網路階段 映射</a></li>
 <li><a href="#example">綜合範例：影像辨識模型內部怎麼運作</a></li>
 </ul>
@@ -259,6 +260,51 @@ AI（人工智慧）
 </ol>
 <blockquote><p><a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A–I 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="pipeline">ML 完整管線 — 每一步對應哪一章</h2>
+<p>ML 不是只有「訓練模型」——它是一條<strong>「資料 → 特徵 → 模型 → 評估 → 部署 → 監控」的迴圈</strong>（監控到漂移就回頭重訓，不是一次性直線）。本教材的<strong>數學主要落在「特徵 → 模型 → 訓練 → 評估」段</strong>；資料段在 <a href="#h1">附錄 H</a>、特徵在 <a href="#i1">附錄 I</a>、部署與監控偏 MLOps（著墨較淺）。</p>
+<figure><div style="overflow-x:auto"><svg viewBox="0 0 1000 210" style="max-width:100%;min-width:940px" role="img" aria-label="ML 完整管線：問題定義→資料→清洗→採樣→特徵→選模型→訓練→評估→部署→監控，並回饋重訓">
+  <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#64748b"/></marker></defs>
+  <text x="12" y="42" fill="#38bdf8" font-size="12" font-weight="700">準備資料</text>
+  <text x="360" y="42" fill="#34d399" font-size="12" font-weight="700">建模與訓練</text>
+  <text x="792" y="42" fill="#fbbf24" font-size="12" font-weight="700">部署與維運</text>
+  <g font-size="10.5" text-anchor="middle">
+   <g>
+    <rect x="12" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#38bdf8"/><text x="55" y="77" fill="#e2e8f0">① 問題定義</text><text x="55" y="93" fill="#94a3b8" font-size="8.5">§3·§19</text>
+    <rect x="106" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#38bdf8"/><text x="149" y="77" fill="#e2e8f0">② 資料·可信度</text><text x="149" y="93" fill="#94a3b8" font-size="8.5">附錄 H</text>
+    <rect x="200" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#38bdf8"/><text x="243" y="77" fill="#e2e8f0">③ 清洗準備</text><text x="243" y="93" fill="#94a3b8" font-size="8.5">附錄 H</text>
+    <rect x="294" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#38bdf8"/><text x="337" y="77" fill="#e2e8f0">④ 採樣/切分</text><text x="337" y="93" fill="#94a3b8" font-size="8.5">附錄 H·§7</text>
+    <rect x="388" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#34d399"/><text x="431" y="77" fill="#e2e8f0">⑤ 特徵工程</text><text x="431" y="93" fill="#94a3b8" font-size="8.5">附錄 I</text>
+    <rect x="482" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#34d399"/><text x="525" y="77" fill="#e2e8f0">⑥ 選模型</text><text x="525" y="93" fill="#94a3b8" font-size="8.5">§3·§11·附C</text>
+    <rect x="576" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#34d399"/><text x="619" y="74" fill="#e2e8f0">⑦ 訓練迴圈</text><text x="619" y="88" fill="#94a3b8" font-size="8">前向→損失</text><text x="619" y="99" fill="#94a3b8" font-size="8">→反向→更新 §5–10</text>
+    <rect x="670" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#34d399"/><text x="713" y="77" fill="#e2e8f0">⑧ 評估/調參</text><text x="713" y="93" fill="#94a3b8" font-size="8.5">§18</text>
+    <rect x="764" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#fbbf24"/><text x="807" y="77" fill="#e2e8f0">⑨ 部署·推論</text><text x="807" y="93" fill="#94a3b8" font-size="8.5">§7·§19</text>
+    <rect x="858" y="55" width="86" height="52" rx="6" fill="#243449" stroke="#fbbf24"/><text x="901" y="77" fill="#e2e8f0">⑩ 監控漂移</text><text x="901" y="93" fill="#94a3b8" font-size="8.5">附錄 H</text>
+   </g>
+   <g stroke="#64748b" stroke-width="1.4" marker-end="url(#pa)">
+    <line x1="98" y1="81" x2="105" y2="81"/><line x1="192" y1="81" x2="199" y2="81"/><line x1="286" y1="81" x2="293" y2="81"/><line x1="380" y1="81" x2="387" y2="81"/><line x1="474" y1="81" x2="481" y2="81"/><line x1="568" y1="81" x2="575" y2="81"/><line x1="662" y1="81" x2="669" y2="81"/><line x1="756" y1="81" x2="763" y2="81"/><line x1="850" y1="81" x2="857" y2="81"/>
+   </g>
+   <path d="M901,107 L901,150 Q901,165 886,165 L164,165 Q149,165 149,150 L149,109" fill="none" stroke="#64748b" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#pa)"/>
+   <text x="525" y="180" fill="#94a3b8" font-size="10">偵測到分布漂移／效能退化 → 回頭重訓（整條是迴圈，不是直線）</text>
+  </g>
+</svg></div><figcaption>ML 完整管線：<strong>準備資料</strong>（藍，附錄 H）→ <strong>建模與訓練</strong>（綠，教材數學主體）→ <strong>部署與維運</strong>（黃）；⑩ 監控到漂移會回頭觸發重訓，整條是迴圈。</figcaption></figure>
+
+<div class="tablewrap"><table>
+<thead><tr><th>階段</th><th>做什麼</th><th>對應章節</th></tr></thead>
+<tbody>
+<tr><td><strong>① 問題定義</strong></td><td>迴歸還是分類?目標與成功指標</td><td><a href="#3">§3</a>、<a href="#18">§18</a></td></tr>
+<tr><td><strong>② 資料蒐集 + 可信度</strong></td><td>來源、分級 (gold/silver/bronze)、品質維度</td><td><a href="#h1">附錄 H</a></td></tr>
+<tr><td><strong>③ 清洗 / 準備</strong></td><td>缺值、異常、去重、格式一致</td><td><a href="#h1">附錄 H</a></td></tr>
+<tr><td><strong>④ 採樣 / 切分</strong></td><td>分層、不平衡 (SMOTE/權重)、train/val/test、按時間切、<strong>防洩漏</strong></td><td><a href="#h1">附錄 H</a>、<a href="#6">§6</a></td></tr>
+<tr><td><strong>⑤ 特徵工程</strong></td><td>建構/選擇/縮放特徵（相關/不冗餘/尺度）</td><td><a href="#i1">附錄 I</a>、<a href="#1.1">§1.1</a>、<a href="#1.5">§1.5</a>、<a href="#1.6">§1.6</a></td></tr>
+<tr><td><strong>⑥ 選模型</strong></td><td>依資料型態選（表格→GBDT、影像→CNN、序列→Transformer）</td><td><a href="#landscape">先看定位</a>、<a href="#3">§3</a>、<a href="#11">§11</a>、<a href="#c1">附錄 C</a></td></tr>
+<tr><td><strong>⑦ 訓練</strong></td><td>初始化→<strong>前向→損失→反向→更新</strong> × epoch，配優化器/正則化/早停</td><td><a href="#10">§10</a>→<a href="#7">§7</a>→<a href="#3">§3</a>/<a href="#f1">附錄 F</a>→<a href="#9">§9</a>→<a href="#5">§5</a>、<a href="#6">§6</a></td></tr>
+<tr><td><strong>⑧ 評估 / 調參</strong></td><td>驗證/測試集看指標、混淆矩陣、調超參數</td><td><a href="#18">§18</a>、<a href="#6">§6.2</a></td></tr>
+<tr><td><strong>⑨ 部署（推論）</strong></td><td>上線只走<strong>前向</strong>一遍；量化、選硬體</td><td><a href="#7">§7</a>、<a href="#19">§19</a></td></tr>
+<tr><td><strong>⑩ 監控 / 維運</strong></td><td>偵測分布漂移、效能退化 → 定期<strong>重訓</strong></td><td><a href="#h1">附錄 H</a></td></tr>
+</tbody></table></div>
+<p><strong>三個關鍵觀念。</strong> ① <strong>它是迴圈不是直線</strong>：⑩ 監控到漂移 → 回 ②/⑦ 重訓；⑧ 評估不滿意 → 回 ⑤/⑥/⑦ 調整。② <strong>訓練 vs 推論不同</strong>：①–⑧ 是訓練期（要資料、標籤、跑完整迴圈）；⑨ 上線<strong>只做前向</strong>一遍（固定參數、不再反向）——這正是「邊緣做推論、訓練放中央」的由來。③ <strong>教材重心在 ⑤–⑧（數學核心）</strong>；②–④（資料）在 <a href="#h1">附錄 H</a>；①問題定義、⑨部署、⑩監控偏 MLOps/工程，屬另一領域。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="map">導覽：數學觀念 × 網路階段 映射</h2>
