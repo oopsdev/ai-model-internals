@@ -2032,9 +2032,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>Accuracy</strong> $=\frac{TP+TN}{\text{全部}}$：<strong>不平衡時會騙人</strong>（99.9% 正常，全猜正常也 99.9%）。</li>
 <li><strong>Precision（精確率）</strong> $=\frac{TP}{TP+FP}$：「說是惡意的，有多少真的是」（少誤報）。</li>
 <li><strong>Recall（召回率）</strong> $=\frac{TP}{TP+FN}$：「真惡意的，抓到多少」（少漏抓）。</li>
-<li><strong>F1</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的調和平均。</li>
+<li><strong>F1（正式名 F1 score / F1-measure）</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的<strong>調和平均</strong>（是 $F_\beta$ 在 $\beta=1$ 的特例；$\beta&gt;1$ 偏重 recall、$&lt;1$ 偏重 precision）。<strong>它算的是「單一類別 / 二元」的分數</strong>——同時要求少誤報 (P) 與少漏抓 (R)，任一低則 F1 低，比 accuracy 適合不平衡。<strong>用途</strong>:二元偵測（惡意/正常）、以及多類裡的<strong>逐類</strong>評估。</li>
 <li><strong>ROC / AUC</strong>：調不同門檻畫出的曲線 / 曲線下面積，衡量整體區辨力。</li>
-<li><strong>多類別怎麼合成一個 F1?（平均方式）</strong>：<strong>macro</strong>（每類算完 F1 再<strong>等權平均</strong>——<strong>少數類也算數</strong>，不平衡時最該看）、<strong>micro</strong>（把所有類的 TP/FP/FN 匯總再算一個，由多數類主導）、<strong>weighted</strong>（按各類樣本數加權）。<strong>建議看 macro，並另看「每類 F1 的最低者 (per-class floor)」</strong> —— 別讓平均掩蓋某個爛掉的弱類（分開判定、不平均掉）。評分若有群組結構，還要考慮<strong>分組加權</strong>避免大群組主導（見 <a href="#19.2">§19.2</a>）。</li>
+<li><strong>多類別怎麼把各類 F1 合成一個?（平均方式——<code>macro-F1</code> 就是從這來的，不是 F1 的別名）</strong>：先對<strong>每類各算一個 F1</strong>，再合成成一個總分:
+  <ul>
+  <li><strong>macro-F1</strong>：各類 F1 <strong>等權平均</strong>——<strong>少數類也算數</strong>，類別不平衡時最該看；</li>
+  <li><strong>micro-F1</strong>：把<strong>所有類的 TP/FP/FN 匯總後</strong>才算一個——<strong>由多數類主導</strong>；</li>
+  <li><strong>weighted-F1</strong>：各類 F1 <strong>按樣本數加權</strong>平均。</li>
+  </ul>
+  <strong>多類情境只說「F1」會有歧義，務必指明用哪種平均</strong>（實務常用 <strong>macro-F1</strong>；<strong>用途</strong>:報一個跨類總分又不想被多數類蓋過）。<strong>搭配 per-class floor</strong>：除了 macro-F1，另看<strong>「每類 F1 的最低者」</strong>，別讓平均掩蓋弱類（分開判定）；有群組結構再考慮<strong>分組加權</strong>避免大群組主導（<a href="#19.2">§19.2</a>）。</li>
 </ul>
 <h3 id="18.2">18.2 迴歸</h3>
 <p><strong>MSE / MAE</strong>：均方 / 平均絕對誤差（<a href="#3">§3</a>、<a href="#1.4">§1.4</a>）；<strong>R²</strong>：模型解釋了多少變異。</p>
