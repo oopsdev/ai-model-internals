@@ -2072,7 +2072,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 
 <h3 id="19.4">19.4 統計推論:別把「一個數字」當結論</h3>
-<p>測試集有限，$F1=0.91$ 只是<strong>樣本估計</strong>——換一批資料會變。要問「這差異是真的，還是抽樣雜訊?」</p>
+<p>測試集有限，$F1=0.91$（定義見 <a href="#18.1">§18.1</a>）只是<strong>樣本估計</strong>——換一批資料會變。要問「這差異是真的，還是抽樣雜訊?」</p>
 <ul>
 <li><strong>信賴區間 (Confidence Interval, CI)</strong>:給估計一個<strong>範圍</strong>（如 95% CI），而非單點；CI 很寬 → 別下結論。</li>
 <li><strong>Bootstrap（自助法）</strong>:對測試資料<strong>有放回重抽樣</strong>很多次、每次重算指標 → 得到指標分布 → 估 CI（<strong>不需假設分布</strong>）。<strong>有群組時以群組為重抽單位</strong>。</li>
