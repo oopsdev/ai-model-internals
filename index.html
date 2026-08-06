@@ -253,9 +253,9 @@ AI（人工智慧）
 <li><a href="#d1">D. MSE ＝ 高斯誤差下的最大似然（推導）</a></li>
 <li><a href="#e1">E. 迴歸分析基礎</a></li>
 <li><a href="#f1">F. 熵 &amp; 交叉熵 (Entropy / Cross-Entropy)</a></li>
-<li><a href="#g1">G. 特徵工程 (Feature Engineering)</a></li>
-<li><a href="#h1">H. 高斯密度函數的證明</a></li>
-<li><a href="#i1">I. 資料來源、採樣與資料可信度</a></li>
+<li><a href="#g1">G. 高斯密度函數的證明</a></li>
+<li><a href="#h1">H. 資料來源、採樣與資料可信度</a></li>
+<li><a href="#i1">I. 特徵工程 (Feature Engineering)</a></li>
 </ol>
 <blockquote><p><a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A–I 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
@@ -916,7 +916,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <div class="tablewrap"><table>
 <thead><tr><th>分布</th><th>定義</th><th>長相</th><th>用在哪</th></tr></thead>
 <tbody>
-<tr><td>常態 / 高斯 Normal</td><td>$p(x)=\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$<br>（前面常數的證明見 <a href="#h1">附錄 H</a>）</td><td>鐘形曲線（μ 中心、σ 胖瘦），連續 PDF</td><td>最常見；MSE 損失背後的假設、雜訊模型</td></tr>
+<tr><td>常態 / 高斯 Normal</td><td>$p(x)=\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$<br>（前面常數的證明見 <a href="#g1">附錄 G</a>）</td><td>鐘形曲線（μ 中心、σ 胖瘦），連續 PDF</td><td>最常見；MSE 損失背後的假設、雜訊模型</td></tr>
 <tr><td>伯努利 Bernoulli</td><td>$P(X{=}1)=p,\ P(X{=}0)=1{-}p$</td><td>兩根長條（0/1），離散 PMF</td><td>二元分類（是/否、正常/惡意）；Dropout 抽樣</td></tr>
 <tr><td>二項式 Binomial</td><td>$P(K{=}k\mid n,p)=\dbinom{n}{k}p^k(1-p)^{n-k}$</td><td>$n{+}1$ 根長條（成功次數 $0\dots n$），離散 PMF</td><td>$n$ 次伯努利的成功數；ML 訓練少直接用，主要在<strong>評估統計</strong>（準確率信賴區間、A/B 測試）</td></tr>
 <tr><td>類別 Categorical</td><td>$P(X{=}k)=p_k,\ \textstyle\sum_k p_k=1$</td><td>K 根長條，離散 PMF</td><td>多元分類、LLM 下一個 token（softmax 輸出）</td></tr>
@@ -2407,73 +2407,12 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 </ul>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="g1">附錄 G — 特徵工程 (Feature Engineering)</h2>
-<p><a href="#1.1">§1.1</a> 說「好特徵要<strong>相關、有變異、不冗餘、尺度合理</strong>」，並提到<strong>傳統 ML 靠人工設計挑選特徵</strong>。本附錄補上：這些條件<strong>怎麼用數學公式量化與檢驗</strong>、以及常用的特徵建構與選擇方法。</p>
-
-<h3>G.1 特徵工程在做什麼</h3>
-<p><strong>特徵工程 ＝ 人工把原始資料轉成「對模型有用」的特徵</strong>，三件事：<strong>建構/轉換</strong>（造新特徵）、<strong>選擇</strong>（挑有用的、丟冗餘的）、<strong>縮放</strong>（調到可比較）。傳統 ML（線性/邏輯迴歸、GBDT）成敗多半在此；深度學習則把一部分自動化（G.8）。下面每個條件都給<strong>可計算的公式</strong>。</p>
-
-<h3>G.2 相關性：量「特徵與目標有多相關」</h3>
-<ul>
-<li><strong>皮爾森相關係數 (Pearson $r$)</strong> — 量<strong>線性</strong>相關的方向與強度，$r\in[-1,1]$：
-$$r_{x,y}=\frac{\mathrm{cov}(x,y)}{\sigma_x\sigma_y}=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i(x_i-\bar x)^2}\sqrt{\sum_i(y_i-\bar y)^2}}$$
-用於<strong>連續特徵 vs 連續目標</strong>。$|r|$ 越大越相關；$r\approx0$ 表<strong>線性</strong>無關（但可能有非線性關係）。</li>
-<li><strong>斯皮爾曼 (Spearman $\rho$)</strong> — 把 $x,y$ 換成<strong>排名</strong>再算 Pearson，抓<strong>單調（含非線性）</strong>關係、對離群值穩健。</li>
-<li><strong>互資訊 (Mutual Information)</strong> — 抓<strong>任意相依（含非線性）</strong>，$=0$ 才表獨立（呼應 <a href="#f1">附錄 F</a> 的熵）：
-$$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
-<li><strong>卡方 $\chi^2$ 檢定</strong> — <strong>類別特徵 vs 類別目標</strong>的相依：$\chi^2=\sum\frac{(O-E)^2}{E}$（$O$ 觀測、$E$ 獨立假設下的期望次數）。</li>
-<li><strong>ANOVA F 值</strong> — <strong>連續特徵 vs 類別目標</strong>（比較各類別間 vs 類別內的變異）。</li>
-</ul>
-
-<h3>G.3 變異：量「特徵有沒有資訊」</h3>
-<p>$$\mathrm{Var}(x)=\frac1N\sum_i (x_i-\bar x)^2$$</p>
-<p><strong>近零變異</strong>（幾乎是常數）的特徵資訊量≈0，直接刪（variance threshold）。</p>
-
-<h3>G.4 冗餘 / 共線性：量「特徵之間重不重複」</h3>
-<ul>
-<li><strong>相關矩陣</strong>：對所有特徵兩兩算 Pearson $r$，$|r|$ 很高（如 $>0.9$）的一對 → 其中一個<strong>冗餘</strong>，可刪一個。</li>
-<li><strong>變異數膨脹因子 (VIF)</strong> — 用<strong>其他所有特徵</strong>去迴歸第 $i$ 個特徵、得 $R_i^2$：$\ \mathrm{VIF}_i=\dfrac{1}{1-R_i^2}$。$R_i^2$ 越接近 1（越能被別人線性表示）→ VIF 越大 → <strong>共線性越嚴重</strong>（VIF&gt;5\~10 常視為問題）。</li>
-<li><strong>PCA</strong>（<a href="#1.6">§1.6</a>）：特徵分解把相關特徵轉成<strong>正交主成分</strong>、順便降維。</li>
-</ul>
-
-<h3>G.5 尺度：把特徵調到可比較（<a href="#1.5">§1.5</a>）</h3>
-<ul>
-<li><strong>標準化 (z-score)</strong>：$x'=\dfrac{x-\mu}{\sigma}$ → 均值 0、標準差 1（最常用）。</li>
-<li><strong>Min-Max 正規化</strong>：$x'=\dfrac{x-x_{\min}}{x_{\max}-x_{\min}}$ → 壓到 $[0,1]$。</li>
-<li><strong>對數轉換</strong>：$x'=\log(x{+}1)$ — 壓縮<strong>長尾/偏態</strong>分布（金額、次數、流量），讓大值不主導。</li>
-</ul>
-
-<h3>G.6 特徵建構 / 轉換（造新特徵）</h3>
-<ul>
-<li><strong>多項式 / 交互特徵</strong>：$x_1^2,\ x_1x_2$ — 讓線性模型也能表達非線性/交互（呼應 <a href="#e1">附錄 E</a> 多項式迴歸）。</li>
-<li><strong>分箱 (binning)</strong>：連續值切成區間變類別（如年齡 → 青/中/老）。</li>
-<li><strong>類別編碼</strong>：one-hot、target encoding、或 <strong>embedding</strong>（<a href="#12">§12</a>、<a href="#13">§13</a>）。</li>
-<li><strong>時間特徵</strong>：從 timestamp 抽小時/星期；週期性用 $\sin,\cos$ 編（$23$ 點與 $0$ 點才會相鄰）。</li>
-<li><strong>聚合特徵</strong>：group-by 後的統計量（每個 IP 的封包數 mean/std/count…）。</li>
-</ul>
-
-<h3>G.7 特徵選擇（挑有用的、丟冗餘的）三大類</h3>
-<div class="tablewrap"><table>
-<thead><tr><th>類別</th><th>怎麼做</th><th>特性</th></tr></thead>
-<tbody>
-<tr><td><strong>過濾法 Filter</strong></td><td>用 G.2\~G.4 的統計量（$r$、MI、$\chi^2$、變異、VIF）排序挑選</td><td><strong>與模型無關、快</strong>；但沒考慮特徵間組合</td></tr>
-<tr><td><strong>包裝法 Wrapper</strong></td><td>拿模型的驗證表現當標準（遞迴特徵消除 RFE、前向/後向選擇）</td><td><strong>準但貴</strong>（要反覆訓練）</td></tr>
-<tr><td><strong>嵌入法 Embedded</strong></td><td>模型訓練時<strong>內建選擇</strong>：<strong>L1 正則化 (Lasso)</strong> 把不重要特徵權重壓成 <strong>0</strong>（<a href="#1.4">§1.4</a>、<a href="#6">§6</a>）；樹模型的<strong>特徵重要度</strong>（<a href="#c1">附錄 C</a> GBDT）</td><td>兼顧效果與效率，實務常用</td></tr>
-</tbody></table></div>
-
-<h3>G.8 深度學習：自動特徵學習（對比）</h3>
-<p>深度學習用<strong>表徵學習</strong>自動長出特徵（CNN filter 自學邊緣/部件 <a href="#11">§11</a>、embedding 學語意 <a href="#13">§13</a>、逐層換座標 <a href="#layer-output">§1.3.1</a>），<strong>減少人工特徵工程</strong>。但在<strong>表格資料</strong>上，<strong>GBDT + 人工特徵工程仍常勝過 NN</strong>（<a href="#c1">附錄 C</a>）——所以特徵工程在傳統/邊緣場景依然是核心功夫。</p>
-
-<h3>G.9 一句話</h3>
-<p><strong>特徵工程 ＝ 用數學把原始資料變成好特徵</strong>：相關性用 <strong>Pearson $r$ / 互資訊</strong>、變異用 <strong>Var</strong>、冗餘用 <strong>相關矩陣 / VIF</strong>、尺度用 <strong>標準化 / Min-Max / log</strong>；選擇分<strong>過濾（統計量）、包裝（看模型）、嵌入（L1／樹重要度）</strong>三類。深度學習把「學特徵」自動化，但<strong>表格資料仍靠人工特徵工程 + GBDT</strong>。</p>
-<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
-<hr>
-<h2 id="h1">附錄 H — 高斯分布密度函數的證明（歸一化常數）</h2>
+<h2 id="g1">附錄 G — 高斯分布密度函數的證明（歸一化常數）</h2>
 <p><a href="#2.1">§2.1</a> 的常態分布、<a href="#d1">附錄 D</a> 的 MSE＝高斯 MLE，都用到高斯機率密度函數 (PDF)：</p>
 <p>$$p(x)=\frac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</p>
 <p>指數項 $e^{-(x-\mu)^2/2\sigma^2}$ 是「<strong>鐘形</strong>」的來源（離中心 $\mu$ 越遠、機率照平方指數衰減）；前面的 $\dfrac{1}{\sigma\sqrt{2\pi}}$ 是<strong>歸一化常數</strong>，作用是讓<strong>全機率 $\int_{-\infty}^{\infty}p(x)\,dx=1$</strong>。本附錄證明這個常數<strong>為什麼是 $\dfrac{1}{\sigma\sqrt{2\pi}}$</strong>——關鍵是<strong>高斯積分</strong>。</p>
 
-<h3>H.1 核心：高斯積分 $\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz=\sqrt{2\pi}$</h3>
+<h3>G.1 核心：高斯積分 $\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz=\sqrt{2\pi}$</h3>
 <p>令 $I=\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz$。這個積分<strong>沒有初等原函數</strong>，但用「<strong>平方後轉極座標</strong>」的技巧就解得開：</p>
 <p><strong>第 1 步——平方成二重積分。</strong> 把 $I$ 乘自己（換啞變數 $y$），合成平面上的二重積分：</p>
 <p>$$I^2=\left(\int_{-\infty}^{\infty}e^{-x^2/2}dx\right)\!\left(\int_{-\infty}^{\infty}e^{-y^2/2}dy\right)=\iint_{\mathbb{R}^2} e^{-\frac{x^2+y^2}{2}}\,dx\,dy$$</p>
@@ -2483,22 +2422,22 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <p>$$I^2=2\pi\times 1=2\pi\quad\Rightarrow\quad \boxed{\,I=\sqrt{2\pi}\,}$$</p>
 <p>（$r\,dr$ 這個多出來的 $r$ 是關鍵——它正好讓 $e^{-r^2/2}r$ 有初等原函數，這就是「轉極座標」奏效的原因。）</p>
 
-<h3>H.2 代回一般 $\mu,\sigma$，解出歸一化常數</h3>
+<h3>G.2 代回一般 $\mu,\sigma$，解出歸一化常數</h3>
 <p>設常數 $C$ 使 $\int_{-\infty}^{\infty} C\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=1$。換元 $z=\dfrac{x-\mu}{\sigma}$（$dx=\sigma\,dz$）：</p>
-<p>$$\int_{-\infty}^{\infty} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\sigma\int_{-\infty}^{\infty} e^{-z^2/2}\,dz\overset{\text{H.1}}{=}\sigma\sqrt{2\pi}$$</p>
+<p>$$\int_{-\infty}^{\infty} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\sigma\int_{-\infty}^{\infty} e^{-z^2/2}\,dz\overset{\text{G.1}}{=}\sigma\sqrt{2\pi}$$</p>
 <p>所以 $C\cdot\sigma\sqrt{2\pi}=1\Rightarrow C=\dfrac{1}{\sigma\sqrt{2\pi}}$。代回即得</p>
 <p>$$\boxed{\;p(x)=\frac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}\;}$$</p>
 <p>歸一化常數證畢——它就是<strong>為了把鐘形曲線的面積調成 1</strong>（合法機率密度的條件）。</p>
 
-<h3>H.3 順帶：$\mu,\sigma$ 的意義</h3>
+<h3>G.3 順帶：$\mu,\sigma$ 的意義</h3>
 <p>代定義可驗證（$\mu,\sigma^2$ 正是這個分布的期望與變異數）：$\ \mathbb{E}[x]=\int x\,p(x)\,dx=\mu$、$\ \mathrm{Var}(x)=\int (x-\mu)^2 p(x)\,dx=\sigma^2$。所以 <strong>$\mu$＝鐘形的中心、$\sigma$＝胖瘦</strong>（<a href="#2.1">§2.1</a>）。</p>
 <blockquote><p><strong>注意：這裡證的是「歸一化」，不是「為什麼是鐘形」。</strong> 指數裡「負的平方」這個<strong>形狀</strong>本身是另一回事——它可由<strong>最大熵</strong>（固定均值/變異數下最不確定的分布）或<strong>中央極限定理</strong>（大量獨立小效應之和趨近高斯）導出，屬更進階主題。本附錄只證：一旦採用這個形狀，前面的常數必為 $\frac{1}{\sigma\sqrt{2\pi}}$ 才會是合法機率密度。</p></blockquote>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
-<h2 id="i1">附錄 I — 資料來源、採樣與資料可信度</h2>
+<h2 id="h1">附錄 H — 資料來源、採樣與資料可信度</h2>
 <p>前面各章講「模型與數學」；但實務上 <strong>「garbage in, garbage out」——資料的來源、品質與採樣，往往比模型更關鍵</strong>（近年所謂 <strong>data-centric AI</strong> 的精神）。本附錄補上這塊：資料<strong>可信度分級</strong>、<strong>品質維度</strong>、<strong>採樣</strong>與<strong>常見資料陷阱</strong>。散見的 <a href="#1.1">§1.1</a>（洩漏）、<a href="#c1">附錄 C</a>（資安資料集數字要謹慎）、<a href="#6">§6</a>（驗證）在此收攏。</p>
 
-<h3>I.1 資料可信度分級（三種常見框架）</h3>
+<h3>H.1 資料可信度分級（三種常見框架）</h3>
 <p><strong>(a) 標註可信度（ML 標籤層級）</strong> — 標籤怎麼來、多可信：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>層級</th><th>怎麼來</th><th>可信度</th></tr></thead>
@@ -2510,17 +2449,17 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <p><strong>(b) 資料工程分層（Medallion 架構）</strong> — 資料「加工程度」：<strong>Bronze</strong> 原始擷取（raw、as-is，未清洗）；<strong>Silver</strong> 清洗/驗證/去重/格式統一後；<strong>Gold</strong> 聚合、商業/特徵就緒（feature-ready）。</p>
 <p><strong>(c) 來源與血緣 (provenance / lineage)</strong> — 第一方 vs 第三方、權威來源 vs 衍生、感測器可靠度；<strong>資料血緣</strong>要能追溯「這欄從哪來、經過哪些轉換」（出問題才查得到、也才防得了洩漏）。</p>
 
-<h3>I.2 資料品質維度 (data quality dimensions)</h3>
-<p>實務常用這幾個面向檢核（DAMA 類）：<strong>正確性 (accuracy)</strong>、<strong>完整性 (completeness，缺值多不多)</strong>、<strong>一致性 (consistency，不同來源不打架)</strong>、<strong>時效性 (timeliness，夠不夠新)</strong>、<strong>有效性 (validity，符合格式/範圍)</strong>、<strong>唯一性 (uniqueness，不重複)</strong>、<strong>代表性 (representativeness，樣本像不像母體/上線分布)</strong>。其中<strong>代表性</strong>對 ML 最致命——訓練資料若不像上線資料，模型再準也會垮（見 I.4 分布漂移）。</p>
+<h3>H.2 資料品質維度 (data quality dimensions)</h3>
+<p>實務常用這幾個面向檢核（DAMA 類）：<strong>正確性 (accuracy)</strong>、<strong>完整性 (completeness，缺值多不多)</strong>、<strong>一致性 (consistency，不同來源不打架)</strong>、<strong>時效性 (timeliness，夠不夠新)</strong>、<strong>有效性 (validity，符合格式/範圍)</strong>、<strong>唯一性 (uniqueness，不重複)</strong>、<strong>代表性 (representativeness，樣本像不像母體/上線分布)</strong>。其中<strong>代表性</strong>對 ML 最致命——訓練資料若不像上線資料，模型再準也會垮（見 H.4 分布漂移）。</p>
 
-<h3>I.3 採樣 (sampling)</h3>
+<h3>H.3 採樣 (sampling)</h3>
 <ul>
 <li><strong>採樣方法</strong>：<strong>簡單隨機</strong>、<strong>分層 (stratified，保持類別比例)</strong>、系統、叢集。切訓練集常用分層以維持類別分布。</li>
 <li><strong>類別不平衡</strong>（如 99% 正常、1% 惡意）：<strong>過採樣</strong>（少數類複製/合成，如 SMOTE）、<strong>欠採樣</strong>（多數類抽少）、或<strong>類別權重</strong>（損失對少數類加權）。呼應 <a href="#18">§18</a>：不平衡時 accuracy 會騙人，要看 precision/recall/F1。</li>
 <li><strong>train / val / test 切分</strong>：一般隨機切；<strong>時間序列必須「按時間切」</strong>（用過去預測未來，不能拿未來資料訓練 → 否則洩漏）；資料少用 <strong>k-fold 交叉驗證</strong>。</li>
 </ul>
 
-<h3>I.4 常見資料陷阱</h3>
+<h3>H.4 常見資料陷阱</h3>
 <ul>
 <li><strong>資料洩漏 (data leakage)</strong>：特徵（直接或間接）含了答案 → 準確率假高、上線垮（<a href="#1.1">§1.1</a>、<a href="#c1">附錄 C</a>）。時間洩漏、用了推論時拿不到的欄位都算。</li>
 <li><strong>採樣偏差 (sampling bias)</strong>：<strong>選擇偏差</strong>（只收到某類樣本）、<strong>倖存者偏差 (survivorship bias)</strong>（只看到活下來的）→ 資料不代表母體。</li>
@@ -2528,12 +2467,73 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <li><strong>標籤雜訊 (label noise)</strong>：標錯的標籤；弱標註尤其嚴重，需清洗或用抗雜訊訓練。</li>
 </ul>
 
-<h3>I.5 一句話</h3>
+<h3>H.5 一句話</h3>
 <p><strong>模型只能學到資料裡有的東西</strong>：先確保<strong>來源可信（分級 gold/silver/bronze、可追溯血緣）、品質達標（尤其代表性）、採樣無偏（分層、處理不平衡、按時間切、防洩漏）</strong>，數學與模型才有意義。這也是為什麼引用任何準確率都要附「資料集、切法、是否處理不平衡與洩漏」（<a href="#c1">附錄 C</a>）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
+<h2 id="i1">附錄 I — 特徵工程 (Feature Engineering)</h2>
+<p><a href="#1.1">§1.1</a> 說「好特徵要<strong>相關、有變異、不冗餘、尺度合理</strong>」，並提到<strong>傳統 ML 靠人工設計挑選特徵</strong>。本附錄補上：這些條件<strong>怎麼用數學公式量化與檢驗</strong>、以及常用的特徵建構與選擇方法。</p>
+
+<h3>I.1 特徵工程在做什麼</h3>
+<p><strong>特徵工程 ＝ 人工把原始資料轉成「對模型有用」的特徵</strong>，三件事：<strong>建構/轉換</strong>（造新特徵）、<strong>選擇</strong>（挑有用的、丟冗餘的）、<strong>縮放</strong>（調到可比較）。傳統 ML（線性/邏輯迴歸、GBDT）成敗多半在此；深度學習則把一部分自動化（I.8）。下面每個條件都給<strong>可計算的公式</strong>。</p>
+
+<h3>I.2 相關性：量「特徵與目標有多相關」</h3>
+<ul>
+<li><strong>皮爾森相關係數 (Pearson $r$)</strong> — 量<strong>線性</strong>相關的方向與強度，$r\in[-1,1]$：
+$$r_{x,y}=\frac{\mathrm{cov}(x,y)}{\sigma_x\sigma_y}=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i(x_i-\bar x)^2}\sqrt{\sum_i(y_i-\bar y)^2}}$$
+用於<strong>連續特徵 vs 連續目標</strong>。$|r|$ 越大越相關；$r\approx0$ 表<strong>線性</strong>無關（但可能有非線性關係）。</li>
+<li><strong>斯皮爾曼 (Spearman $\rho$)</strong> — 把 $x,y$ 換成<strong>排名</strong>再算 Pearson，抓<strong>單調（含非線性）</strong>關係、對離群值穩健。</li>
+<li><strong>互資訊 (Mutual Information)</strong> — 抓<strong>任意相依（含非線性）</strong>，$=0$ 才表獨立（呼應 <a href="#f1">附錄 F</a> 的熵）：
+$$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
+<li><strong>卡方 $\chi^2$ 檢定</strong> — <strong>類別特徵 vs 類別目標</strong>的相依：$\chi^2=\sum\frac{(O-E)^2}{E}$（$O$ 觀測、$E$ 獨立假設下的期望次數）。</li>
+<li><strong>ANOVA F 值</strong> — <strong>連續特徵 vs 類別目標</strong>（比較各類別間 vs 類別內的變異）。</li>
+</ul>
+
+<h3>I.3 變異：量「特徵有沒有資訊」</h3>
+<p>$$\mathrm{Var}(x)=\frac1N\sum_i (x_i-\bar x)^2$$</p>
+<p><strong>近零變異</strong>（幾乎是常數）的特徵資訊量≈0，直接刪（variance threshold）。</p>
+
+<h3>I.4 冗餘 / 共線性：量「特徵之間重不重複」</h3>
+<ul>
+<li><strong>相關矩陣</strong>：對所有特徵兩兩算 Pearson $r$，$|r|$ 很高（如 $>0.9$）的一對 → 其中一個<strong>冗餘</strong>，可刪一個。</li>
+<li><strong>變異數膨脹因子 (VIF)</strong> — 用<strong>其他所有特徵</strong>去迴歸第 $i$ 個特徵、得 $R_i^2$：$\ \mathrm{VIF}_i=\dfrac{1}{1-R_i^2}$。$R_i^2$ 越接近 1（越能被別人線性表示）→ VIF 越大 → <strong>共線性越嚴重</strong>（VIF&gt;5\~10 常視為問題）。</li>
+<li><strong>PCA</strong>（<a href="#1.6">§1.6</a>）：特徵分解把相關特徵轉成<strong>正交主成分</strong>、順便降維。</li>
+</ul>
+
+<h3>I.5 尺度：把特徵調到可比較（<a href="#1.5">§1.5</a>）</h3>
+<ul>
+<li><strong>標準化 (z-score)</strong>：$x'=\dfrac{x-\mu}{\sigma}$ → 均值 0、標準差 1（最常用）。</li>
+<li><strong>Min-Max 正規化</strong>：$x'=\dfrac{x-x_{\min}}{x_{\max}-x_{\min}}$ → 壓到 $[0,1]$。</li>
+<li><strong>對數轉換</strong>：$x'=\log(x{+}1)$ — 壓縮<strong>長尾/偏態</strong>分布（金額、次數、流量），讓大值不主導。</li>
+</ul>
+
+<h3>I.6 特徵建構 / 轉換（造新特徵）</h3>
+<ul>
+<li><strong>多項式 / 交互特徵</strong>：$x_1^2,\ x_1x_2$ — 讓線性模型也能表達非線性/交互（呼應 <a href="#e1">附錄 E</a> 多項式迴歸）。</li>
+<li><strong>分箱 (binning)</strong>：連續值切成區間變類別（如年齡 → 青/中/老）。</li>
+<li><strong>類別編碼</strong>：one-hot、target encoding、或 <strong>embedding</strong>（<a href="#12">§12</a>、<a href="#13">§13</a>）。</li>
+<li><strong>時間特徵</strong>：從 timestamp 抽小時/星期；週期性用 $\sin,\cos$ 編（$23$ 點與 $0$ 點才會相鄰）。</li>
+<li><strong>聚合特徵</strong>：group-by 後的統計量（每個 IP 的封包數 mean/std/count…）。</li>
+</ul>
+
+<h3>I.7 特徵選擇（挑有用的、丟冗餘的）三大類</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>類別</th><th>怎麼做</th><th>特性</th></tr></thead>
+<tbody>
+<tr><td><strong>過濾法 Filter</strong></td><td>用 I.2\~I.4 的統計量（$r$、MI、$\chi^2$、變異、VIF）排序挑選</td><td><strong>與模型無關、快</strong>；但沒考慮特徵間組合</td></tr>
+<tr><td><strong>包裝法 Wrapper</strong></td><td>拿模型的驗證表現當標準（遞迴特徵消除 RFE、前向/後向選擇）</td><td><strong>準但貴</strong>（要反覆訓練）</td></tr>
+<tr><td><strong>嵌入法 Embedded</strong></td><td>模型訓練時<strong>內建選擇</strong>：<strong>L1 正則化 (Lasso)</strong> 把不重要特徵權重壓成 <strong>0</strong>（<a href="#1.4">§1.4</a>、<a href="#6">§6</a>）；樹模型的<strong>特徵重要度</strong>（<a href="#c1">附錄 C</a> GBDT）</td><td>兼顧效果與效率，實務常用</td></tr>
+</tbody></table></div>
+
+<h3>I.8 深度學習：自動特徵學習（對比）</h3>
+<p>深度學習用<strong>表徵學習</strong>自動長出特徵（CNN filter 自學邊緣/部件 <a href="#11">§11</a>、embedding 學語意 <a href="#13">§13</a>、逐層換座標 <a href="#layer-output">§1.3.1</a>），<strong>減少人工特徵工程</strong>。但在<strong>表格資料</strong>上，<strong>GBDT + 人工特徵工程仍常勝過 NN</strong>（<a href="#c1">附錄 C</a>）——所以特徵工程在傳統/邊緣場景依然是核心功夫。</p>
+
+<h3>I.9 一句話</h3>
+<p><strong>特徵工程 ＝ 用數學把原始資料變成好特徵</strong>：相關性用 <strong>Pearson $r$ / 互資訊</strong>、變異用 <strong>Var</strong>、冗餘用 <strong>相關矩陣 / VIF</strong>、尺度用 <strong>標準化 / Min-Max / log</strong>；選擇分<strong>過濾（統計量）、包裝（看模型）、嵌入（L1／樹重要度）</strong>三類。深度學習把「學特徵」自動化，但<strong>表格資料仍靠人工特徵工程 + GBDT</strong>。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<hr>
 <div class="note">
-<a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A–I 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎、附錄 F 熵 &amp; 交叉熵、附錄 G 特徵工程、附錄 H 高斯密度函數證明、附錄 I 資料來源與可信度。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
+<a href="#1">§1</a>–<a href="#19">§19</a> 與附錄 A–I 均已完成初稿：線代、機率統計、線性迴歸、微積分、邏輯迴歸、梯度下降與優化器、正則化、前向/激活/反向傳播、初始化與正規化、CNN、Tokenization、Embedding、RNN/LSTM、注意力與 Transformer、自迴歸生成、LoRA、評估指標、浮點與量化、附錄 C 梯度提升樹 (GBDT/LightGBM)、附錄 D MSE＝高斯 MLE 推導、附錄 E 迴歸分析基礎、附錄 F 熵 &amp; 交叉熵、附錄 G 高斯密度函數證明、附錄 H 資料來源與可信度、附錄 I 特徵工程。後續持續深化例子與圖解。搭配 <strong>ai-background-knowledge</strong>（中深、無數學）閱讀。線上（渲染）版：https://oopsdev.github.io/ai-model-internals/
 </div>
 
 </div>
