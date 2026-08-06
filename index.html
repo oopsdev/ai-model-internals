@@ -2061,6 +2061,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>nested CV（巢狀）</strong>:<strong>內層</strong> CV 調超參數、<strong>外層</strong> CV 估效能，避免「同一份資料又選模型又報成績」的樂觀偏差。</li>
 <li><strong>held-out 泛化評估</strong>:刻意把<strong>某來源/裝置/時間段</strong>完全排除在訓練外，測<strong>分布外泛化</strong>（domain / temporal generalization）——比同分布 CV 嚴格、更接近上線。</li>
 </ul>
+<blockquote><p><strong>兩個「gap」別混淆。</strong> <strong>泛化落差 (generalization gap)</strong> ＝ 訓練集 − 測試集（<strong>同分布</strong>），量的是<strong>過擬合</strong>（<a href="#6">§6</a>）；<strong>遷移落差 (transfer gap)</strong> ＝ 來源域 − 目標域（<strong>不同來源/裝置/時間</strong>），量的是<strong>跨分布泛化</strong>——held-out 評估量的就是它。上線環境幾乎不同分布，所以<strong>真正決定好壞的常是 transfer gap，而非同分布的漂亮分數</strong>（分布漂移見 <a href="#h1">附錄 H</a>）。</p></blockquote>
 
 <h3 id="19.3">19.3 資料洩漏的種類 (Data Leakage)</h3>
 <p>洩漏 = 訓練時偷看到「上線拿不到」或「等於答案」的資訊，使離線分數虛高。三種常見:</p>
