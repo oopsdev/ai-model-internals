@@ -2626,8 +2626,22 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <tr><td><strong>嵌入法 Embedded</strong></td><td>模型訓練時<strong>內建選擇</strong>：<strong>L1 正則化 (Lasso)</strong> 把不重要特徵權重壓成 <strong>0</strong>（<a href="#1.4">§1.4</a>、<a href="#6">§6</a>）；樹模型的<strong>特徵重要度</strong>（<a href="#c1">附錄 C</a> GBDT）</td><td>兼顧效果與效率，實務常用</td></tr>
 </tbody></table></div>
 
-<h3>I.8 深度學習：自動特徵學習（對比）</h3>
-<p>深度學習用<strong>表徵學習</strong>自動長出特徵（CNN filter 自學邊緣/部件 <a href="#11">§11</a>、embedding 學語意 <a href="#13">§13</a>、逐層換座標 <a href="#layer-output">§1.3.1</a>），<strong>減少人工特徵工程</strong>。但在<strong>表格資料</strong>上，<strong>GBDT + 人工特徵工程仍常勝過 NN</strong>（<a href="#c1">附錄 C</a>）——所以特徵工程在傳統/邊緣場景依然是核心功夫。</p>
+<h3>I.8 深度學習：自動特徵學習（表徵學習）</h3>
+<p>前面 I.1–I.7 是<strong>人工</strong>特徵工程；深度學習則用<strong>表徵學習 (representation learning)</strong> 讓模型<strong>自己從原始輸入長出特徵</strong>，減少人工。</p>
+<p><strong>機制（為什麼網路自己會長出特徵）</strong>：不是人告訴它「偵測邊緣」，而是<strong>給原始輸入 + 一個損失，梯度下降把權重推成「最能降低損失的特徵偵測器」</strong>。每層把輸入換到新座標 + 非線性摺疊（<a href="#layer-output">§1.3.1</a>），淺層自學低階（邊緣/角）、深層組合成高階（部件/物件）——<strong>某一層的激活值就是那層抽象度的「特徵」</strong>；全由損失 + 反向傳播驅動（<a href="#9">§9</a>、<a href="#10">§10</a>）。<strong>取用方式</strong>：訓練完拿<strong>中間層（常是倒數第二層）的激活向量</strong>當學到的特徵，餵下游。</p>
+<p><strong>怎麼做 — 三種訓練範式：</strong></p>
+<ul>
+<li><strong>① 監督式 end-to-end（有標籤）</strong>：整個網路在標好的任務上一起訓（如影像分類）；特徵是副產品，倒數第二層激活即通用特徵向量。標籤足夠時最直接。</li>
+<li><strong>② 遷移學習：預訓練 + 微調（<a href="#17">§17</a>）— 實務最常用</strong>：拿別人在大資料上<strong>預訓練</strong>好的模型（已具通用表徵），兩種用法——<strong>當固定特徵抽取器</strong>（凍結骨幹、只訓小 head）或<strong>微調</strong>（fine-tune / LoRA）。標籤少時的首選，不從零學。</li>
+<li><strong>③ 自監督學習 (self-supervised) — 無標籤也能學表徵</strong>（現代主力）：從資料自造「假任務 (pretext task)」——
+  <ul>
+  <li><strong>重建 / 遮蔽</strong>：Autoencoder（壓成 bottleneck 再重建，瓶頸＝壓縮表徵，<a href="#c1">附錄 C</a>）、遮蔽預測（BERT 遮字、MAE 遮圖塊）、<strong>LLM 下一個 token 預測</strong>（<a href="#16">§16</a>、<a href="#f1">附錄 F</a>）；</li>
+  <li><strong>對比學習 (contrastive)</strong>：把「同物不同視角（augmentation）」的表徵拉近、不同物推遠（SimCLR / MoCo；CLIP、word2vec 同精神）。</li>
+  </ul></li>
+<li><strong>④ 嵌入層 (embedding, <a href="#13">§13</a>)</strong>：離散輸入（token / 類別）用<strong>可學的查表</strong>映射成向量、與模型一起訓 → 學出語意表徵。</li>
+</ul>
+<p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>不該用</strong>——<strong>表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，<strong>GBDT + 人工特徵工程常勝過 NN</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
+<p><strong>一句話</strong>：表徵學習 ＝ 讓「損失 + 反向傳播」自動把原始輸入逐層轉成有用特徵、再取中間層當特徵用；實作靠 <strong>監督 end-to-end / 遷移學習 / 自監督</strong> 三條路。</p>
 
 <h3>I.9 一句話</h3>
 <p><strong>特徵工程 ＝ 用數學把原始資料變成好特徵</strong>：相關性用 <strong>Pearson $r$ / 互資訊</strong>、變異用 <strong>Var</strong>、冗餘用 <strong>相關矩陣 / VIF</strong>、尺度用 <strong>標準化 / Min-Max / log</strong>；選擇分<strong>過濾（統計量）、包裝（看模型）、嵌入（L1／樹重要度）</strong>三類。深度學習把「學特徵」自動化，但<strong>表格資料仍靠人工特徵工程 + GBDT</strong>。</p>
