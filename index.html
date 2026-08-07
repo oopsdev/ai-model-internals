@@ -621,6 +621,51 @@ AI（人工智慧）
 <li><strong>尾（輸出層）——任務決定。</strong> 最後一層神經元數＝需要幾個答案：迴歸預測 1 個數值 → 1 個；二元分類 → 1 或 2 個；$K$ 類分類 → $K$ 個（如手寫數字 0–9 為 10 個）；同時預測 3 個數值 → 3 個。</li>
 </ul>
 <p><strong>唯一的硬規則是「維度銜接」</strong>：下一層 $\mathbf{W}$ 的<strong>欄數</strong>永遠＝上一層的<strong>輸出維度</strong>。故 $3\to 4\to 2$ 中第二層 $\mathbf{W}$ 的欄數是 4（既非 3 亦非 2），因它要接第一層吐出的 4 維。中間層可任意設計（如改為 $3\to 16\to 8\to 2$），只要每一段「後者欄數＝前者輸出維度」對齊即為合法網路。一句話：<strong>頭尾維度被「資料」與「任務」綁定，中間隱藏層維度是可自由設計的超參數，唯一限制是相鄰層須維度銜接。</strong></p>
+<figure><svg viewBox="0 0 1000 380" style="max-width:100%;width:100%;height:auto" role="img" aria-label="神經網路 3→4→2 示意圖：輸入層 3 節點、隱藏層 4 神經元、輸出層 2 神經元，層間全連接">
+  <rect x="8" y="8" width="984" height="364" rx="16" fill="#0e1626" stroke="#2b3a52" stroke-width="1"/>
+  <text x="180" y="48" fill="#e2e8f0" font-size="17" font-weight="700" text-anchor="middle">輸入層</text>
+  <text x="500" y="48" fill="#e2e8f0" font-size="17" font-weight="700" text-anchor="middle">隱藏層（4 神經元）</text>
+  <text x="830" y="48" fill="#e2e8f0" font-size="17" font-weight="700" text-anchor="middle">輸出層（2 神經元）</text>
+  <text x="340" y="72" fill="#38bdf8" font-size="13" text-anchor="middle">×W¹ (4×3)</text>
+  <text x="665" y="72" fill="#fbbf24" font-size="13" text-anchor="middle">×W² (2×4)</text>
+  <line x1="200" y1="115" x2="480" y2="95" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="115" x2="480" y2="165" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="115" x2="480" y2="235" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="115" x2="480" y2="305" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="200" x2="480" y2="95" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="200" x2="480" y2="165" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="200" x2="480" y2="235" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="200" x2="480" y2="305" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="285" x2="480" y2="95" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="285" x2="480" y2="165" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="285" x2="480" y2="235" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="285" x2="480" y2="305" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="95" x2="810" y2="160" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="95" x2="810" y2="250" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="165" x2="810" y2="160" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="165" x2="810" y2="250" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="235" x2="810" y2="160" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="235" x2="810" y2="250" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="305" x2="810" y2="160" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="305" x2="810" y2="250" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <circle cx="180" cy="115" r="20" fill="#182233" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="180" cy="200" r="20" fill="#182233" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="180" cy="285" r="20" fill="#182233" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="500" cy="95" r="20" fill="#243449" stroke="#64748b" stroke-width="2"/>
+  <circle cx="500" cy="165" r="20" fill="#243449" stroke="#64748b" stroke-width="2"/>
+  <circle cx="500" cy="235" r="20" fill="#243449" stroke="#64748b" stroke-width="2"/>
+  <circle cx="500" cy="305" r="20" fill="#243449" stroke="#64748b" stroke-width="2"/>
+  <circle cx="830" cy="160" r="20" fill="#2a2410" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="830" cy="250" r="20" fill="#2a2410" stroke="#fbbf24" stroke-width="2"/>
+  <text x="180" y="120" fill="#cbd5e1" font-size="14" text-anchor="middle">a₁</text>
+  <text x="180" y="205" fill="#cbd5e1" font-size="14" text-anchor="middle">a₂</text>
+  <text x="180" y="290" fill="#cbd5e1" font-size="14" text-anchor="middle">a₃</text>
+  <text x="830" y="165" fill="#fde68a" font-size="14" text-anchor="middle">ŷ₁</text>
+  <text x="830" y="255" fill="#fde68a" font-size="14" text-anchor="middle">ŷ₂</text>
+  <text x="180" y="350" fill="#38bdf8" font-size="13" text-anchor="middle">n = 3（特徵數）</text>
+  <text x="500" y="350" fill="#94a3b8" font-size="13" text-anchor="middle">m = 4（自訂）→ 輸出 4 維</text>
+  <text x="830" y="350" fill="#fbbf24" font-size="13" text-anchor="middle">C = 2（類別數）</text>
+</svg><figcaption>例子 3 → 4 → 2 的網路結構：輸入 3 維（藍）→ 隱藏層 4 神經元（灰，$\mathbf{W}^{(1)}$ 4×3）→ 輸出 2 維（黃，$\mathbf{W}^{(2)}$ 2×4）。相鄰層<strong>全連接</strong>，兩層間的連線數＝該層權重個數（3×4=12、4×2=8），再各加偏置即得參數量 16、10。</figcaption></figure>
 <p><span class="geo">幾何意義。</span> 矩陣乘一個向量 = 對整個空間做一次<strong>線性變換</strong>（旋轉 / 縮放 / 剪切 / 翻轉）。最直覺的看法：<strong>矩陣的每一「欄」就是原本的座標軸（基底）被變換後落到的位置</strong>。因為</p>
 <p>$$\mathbf{W}\mathbf{x} = x_1\,\mathbf{w}_1 + x_2\,\mathbf{w}_2 + \dots + x_n\,\mathbf{w}_n$$</p>
 <p>其中 $\mathbf{w}_j$ 為 $\mathbf{W}$ 的第 $j$ 欄。$\mathbf{W}\mathbf{x}$ 就是「用 $\mathbf{x}$ 的分量，把 $\mathbf{W}$ 的各欄（變換後的軸）加權相加」。由基底張成的單位正方形，會被 $\mathbf{W}$ 拉成一個<strong>平行四邊形</strong>，其邊就是 $\mathbf{W}$ 的欄向量：</p>
