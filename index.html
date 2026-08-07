@@ -2842,7 +2842,49 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>不該用</strong>——<strong>表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，<strong>GBDT + 人工特徵工程常勝過 NN</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
 <p><strong>一句話</strong>：表徵學習 ＝ 讓「損失 + 反向傳播」自動把原始輸入逐層轉成有用特徵、再取中間層當特徵用；實作靠 <strong>監督 end-to-end / 遷移學習 / 自監督</strong> 三條路。</p>
 
-<h3>I.9 一句話</h3>
+<h3>I.9 該取多少樣本、留多少特徵？</h3>
+<p><strong>沒有 closed-form 公式</strong>能算出「$N$ 筆樣本、$d$ 個特徵剛好」——「剛好」取決於訊號強弱、雜訊、模型容量、類別平衡與目標準確度。但有一套<strong>原則性流程</strong>，而且「夠不夠」是可以<strong>量測</strong>的。</p>
+<p><strong>經驗法則（起手粗估，非定論）。</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>對象</th><th>rule of thumb</th><th>直覺</th></tr></thead>
+<tbody>
+<tr><td>樣本 vs 特徵</td><td>$N \ge 10\times$ 特徵數（或參數量）</td><td>每個要估的權重都得有幾筆資料撐</td></tr>
+<tr><td>邏輯迴歸</td><td>每個預測變數 $\ge$ 10~20 個<strong>少數類事件</strong>（EPV）</td><td>分類看少數類筆數、不是總筆數</td></tr>
+<tr><td>每一類別</td><td>每類至少數十~數百筆</td><td>不平衡時少數類決定成敗</td></tr>
+<tr><td>硬底線</td><td>$d \ge N$ 幾乎必過擬合</td><td>維度災難</td></tr>
+</tbody></table></div>
+<p><strong>量「樣本夠不夠」→ 學習曲線 (learning curve)。</strong> 用 10%、20%…100% 的訓練資料各訓一次，畫<strong>驗證分數 vs 樣本數</strong>：曲線<strong>仍在上升</strong> → 加資料還有用；<strong>壓平 (plateau)</strong> → 瓶頸在特徵/模型，再多資料無益。這是唯一能直接回答「資料夠了沒」的方法。</p>
+<p><strong>量「特徵留多少」→ 驗證曲線 (validation curve)。</strong> 以特徵數 $d$（或 PCA 維度、top-$k$ 重要特徵）為橫軸畫<strong>驗證誤差</strong>：$d$ 太小欠擬合、太大過擬合又撞維度災難，取<strong>誤差最低的 $d$</strong>（偏差-變異的甜蜜點）。兩條曲線都要包在<strong>交叉驗證</strong>裡取平均（<a href="#19">§19</a>）。</p>
+<figure><svg viewBox="0 0 720 240" style="max-width:100%;width:100%;height:auto" role="img" aria-label="左：學習曲線，驗證分數隨樣本數上升後壓平；右：驗證曲線，驗證誤差隨特徵數呈 U 形、中間最低">
+  <text x="200" y="24" fill="#e2e8f0" font-size="12.5" font-weight="700" text-anchor="middle">① 樣本夠不夠 → 學習曲線</text>
+  <text x="542" y="24" fill="#e2e8f0" font-size="12.5" font-weight="700" text-anchor="middle">② 特徵留多少 → 驗證曲線</text>
+  <line x1="70" y1="45" x2="70" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <line x1="70" y1="195" x2="335" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <text x="74" y="42" fill="#94a3b8" font-size="10">驗證分數</text>
+  <text x="200" y="215" fill="#94a3b8" font-size="10" text-anchor="middle">樣本數 N</text>
+  <path d="M80,182 C135,150 175,108 220,90 C260,76 298,73 328,72" fill="none" stroke="#34d399" stroke-width="2.4"/>
+  <text x="120" y="140" fill="#34d399" font-size="10">↗ 還在升</text>
+  <text x="270" y="62" fill="#34d399" font-size="10" text-anchor="middle">— 壓平＝夠了</text>
+  <line x1="410" y1="45" x2="410" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <line x1="410" y1="195" x2="678" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <text x="414" y="42" fill="#94a3b8" font-size="10">驗證誤差</text>
+  <text x="544" y="215" fill="#94a3b8" font-size="10" text-anchor="middle">特徵數 d</text>
+  <path d="M420,74 C462,150 496,172 525,172 C556,172 602,150 650,80" fill="none" stroke="#fbbf24" stroke-width="2.4"/>
+  <line x1="525" y1="172" x2="525" y2="195" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="525" y="209" fill="#fbbf24" font-size="10" text-anchor="middle">最佳 d</text>
+  <text x="424" y="66" fill="#94a3b8" font-size="10">太少：欠擬合</text>
+  <text x="676" y="66" fill="#94a3b8" font-size="10" text-anchor="end">太多：過擬合</text>
+</svg><figcaption>左＝學習曲線：驗證分數隨樣本數上升，壓平即代表資料已足夠（再多無益）；右＝驗證曲線：驗證誤差隨特徵數呈 U 形，最低點＝最佳特徵數（偏差-變異平衡）</figcaption></figure>
+<p><strong>維度災難 (curse of dimensionality)。</strong> $d$ 一大，資料點在空間中極稀疏、距離失去意義，需要<strong>指數級</strong>更多樣本才填得滿；故<strong>少而精常勝過多而弱</strong>。挑特徵的具體演算法見 I.7，其中最接近「有公式」的是 <strong>PCA 保留累積解釋變異達門檻（常用 95%）所需的主成分數</strong>，以及 <strong>LASSO（L1）自動把無用權重壓成 0</strong>（<a href="#6">§6</a>）。</p>
+<p><strong>統一觀點：盯「樣本 / 模型容量」比值。</strong> 統計學習理論給出<strong>泛化落差</strong> $\approx \sqrt{\text{模型容量}/N}$（容量 $\approx$ 參數量 / VC 維度）。所以真正該放大的是 $N$ 相對於<strong>有效容量</strong>的比值；比值太小就<strong>加資料</strong>或<strong>降容量</strong>（減特徵 / 加正則化 <a href="#6">§6</a>）。深度學習的 <strong>scaling laws</strong> 就是這條的經驗冪律版。</p>
+<p><strong>唯二算得上「公式」的定量法：</strong></p>
+<ul>
+<li><strong>樣本</strong>：<strong>檢定力分析 (power analysis)</strong>——給定目標效果量、顯著水準 $\alpha$、檢定力（如 0.8），反推最小 $N$（多用於 A/B 測試、臨床）。</li>
+<li><strong>特徵</strong>：<strong>PCA 95% 變異準則</strong>（見上）。</li>
+</ul>
+<p><strong>實務配方。</strong> ① 領域知識給候選特徵（I.1）→ ② 經驗法則設底線（$N\ge10\times$特徵、每類數十筆）→ ③ 學習曲線看資料夠不夠 → ④ 特徵數掃描 / LASSO / PCA 定 $d$ → ⑤ CV + 正則化收斂（<a href="#6">§6</a> / <a href="#19">§19</a>）。</p>
+
+<h3>I.10 一句話</h3>
 <p><strong>特徵工程 ＝ 用數學把原始資料變成好特徵</strong>：相關性用 <strong>Pearson $r$ / 互資訊</strong>、變異用 <strong>Var</strong>、冗餘用 <strong>相關矩陣 / VIF</strong>、尺度用 <strong>標準化 / Min-Max / log</strong>；選擇分<strong>過濾（統計量）、包裝（看模型）、嵌入（L1／樹重要度）</strong>三類。深度學習把「學特徵」自動化，但<strong>表格資料仍靠人工特徵工程 + GBDT</strong>。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
