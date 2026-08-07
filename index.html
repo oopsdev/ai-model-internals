@@ -499,20 +499,20 @@ AI（人工智慧）
 <p><strong>內積 (dot product)</strong> 是最核心的運算：</p>
 <p>$$\mathbf{w}\cdot\mathbf{x} = \mathbf{w}^\top\mathbf{x} = \sum_{i=1}^{n} w_i x_i$$</p>
 <p>它衡量兩向量的「對齊程度」。幾何上 $\mathbf{w}^\top\mathbf{x} = \lVert\mathbf{w}\rVert\,\lVert\mathbf{x}\rVert\cos\phi$，其中 $\lVert\mathbf{x}\rVert=\sqrt{\sum_i x_i^2}$ 是長度、$\phi$ 是夾角。<strong>一個神經元做的就是一次內積 $\mathbf{w}^\top\mathbf{x}$ 加偏置 $b$</strong>，代表「用權重量測輸入有多符合某樣式」。（注：這裡的「對齊」是方向與長度的綜合分數；純方向的相似度需先正規化，見 <a href="#1.5">§1.5</a>。）</p>
-<p><span class="geo">幾何意義。</span> 內積 = 「$\mathbf{a}$ 投影到 $\mathbf{b}$ 方向的長度 $\lVert\mathbf{a}\rVert\cos\phi$」再乘上 $\lVert\mathbf{b}\rVert$。夾角越小、投影越長、內積越大。</p>
-<figure><svg viewBox="0 0 380 210" role="img" aria-label="內積與投影：向量 a 投影到 b 方向">
+<p><span class="geo">幾何意義（直接用神經元的 $\mathbf{w},\mathbf{x}$）。</span> 內積 = 「輸入 $\mathbf{x}$ 投影到權重 $\mathbf{w}$ 方向的長度 $\lVert\mathbf{x}\rVert\cos\phi$」再乘上 $\lVert\mathbf{w}\rVert$。夾角越小、投影越長、內積越大。</p>
+<figure><svg viewBox="0 0 380 210" role="img" aria-label="內積與投影：輸入 x 投影到權重 w 方向">
   <line x1="50" y1="170" x2="345" y2="170" stroke="#475569" stroke-width="1"/>
   <line x1="50" y1="170" x2="315" y2="170" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
-  <text x="322" y="175" fill="#34d399" font-size="13" font-weight="700">b</text>
+  <text x="322" y="175" fill="#34d399" font-size="13" font-weight="700">w</text>
   <line x1="50" y1="170" x2="250" y2="58" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
-  <text x="246" y="50" fill="#38bdf8" font-size="13" font-weight="700">a</text>
+  <text x="246" y="50" fill="#38bdf8" font-size="13" font-weight="700">x</text>
   <line x1="250" y1="58" x2="250" y2="170" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5 4"/>
   <path d="M238,170 L238,158 L250,158" fill="none" stroke="#64748b" stroke-width="1"/>
   <line x1="50" y1="170" x2="250" y2="170" stroke="#fbbf24" stroke-width="4"/>
-  <text x="150" y="190" fill="#fcd34d" font-size="11" text-anchor="middle">投影 = |a| cos φ</text>
+  <text x="150" y="190" fill="#fcd34d" font-size="11" text-anchor="middle">投影 = |x| cos φ</text>
   <path d="M92,170 A42 42 0 0 0 80,150" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
   <text x="98" y="161" fill="#94a3b8" font-size="12">φ</text>
-</svg><figcaption>內積 = 投影長 (|a| cos φ) × |b|。把 b 正規化 (|b|=1) 則內積 = 投影長；兩者都正規化則 = cos φ（純相似度）</figcaption></figure>
+</svg><figcaption>內積 = 投影長 (|x| cos φ) × |w|。把權重 w 正規化 (|w|=1) 則內積 = 投影長；兩者都正規化則 = cos φ（純相似度）。這正是神經元 z=w·x+b 的幾何：把輸入 x 投影到權重樣板 w</figcaption></figure>
 <p><span class="geo">值怎麼解讀。</span> 內積不是「大 / 小」兩極，而是一條<strong>有正負的軸</strong> — 越正越對齊、近 0 不相關、越負越相反：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>內積值</th><th>夾角 φ</th><th>cos φ</th><th>對齊狀態</th></tr></thead>
@@ -522,9 +522,9 @@ AI（人工智慧）
 <tr><td><strong>最小（負）</strong></td><td>180°</td><td>−1</td><td>完全反向（最不對齊）</td></tr>
 </tbody>
 </table></div>
-<p>注意：內積 $=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$，<strong>值大也可能只是向量長</strong>；要純比方向對齊、不受長度干擾，看 $\cos\phi\in[-1,1]$（正規化後的內積，見 <a href="#1.5">§1.5</a>）。神經元同理：輸入越對齊權重樣式，內積越大、激活越強（負值＝強烈不符合）。</p>
+<p>注意：內積 $=\lVert\mathbf{w}\rVert\lVert\mathbf{x}\rVert\cos\phi$，<strong>值大也可能只是向量長</strong>；要純比方向對齊、不受長度干擾，看 $\cos\phi\in[-1,1]$（正規化後的內積，見 <a href="#1.5">§1.5</a>）。神經元同理：輸入越對齊權重樣式，內積越大、激活越強（負值＝強烈不符合）。</p>
 
-<p>內積的代數定義 $\sum_i a_ib_i$ 與幾何定義 $\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$ 為何會相等？關鍵是<strong>餘弦定律</strong>；完整推導見<a href="#a1">附錄 A</a>。</p>
+<p>內積的代數定義 $\sum_i w_i x_i$ 與幾何定義 $\lVert\mathbf{w}\rVert\lVert\mathbf{x}\rVert\cos\phi$ 為何會相等？關鍵是<strong>餘弦定律</strong>；完整推導（以一般向量表示）見<a href="#a1">附錄 A</a>。</p>
 
 <h3 id="1.2">1.2 神經元 — 把線性代數變成「會學習的特徵偵測器」</h3>
 <p>人工神經元是深度學習的最小單元，靈感來自生物神經元（收多個輸入、加權整合、超過門檻才「激發」放電）。它的數學定義只有兩步：</p>
