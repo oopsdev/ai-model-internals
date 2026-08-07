@@ -1393,6 +1393,70 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </svg><figcaption>狹長山谷裡：純 SGD（黃）左右來回抖、走得慢；動量（綠）累積速度、路徑平滑、更快到谷底。</figcaption></figure>
 <blockquote><p><strong>工程意涵。</strong> 訓練調不動或損失爆掉，最常見元兇是<strong>學習率</strong>：先從小 $\eta$（如 $10^{-3}$）＋ <strong>Adam</strong> 試起。批次大小受<strong>記憶體</strong>限制（邊緣設備小 → 只能小批次）——這也是「訓練放中央（大批次、大記憶體）、邊緣只做推論」的實務原因之一。</p></blockquote>
 
+<h3 id="5.4">5.4 一個完整例子：男 / 女分類的「訓練 vs 推論」</h3>
+<p>把前面各章串起來走一遍——用<strong>一個神經元（邏輯迴歸）</strong> $z=\mathbf{w}\cdot\mathbf{x}+b$，再經 sigmoid 得機率 $p$。分類設 <strong>男 = 0、女 = 1</strong>（0/1 只是<strong>類別代號、非大小</strong>；模型輸出 $p=P(y=1)=P(\text{女})$，另一類自動是 $P(\text{男})=1-p$）。特徵取 5 維並已標準化（<a href="#1.5">§1.5</a>）。</p>
+<p><strong>準備。</strong> 特徵 $\mathbf{x}$（一人一列）與標籤 $y$（人工標好的正確答案）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>$x_1$身高</th><th>$x_2$體重</th><th>$x_3$鞋碼</th><th>$x_4$髮長</th><th>$x_5$肩臀比</th><th>$y$</th></tr></thead>
+<tbody>
+<tr><td>甲</td><td>1.1</td><td>0.9</td><td>1.0</td><td>−0.8</td><td>1.2</td><td>0（男）</td></tr>
+<tr><td>乙</td><td>−1.0</td><td>−1.1</td><td>−1.2</td><td>1.3</td><td>−0.9</td><td>1（女）</td></tr>
+<tr><td>丙</td><td>0.1</td><td>0.0</td><td>0.1</td><td>−0.1</td><td>0.2</td><td>0（男）</td></tr>
+</tbody></table></div>
+<p>參數 $\mathbf{w}$（5 維）、$b$（純量）<strong>全體共用</strong>，訓練前給初值 $\mathbf{w}=(0.1,0.1,0.1,-0.1,0.1)$、$b=0$。</p>
+<p><strong>訓練 —— 看著答案 $y$，四步一輪、反覆很多次。</strong></p>
+<ol>
+<li><strong>前向</strong>（每人算 $z\to p$）：$z(\text{甲})=0.1{\cdot}1.1+0.1{\cdot}0.9+0.1{\cdot}1.0+(-0.1)(-0.8)+0.1{\cdot}1.2+0=0.50\Rightarrow p=0.622$；同理 $z(\text{乙})=-0.55\Rightarrow p=0.366$、$z(\text{丙})=0.05\Rightarrow p=0.512$。</li>
+<li><strong>損失</strong>（$p$ 離 $y$ 多遠，交叉熵 / BCE，<a href="#3.2">§3.2</a>）：甲真 0 猜 0.622、乙真 1 猜 0.366、丙真 0 猜 0.512 → 平均損失 $\approx 0.90$。</li>
+<li><strong>反向</strong>（每個參數該往哪動，<a href="#4">§4</a> / <a href="#9">§9</a>；邏輯迴歸的梯度恰為 $(p-y)\mathbf{x}$）：$\nabla_{\mathbf{w}}\approx(0.46,0.42,0.48,-0.46,0.47)$、$\nabla_b\approx0.17$。</li>
+<li><strong>更新</strong>（往 $-\nabla$ 走一步，$\eta=0.5$，<a href="#5.2">§5.2</a>）：$\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}\approx(-0.13,-0.11,-0.14,0.13,-0.14)$、$b\leftarrow-0.08$。</li>
+</ol>
+<p>這一步的效果：重算甲 $\Rightarrow z=-0.73,\ p=0.325$（從 0.622 移向真值 0），損失下降。<strong>回到第 1 步再跑</strong>，幾千輪後 $\mathbf{w},b$ 收斂——身高/體重/鞋碼/肩臀比的權重變<strong>負</strong>、髮長權重變<strong>正</strong>，即模型自行學到「高大＋短髮 → 男」。訓練結束 ＝ 損失不再降、參數不再動。</p>
+<p><strong>推論 —— $\mathbf{w},b$ 凍結，新樣本算一次就出答案。</strong> 訓練得某組 $\mathbf{w}^*=(-1.2,-0.9,-1.1,1.5,-1.0)$、$b^*=-0.1$。新的人丁<strong>只有特徵、沒有標籤</strong> $\mathbf{x}=(0.8,0.6,0.7,-0.5,0.9)$：$z(\text{丁})=-4.02\Rightarrow p=\text{sigmoid}(-4.02)=0.018\ (P(\text{女})=1.8\%)\Rightarrow$ 判「男」。做完即止：<strong>不算損失、不算梯度、不更新</strong>。</p>
+<figure><svg viewBox="0 0 1040 300" style="max-width:100%;width:100%;height:auto" role="img" aria-label="訓練與推論流程對照：訓練是前向→損失→梯度→更新的迴圈，推論把 w,b 凍結只走一遍前向">
+  <text x="40" y="62" fill="#e2e8f0" font-size="15" font-weight="700">訓練 (training)</text>
+  <text x="530" y="34" fill="#fbbf24" font-size="13" text-anchor="middle">↺ 重複幾千輪</text>
+  <path d="M776,74 L776,42 L284,42 L284,74" fill="none" stroke="#fbbf24" stroke-width="1.6" marker-end="url(#ar-a)"/>
+  <rect x="40"  y="74" width="110" height="46" rx="6" fill="#172231" stroke="#64748b" stroke-width="1.8"/>
+  <rect x="196" y="74" width="176" height="46" rx="6" fill="#172231" stroke="#38bdf8" stroke-width="1.8"/>
+  <rect x="418" y="74" width="120" height="46" rx="6" fill="#172231" stroke="#fbbf24" stroke-width="1.8"/>
+  <rect x="584" y="74" width="86"  height="46" rx="6" fill="#172231" stroke="#a78bfa" stroke-width="1.8"/>
+  <rect x="716" y="74" width="120" height="46" rx="6" fill="#172231" stroke="#34d399" stroke-width="1.8"/>
+  <text x="95"  y="102" fill="#e2e8f0" font-size="12.5" text-anchor="middle">資料 x, y</text>
+  <text x="284" y="102" fill="#e2e8f0" font-size="12.5" text-anchor="middle">前向 z=w·x+b→p</text>
+  <text x="478" y="102" fill="#e2e8f0" font-size="12.5" text-anchor="middle">損失（比對 y）</text>
+  <text x="627" y="102" fill="#e2e8f0" font-size="12.5" text-anchor="middle">梯度 ∇</text>
+  <text x="776" y="102" fill="#e2e8f0" font-size="12.5" text-anchor="middle">更新 w, b</text>
+  <line x1="150" y1="97" x2="192" y2="97" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <line x1="372" y1="97" x2="414" y2="97" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <line x1="538" y1="97" x2="580" y2="97" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <line x1="670" y1="97" x2="712" y2="97" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <text x="40" y="202" fill="#e2e8f0" font-size="15" font-weight="700">推論 (inference)</text>
+  <rect x="40"  y="214" width="124" height="46" rx="6" fill="#172231" stroke="#64748b" stroke-width="1.8"/>
+  <rect x="210" y="214" width="176" height="46" rx="6" fill="#172231" stroke="#38bdf8" stroke-width="1.8"/>
+  <rect x="432" y="214" width="118" height="46" rx="6" fill="#172231" stroke="#94a3b8" stroke-width="1.8"/>
+  <rect x="596" y="214" width="118" height="46" rx="6" fill="#172231" stroke="#34d399" stroke-width="1.8"/>
+  <text x="102" y="242" fill="#e2e8f0" font-size="12.5" text-anchor="middle">新資料 x（無 y）</text>
+  <text x="298" y="242" fill="#e2e8f0" font-size="12.5" text-anchor="middle">前向 z=w·x+b→p</text>
+  <text x="491" y="242" fill="#e2e8f0" font-size="12.5" text-anchor="middle">門檻 / argmax</text>
+  <text x="655" y="242" fill="#e2e8f0" font-size="12.5" text-anchor="middle">類別（男/女）</text>
+  <line x1="164" y1="237" x2="206" y2="237" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <line x1="386" y1="237" x2="428" y2="237" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <line x1="550" y1="237" x2="592" y2="237" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar-s)"/>
+  <text x="40" y="286" fill="#94a3b8" font-size="12">w, b 凍結；只走一遍、不回頭（無損失／梯度／更新）</text>
+</svg><figcaption>同一條 $z=\mathbf{w}\cdot\mathbf{x}+b$：訓練是「前向→損失→梯度→更新」的<strong>迴圈</strong>（看著 $y$、反覆改 $\mathbf{w},b$）；推論把 $\mathbf{w},b$ <strong>凍結</strong>，新資料只走一遍前向就出類別。</figcaption></figure>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>訓練 (training)</th><th>推論 (inference)</th></tr></thead>
+<tbody>
+<tr><td>資料</td><td>甲乙丙（<strong>有</strong> $y$）</td><td>丁（<strong>無</strong> $y$，正是要猜的）</td></tr>
+<tr><td>前向 $z=\mathbf{w}\cdot\mathbf{x}+b$</td><td>要（每輪每人）</td><td>要（一次）</td></tr>
+<tr><td>損失 / 梯度 / 更新</td><td><strong>要</strong>——核心就在改 $\mathbf{w},b$</td><td><strong>不做</strong></td></tr>
+<tr><td>$\mathbf{w}, b$</td><td>一直變（被學出來）</td><td>凍結（拿來用）</td></tr>
+<tr><td>跑幾次</td><td>幾千輪反覆</td><td>一次出答案</td></tr>
+<tr><td>產出</td><td>學好的 $\mathbf{w}^*,b^*$</td><td>一個預測 $p$／類別</td></tr>
+</tbody></table></div>
+<p>一句話：<strong>訓練是「看著答案 $y$、反覆微調 $\mathbf{w},b$」的迴圈；推論是「$\mathbf{w},b$ 定死、拿新 $\mathbf{x}$ 算一次」給答案——兩者共用同一條 $z=\mathbf{w}\cdot\mathbf{x}+b$。</strong></p>
+
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="6">6. 正則化 (Regularization) — 對抗過擬合</h2>
