@@ -606,7 +606,21 @@ AI（人工智慧）
 <tr><td>第 1 層（4 神經元）</td><td>$4\times 3$</td><td>4</td><td>$4\times3+4=16$</td></tr>
 <tr><td>第 2 層（2 神經元）</td><td>$2\times 4$</td><td>2</td><td>$2\times4+2=10$</td></tr>
 </tbody></table></div>
-<p>資料流維度 <strong>$3\to 4\to 2$</strong>、總參數 <strong>26</strong>。重點:<strong>輸入維度 3 只固定第一層 $\mathbf{W}^{(1)}$ 的欄數＝3</strong>；之後各層神經元數（寬度 4、2）是<strong>超參數</strong>，而<strong>下一層 $\mathbf{W}$ 的欄數永遠＝上一層輸出維度</strong>（前向與維度銜接完整說明見 <a href="#8">§8</a>）。</p>
+<p>資料流維度 <strong>$3\to 4\to 2$</strong>、總參數 <strong>26</strong>。重點:<strong>輸入維度 3 只固定第一層 $\mathbf{W}^{(1)}$ 的欄數＝3</strong>；之後各層神經元數（寬度 4、2）是<strong>超參數</strong>，而<strong>下一層 $\mathbf{W}$ 的欄數永遠＝上一層輸出維度</strong>（前向與維度銜接完整說明見 <a href="#7">§7</a>）。</p>
+<p><strong>每一層的維度會不會變、變成多少，由三種不同的力量決定。</strong> 一層的「輸出維度」＝該層的神經元數；把網路拆成頭、中、尾三段看最清楚：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>位置</th><th>以例子而言的維度</th><th>由誰決定</th><th>能否自行更動</th></tr></thead>
+<tbody>
+<tr><td><strong>頭</strong>：輸入維度</td><td>3</td><td><strong>資料的特徵數</strong>（有幾個欄位）</td><td>不能，資料給定</td></tr>
+<tr><td><strong>中</strong>：隱藏層寬度</td><td>4</td><td><strong>設計者選定的超參數</strong></td><td>能，可自由調</td></tr>
+<tr><td><strong>尾</strong>：輸出維度</td><td>2</td><td><strong>任務</strong>（要幾個答案）</td><td>不能，任務綁定</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>頭（輸入層）——資料決定。</strong> 第一層 $\mathbf{W}$ 的欄數必須＝特徵向量維度（此處 3）；有幾個特徵，第一層每個神經元就要有幾個權重去接，否則乘不起來。</li>
+<li><strong>中（隱藏層）——超參數。</strong> 「第一層放 4 個神經元」的 4 是設計者挑的，可為 8、16、128，只有調得好不好、沒有對錯。神經元多 → 表達力強但易過擬合、計算慢；少則相反。這類「要自己設、要調」的數字即<strong>超參數</strong>（見 <a href="#6">§6</a>）。</li>
+<li><strong>尾（輸出層）——任務決定。</strong> 最後一層神經元數＝需要幾個答案：迴歸預測 1 個數值 → 1 個；二元分類 → 1 或 2 個；$K$ 類分類 → $K$ 個（如手寫數字 0–9 為 10 個）；同時預測 3 個數值 → 3 個。</li>
+</ul>
+<p><strong>唯一的硬規則是「維度銜接」</strong>：下一層 $\mathbf{W}$ 的<strong>欄數</strong>永遠＝上一層的<strong>輸出維度</strong>。故 $3\to 4\to 2$ 中第二層 $\mathbf{W}$ 的欄數是 4（既非 3 亦非 2），因它要接第一層吐出的 4 維。中間層可任意設計（如改為 $3\to 16\to 8\to 2$），只要每一段「後者欄數＝前者輸出維度」對齊即為合法網路。一句話：<strong>頭尾維度被「資料」與「任務」綁定，中間隱藏層維度是可自由設計的超參數，唯一限制是相鄰層須維度銜接。</strong></p>
 <p><span class="geo">幾何意義。</span> 矩陣乘一個向量 = 對整個空間做一次<strong>線性變換</strong>（旋轉 / 縮放 / 剪切 / 翻轉）。最直覺的看法：<strong>矩陣的每一「欄」就是原本的座標軸（基底）被變換後落到的位置</strong>。因為</p>
 <p>$$\mathbf{W}\mathbf{x} = x_1\,\mathbf{w}_1 + x_2\,\mathbf{w}_2 + \dots + x_n\,\mathbf{w}_n$$</p>
 <p>其中 $\mathbf{w}_j$ 為 $\mathbf{W}$ 的第 $j$ 欄。$\mathbf{W}\mathbf{x}$ 就是「用 $\mathbf{x}$ 的分量，把 $\mathbf{W}$ 的各欄（變換後的軸）加權相加」。由基底張成的單位正方形，會被 $\mathbf{W}$ 拉成一個<strong>平行四邊形</strong>，其邊就是 $\mathbf{W}$ 的欄向量：</p>
