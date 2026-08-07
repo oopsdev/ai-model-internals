@@ -1404,15 +1404,49 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td>丙</td><td>0.1</td><td>0.0</td><td>0.1</td><td>−0.1</td><td>0.2</td><td>0（男）</td></tr>
 </tbody></table></div>
 <p>參數 $\mathbf{w}$（5 維）、$b$（純量）<strong>全體共用</strong>，訓練前給初值 $\mathbf{w}=(0.1,0.1,0.1,-0.1,0.1)$、$b=0$。</p>
-<p><strong>訓練 —— 看著答案 $y$，四步一輪、反覆很多次。</strong></p>
-<ol>
-<li><strong>前向</strong>（每人算 $z\to p$）：$z(\text{甲})=0.1{\cdot}1.1+0.1{\cdot}0.9+0.1{\cdot}1.0+(-0.1)(-0.8)+0.1{\cdot}1.2+0=0.50\Rightarrow p=0.622$；同理 $z(\text{乙})=-0.55\Rightarrow p=0.366$、$z(\text{丙})=0.05\Rightarrow p=0.512$。</li>
-<li><strong>損失</strong>（$p$ 離 $y$ 多遠，交叉熵 / BCE，<a href="#3.2">§3.2</a>）：甲真 0 猜 0.622、乙真 1 猜 0.366、丙真 0 猜 0.512 → 平均損失 $\approx 0.90$。</li>
-<li><strong>反向</strong>（每個參數該往哪動，<a href="#4">§4</a> / <a href="#9">§9</a>；邏輯迴歸的梯度恰為 $(p-y)\mathbf{x}$）：$\nabla_{\mathbf{w}}\approx(0.46,0.42,0.48,-0.46,0.47)$、$\nabla_b\approx0.17$。</li>
-<li><strong>更新</strong>（往 $-\nabla$ 走一步，$\eta=0.5$，<a href="#5.2">§5.2</a>）：$\mathbf{w}\leftarrow\mathbf{w}-\eta\nabla_{\mathbf{w}}\approx(-0.13,-0.11,-0.14,0.13,-0.14)$、$b\leftarrow-0.08$。</li>
-</ol>
-<p>這一步的效果：重算甲 $\Rightarrow z=-0.73,\ p=0.325$（從 0.622 移向真值 0），損失下降。<strong>回到第 1 步再跑</strong>，幾千輪後 $\mathbf{w},b$ 收斂——身高/體重/鞋碼/肩臀比的權重變<strong>負</strong>、髮長權重變<strong>正</strong>，即模型自行學到「高大＋短髮 → 男」。訓練結束 ＝ 損失不再降、參數不再動。</p>
-<p><strong>推論 —— $\mathbf{w},b$ 凍結，新樣本算一次就出答案。</strong> 訓練得某組 $\mathbf{w}^*=(-1.2,-0.9,-1.1,1.5,-1.0)$、$b^*=-0.1$。新的人丁<strong>只有特徵、沒有標籤</strong> $\mathbf{x}=(0.8,0.6,0.7,-0.5,0.9)$：$z(\text{丁})=-4.02\Rightarrow p=\text{sigmoid}(-4.02)=0.018\ (P(\text{女})=1.8\%)\Rightarrow$ 判「男」。做完即止：<strong>不算損失、不算梯度、不更新</strong>。</p>
+<p><strong>訓練 —— 看著答案 $y$，四步一輪、反覆很多次；以下把第一輪每一步逐項算出來，不跳步。</strong></p>
+<p><strong>① 前向。</strong> 每人先算 $z=\mathbf{w}\cdot\mathbf{x}+b$，再用 $p=\text{sigmoid}(z)=\dfrac{1}{1+e^{-z}}$ 轉成機率：</p>
+$$z(\text{甲})=0.1{\cdot}1.1+0.1{\cdot}0.9+0.1{\cdot}1.0+(-0.1){\cdot}(-0.8)+0.1{\cdot}1.2+0=0.11+0.09+0.10+0.08+0.12=0.50$$
+$$p(\text{甲})=\frac{1}{1+e^{-0.50}}=\frac{1}{1+0.6065}=0.622$$
+$$z(\text{乙})=0.1{\cdot}(-1.0)+0.1{\cdot}(-1.1)+0.1{\cdot}(-1.2)+(-0.1){\cdot}1.3+0.1{\cdot}(-0.9)+0=-0.10-0.11-0.12-0.13-0.09=-0.55$$
+$$p(\text{乙})=\frac{1}{1+e^{0.55}}=\frac{1}{1+1.7333}=0.366$$
+$$z(\text{丙})=0.1{\cdot}0.1+0.1{\cdot}0.0+0.1{\cdot}0.1+(-0.1){\cdot}(-0.1)+0.1{\cdot}0.2+0=0.01+0+0.01+0.01+0.02=0.05$$
+$$p(\text{丙})=\frac{1}{1+e^{-0.05}}=\frac{1}{1+0.9512}=0.512$$
+<p><strong>② 損失。</strong> 每筆用交叉熵 / BCE $L=-[\,y\ln p+(1-y)\ln(1-p)\,]$（<a href="#3.2">§3.2</a>），再取平均：</p>
+<ul>
+<li>甲（$y=0$）：$L=-\ln(1-0.622)=-\ln 0.378=0.974$</li>
+<li>乙（$y=1$）：$L=-\ln 0.366=1.006$</li>
+<li>丙（$y=0$）：$L=-\ln(1-0.512)=-\ln 0.488=0.718$</li>
+<li>平均：$(0.974+1.006+0.718)/3=2.698/3=0.900$</li>
+</ul>
+<p><strong>③ 反向（<a href="#4">§4</a> / <a href="#9">§9</a>）。</strong> 先算每筆對 $z$ 的誤差 $\delta=p-y$（邏輯迴歸中 $\partial L/\partial z$ 恰為 $p-y$）：</p>
+$$\delta(\text{甲})=0.622-0=+0.622,\qquad \delta(\text{乙})=0.366-1=-0.634,\qquad \delta(\text{丙})=0.512-0=+0.512$$
+<p>再算每個權重的梯度 $\nabla w_j=\text{平均}(\delta\,x_j)$、$\nabla b=\text{平均}(\delta)$（逐格相乘、加總、除以 3）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>權重</th><th>$\delta_{甲}\!\cdot\!x_{甲}$</th><th>$\delta_{乙}\!\cdot\!x_{乙}$</th><th>$\delta_{丙}\!\cdot\!x_{丙}$</th><th>總和</th><th>$\div 3=\nabla$</th></tr></thead>
+<tbody>
+<tr><td>$w_1$身高</td><td>$0.622{\cdot}1.1=0.684$</td><td>$-0.634{\cdot}(-1.0)=0.634$</td><td>$0.512{\cdot}0.1=0.051$</td><td>$1.369$</td><td>$0.457$</td></tr>
+<tr><td>$w_2$體重</td><td>$0.622{\cdot}0.9=0.560$</td><td>$-0.634{\cdot}(-1.1)=0.697$</td><td>$0.512{\cdot}0=0$</td><td>$1.257$</td><td>$0.419$</td></tr>
+<tr><td>$w_3$鞋碼</td><td>$0.622{\cdot}1.0=0.622$</td><td>$-0.634{\cdot}(-1.2)=0.761$</td><td>$0.512{\cdot}0.1=0.051$</td><td>$1.434$</td><td>$0.478$</td></tr>
+<tr><td>$w_4$髮長</td><td>$0.622{\cdot}(-0.8)=-0.498$</td><td>$-0.634{\cdot}1.3=-0.824$</td><td>$0.512{\cdot}(-0.1)=-0.051$</td><td>$-1.373$</td><td>$-0.458$</td></tr>
+<tr><td>$w_5$肩臀比</td><td>$0.622{\cdot}1.2=0.746$</td><td>$-0.634{\cdot}(-0.9)=0.571$</td><td>$0.512{\cdot}0.2=0.102$</td><td>$1.419$</td><td>$0.473$</td></tr>
+<tr><td>$b$</td><td>$0.622$</td><td>$-0.634$</td><td>$0.512$</td><td>$0.500$</td><td>$0.167$</td></tr>
+</tbody></table></div>
+<p><strong>④ 更新（$\eta=0.5$，<a href="#5.2">§5.2</a>）。</strong> $w_j\leftarrow w_j-\eta\,\nabla w_j$、$b\leftarrow b-\eta\,\nabla b$，逐項算：</p>
+<ul>
+<li>$w_1:\ 0.1-0.5{\cdot}0.457=0.1-0.229=-0.128$</li>
+<li>$w_2:\ 0.1-0.5{\cdot}0.419=0.1-0.210=-0.110$</li>
+<li>$w_3:\ 0.1-0.5{\cdot}0.478=0.1-0.239=-0.139$</li>
+<li>$w_4:\ -0.1-0.5{\cdot}(-0.458)=-0.1+0.229=+0.129$</li>
+<li>$w_5:\ 0.1-0.5{\cdot}0.473=0.1-0.237=-0.137$</li>
+<li>$b:\ 0-0.5{\cdot}0.167=-0.083$</li>
+</ul>
+<p>即 $\mathbf{w}\leftarrow(-0.128,-0.110,-0.139,0.129,-0.137)$、$b\leftarrow-0.083$。</p>
+<p><strong>這一輪的效果。</strong> 把更新後的 $\mathbf{w},b$ 代回重算甲：$z(\text{甲})=-0.128{\cdot}1.1-0.110{\cdot}0.9-0.139{\cdot}1.0+0.129{\cdot}(-0.8)-0.137{\cdot}1.2-0.083=-0.73$，$p(\text{甲})=\dfrac{1}{1+e^{0.73}}=0.325$（從 0.622 移向真值 0），損失下降。<strong>回到 ① 再跑</strong>，幾千輪後 $\mathbf{w},b$ 收斂——身高/體重/鞋碼/肩臀比的權重變<strong>負</strong>、髮長權重變<strong>正</strong>，即模型自行學到「高大＋短髮 → 男」。訓練結束 ＝ 損失不再降、參數不再動。</p>
+<p><strong>推論 —— $\mathbf{w},b$ 凍結，新樣本算一次就出答案。</strong> 訓練得某組 $\mathbf{w}^*=(-1.2,-0.9,-1.1,1.5,-1.0)$、$b^*=-0.1$。新的人丁<strong>只有特徵、沒有標籤</strong> $\mathbf{x}=(0.8,0.6,0.7,-0.5,0.9)$：</p>
+$$z(\text{丁})=-1.2{\cdot}0.8-0.9{\cdot}0.6-1.1{\cdot}0.7+1.5{\cdot}(-0.5)-1.0{\cdot}0.9-0.1=-0.96-0.54-0.77-0.75-0.90-0.10=-4.02$$
+$$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=1.8\%)\ \Rightarrow\ \text{判「男」}$$
+<p>做完即止：<strong>不算損失、不算梯度、不更新</strong>。</p>
 <figure><svg viewBox="0 0 1040 300" style="max-width:100%;width:100%;height:auto" role="img" aria-label="訓練與推論流程對照：訓練是前向→損失→梯度→更新的迴圈，推論把 w,b 凍結只走一遍前向">
   <text x="40" y="62" fill="#e2e8f0" font-size="15" font-weight="700">訓練 (training)</text>
   <text x="530" y="34" fill="#fbbf24" font-size="13" text-anchor="middle">↺ 重複幾千輪</text>
