@@ -381,7 +381,7 @@ AI（人工智慧）
 <tbody>
 <tr><td>輸入 → 正規化</td><td>標準化</td><td>正規化後的輸入資料</td><td><a href="#1.5">§1.5</a></td></tr>
 <tr><td>前向傳播</td><td>矩陣乘法、內積、激活</td><td>各層激活 → logits（原始分數）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#3.2">§3.2</a></td></tr>
-<tr><td>輸出</td><td>softmax / argmax</td><td>各類別機率 → 預測類別（argmax）</td><td><a href="#3.2">§3.2</a></td></tr>
+<tr><td>輸出</td><td>softmax / argmax</td><td>各類別機率 → 取最高分為預測類別（argmax＝挑最大者，見 <a href="#3.3">§3.3</a>）</td><td><a href="#3.2">§3.2</a></td></tr>
 </tbody>
 </table></div>
 <div class="tablewrap"><table class="t-gen">
@@ -1010,7 +1010,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <tr><td>$P(y\mid x)$</td><td>給定 $x$ 屬 $y$ 的機率</td><td>輸出層 <strong>softmax 的各類機率</strong>（<a href="#3.3">§3.3</a>）</td><td>$P(\text{貓}\mid\text{圖})=0.92$</td></tr>
 </tbody>
 </table></div>
-<p>訓練時 $y$ 是<strong>標註的正確答案</strong>（交叉熵拿它比對，<a href="#3.2">§3.2</a>、<a href="#3.1">§3.1</a>）；推論時模型吐 $P(y\mid x)$、再 <strong>argmax</strong> 取預測類別。</p>
+<p>訓練時 $y$ 是<strong>標註的正確答案</strong>（交叉熵拿它比對，<a href="#3.2">§3.2</a>、<a href="#3.1">§3.1</a>）；推論時模型吐 $P(y\mid x)$、再 <strong>argmax</strong>（挑機率最大的那一類；定義與 vs softmax 見 <a href="#3.3">§3.3</a>）取預測類別。</p>
 <blockquote><p><strong>名詞澄清</strong>：這裡的「特徵向量」是 <strong>feature vector</strong>（特徵 = feature，即輸入特徵湊成的向量），<strong>不是</strong>線性代數的 <strong>eigenvector</strong>（中文也譯「特徵向量」，見 <a href="#1.6">§1.6</a>：$\mathbf{A}\mathbf{v}=\lambda\mathbf{v}$、方向不變只被縮放的向量）。中文剛好撞名，看上下文區分。</p></blockquote>
 <p>這正是<strong>判別 vs 生成分野</strong>的數學根。</p>
 
@@ -1143,6 +1143,13 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>各項 0~1 且總和為 1。損失用<strong>類別交叉熵</strong>（$y$ 為 one-hot、真類為 $t$）：</p>
 <p>$$L=-\sum_{k=1}^{C} y_k\log\hat y_k=-\log\hat y_t$$</p>
 <p>即「真類機率的負對數」— 越確信正確類、損失越小。梯度同樣化簡為 $\frac{\partial L}{\partial z_k}=\hat y_k-y_k$。</p>
+<p><strong>argmax vs softmax（兩個常一起出現、別混淆）。</strong></p>
+<ul>
+<li><strong>argmax（argument of the maximum）</strong> ＝ 取「<strong>分數最大那一項的索引 / 類別</strong>」。輸入分數向量、輸出<strong>單一離散類別</strong>（硬選、贏者全拿）；例:$\arg\max[2.0,5.0,1.0]=$ 第 2 類。<strong>不可微</strong>（換最大項才會跳，梯度 0 或未定義）。</li>
+<li><strong>softmax</strong> ＝ 把分數轉成<strong>機率分布</strong>（軟、全保留、總和 1、<strong>可微</strong>）；例:$[2.0,5.0,1.0]\mapsto[0.05,0.94,0.02]$。</li>
+<li><strong>怎麼接力</strong>:<strong>訓練</strong>用 <strong>softmax</strong> 得機率、算可微的<strong>交叉熵</strong>（才能反向傳播 <a href="#9">§9</a>、<a href="#10">§10</a>）；<strong>推論</strong>用 <strong>argmax</strong> 挑機率最大的類別當最終答案（<a href="#18">§18</a>）。典型流程 <strong>logits → softmax → argmax</strong>。</li>
+<li>因 softmax 不改變最大值的位置（單調），$\arg\max(\text{softmax}(\mathbf z))=\arg\max(\mathbf z)$——取完 softmax 再 argmax 與直接對 logits argmax 同結果。（LLM 生成則常不取 argmax，而按 softmax 分布<strong>取樣</strong> + 溫度/top-k，<a href="#16">§16</a>。）</li>
+</ul>
 
 <p><span class="geo">幾何意義（多類怎麼「切」）。</span> 二元分類是「一個超平面切成兩邊」；<strong>多類不是連續二分，而是 $C$ 個分數各自比高低、取最大（argmax）</strong>：</p>
 <ul>
