@@ -538,6 +538,7 @@ AI（人工智慧）
 </ul>
 <p><strong>權重 $\mathbf{w}$ — 神經元本身（一組特徵樣板）。</strong> $\mathbf{w}^\top\mathbf{x}$ 是內積（<a href="#1.1">§1.1</a>），量測輸入與「樣板 $\mathbf{w}$」的對齊程度。所以<strong>這組權重 $\mathbf{w}$ 就是這個神經元</strong>——一個可學的「特徵樣板」：輸入越像 $\mathbf{w}$、內積越大、被激活的值越高（越可能激發）— 這就是「神經元＝特徵偵測器」的由來。</p>
 <p><strong>權重從哪來？</strong> 上面的 $\mathbf{w}, b$ 不是預設的，而是<strong>訓練學出來的</strong>：初始隨機，再用<strong>梯度下降 + 反向傳播</strong>依損失反覆微調（見<a href="#4">§4</a> / <a href="#5">§5</a> / <a href="#9">§9</a>）。幾何上，訓練就是一直<strong>挪動決策邊界</strong>（調整法向量 $\mathbf{w}$ 與偏置 $b$），從隨機初始逐步把不同類別分到正確的兩側；因為內積在對齊時最大，$\mathbf{w}$ 會自然長成「這神經元專門偵測的樣式」——這就是「特徵樣板」的由來（資料 + 損失驅動的表徵學習）。</p>
+<blockquote><p><strong>類比:欄位 vs 配分（順便看「特徵與權重誰先」）。</strong> 把<strong>特徵</strong>想成「題目有哪些<strong>欄位</strong>」（年資、學歷…）——<strong>先有</strong>；<strong>權重 $\mathbf{w}$</strong> 是「每個欄位<strong>該給多少分</strong>」——<strong>欄位定了才配得出分</strong>，而且分數是靠<strong>練習（訓練）調到最準</strong>的。所以順序是:<strong>先有特徵（欄位）→ 權重（配分）依它而生、隨機起步 → 再由訓練學出值</strong>（一個特徵配一個權重，故特徵維度決定 $\mathbf{w}$ 的形狀，見 <a href="#8">§8</a>）。</p></blockquote>
 <figure><svg viewBox="0 0 360 200" role="img" aria-label="訓練挪動決策邊界">
   <g fill="#64748b"><circle cx="95" cy="150" r="5"/><circle cx="125" cy="135" r="5"/><circle cx="90" cy="120" r="5"/><circle cx="120" cy="165" r="5"/></g>
   <g fill="#38bdf8"><circle cx="245" cy="60" r="5"/><circle cx="275" cy="80" r="5"/><circle cx="255" cy="95" r="5"/><circle cx="285" cy="62" r="5"/></g>
