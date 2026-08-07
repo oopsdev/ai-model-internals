@@ -542,11 +542,11 @@ AI（人工智慧）
 <figure><svg viewBox="0 0 360 200" role="img" aria-label="訓練挪動決策邊界">
   <g fill="#64748b"><circle cx="95" cy="150" r="5"/><circle cx="125" cy="135" r="5"/><circle cx="90" cy="120" r="5"/><circle cx="120" cy="165" r="5"/></g>
   <g fill="#38bdf8"><circle cx="245" cy="60" r="5"/><circle cx="275" cy="80" r="5"/><circle cx="255" cy="95" r="5"/><circle cx="285" cy="62" r="5"/></g>
-  <line x1="205" y1="30" x2="150" y2="185" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6 4"/>
-  <text x="148" y="24" fill="#94a3b8" font-size="10">初始（隨機 w, b）</text>
-  <line x1="70" y1="178" x2="315" y2="58" stroke="#34d399" stroke-width="2.4"/>
-  <text x="246" y="182" fill="#34d399" font-size="10.5" font-weight="700">訓練後 w, b</text>
-</svg><figcaption>訓練＝用梯度下降反覆挪動決策邊界（調整 w, b），從隨機初始（虛線）逐步分開兩類（綠線）</figcaption></figure>
+  <line x1="70" y1="178" x2="315" y2="58" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="70" y="193" fill="#94a3b8" font-size="10">初始（隨機 w, b）→ 穿過點群、分不開</text>
+  <line x1="205" y1="30" x2="150" y2="185" stroke="#34d399" stroke-width="2.4"/>
+  <text x="205" y="22" fill="#34d399" font-size="10.5" font-weight="700" text-anchor="middle">訓練後 w, b</text>
+</svg><figcaption>訓練＝用梯度下降反覆挪動決策邊界（調整 w, b）：虛線＝隨機初始（斜著穿過點群、分不開），綠線＝訓練後（移到兩群中間、乾淨分開左右兩類）</figcaption></figure>
 <p><strong>偏置 $b$ — 門檻。</strong> 幾何上 $\mathbf{w}^\top\mathbf{x}+b=0$ 是輸入空間裡的一個<strong>決策超平面</strong>（2D 是一條線、3D 是平面），$\mathbf{w}$ 是它的<strong>法向量</strong>。$b$ 決定這平面<strong>離原點多遠</strong>、即「多容易被激發」。$z=\mathbf{w}^\top\mathbf{x}+b$ 可看成輸入點到超平面的<strong>帶符號距離</strong>（乘上 $\lVert\mathbf{w}\rVert$）：一側為正（激發）、另一側為負（不激發）。</p>
 <figure><svg viewBox="0 0 360 200" role="img" aria-label="神經元的決策超平面與激發">
   <polygon points="70,178 300,45 340,190 70,190" fill="#38bdf815"/>
