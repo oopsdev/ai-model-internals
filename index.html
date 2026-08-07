@@ -595,6 +595,18 @@ AI（人工智慧）
 </tbody>
 </table></div>
 <p>（向量本身即 $m\times 1$ 矩陣；矩陣 × 向量是矩陣乘法的特例，結果剛好「一欄」故稱向量。）</p>
+<p><strong>具體例子（輸入 3 維的一個小網路 $3\to 4\to 2$）。</strong> 設輸入特徵向量 $\mathbf{a}^{(0)}=(a_1,a_2,a_3)$（維度 3）：</p>
+<ul>
+<li><strong>第一層（4 個神經元）</strong>：每個神經元有 <strong>3 個權重 + 1 偏置</strong>（對應 $a_1,a_2,a_3$）；疊成 $\mathbf{W}^{(1)}$，形狀 <strong>$4\times 3$</strong>（<strong>列數 4 ＝神經元數、欄數 3 ＝輸入維度</strong>）。$\mathbf{a}^{(1)}=\sigma(\mathbf{W}^{(1)}\mathbf{a}^{(0)}+\mathbf{b}^{(1)})$ → 輸出 <strong>4 維</strong>。</li>
+<li><strong>第二層（2 個神經元）</strong>：每個神經元看上一層的 4 個輸出 → $\mathbf{W}^{(2)}$ 形狀 <strong>$2\times 4$</strong>（<strong>欄數 4 ＝上一層輸出維度，這就是「維度銜接」</strong>）→ 輸出 <strong>2 維</strong>。</li>
+</ul>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>$\mathbf{W}$ 形狀</th><th>輸出維度</th><th>參數量</th></tr></thead>
+<tbody>
+<tr><td>第 1 層（4 神經元）</td><td>$4\times 3$</td><td>4</td><td>$4\times3+4=16$</td></tr>
+<tr><td>第 2 層（2 神經元）</td><td>$2\times 4$</td><td>2</td><td>$2\times4+2=10$</td></tr>
+</tbody></table></div>
+<p>資料流維度 <strong>$3\to 4\to 2$</strong>、總參數 <strong>26</strong>。重點:<strong>輸入維度 3 只固定第一層 $\mathbf{W}^{(1)}$ 的欄數＝3</strong>；之後各層神經元數（寬度 4、2）是<strong>超參數</strong>，而<strong>下一層 $\mathbf{W}$ 的欄數永遠＝上一層輸出維度</strong>（前向與維度銜接完整說明見 <a href="#8">§8</a>）。</p>
 <p><span class="geo">幾何意義。</span> 矩陣乘一個向量 = 對整個空間做一次<strong>線性變換</strong>（旋轉 / 縮放 / 剪切 / 翻轉）。最直覺的看法：<strong>矩陣的每一「欄」就是原本的座標軸（基底）被變換後落到的位置</strong>。因為</p>
 <p>$$\mathbf{W}\mathbf{x} = x_1\,\mathbf{w}_1 + x_2\,\mathbf{w}_2 + \dots + x_n\,\mathbf{w}_n$$</p>
 <p>其中 $\mathbf{w}_j$ 為 $\mathbf{W}$ 的第 $j$ 欄。$\mathbf{W}\mathbf{x}$ 就是「用 $\mathbf{x}$ 的分量，把 $\mathbf{W}$ 的各欄（變換後的軸）加權相加」。由基底張成的單位正方形，會被 $\mathbf{W}$ 拉成一個<strong>平行四邊形</strong>，其邊就是 $\mathbf{W}$ 的欄向量：</p>
