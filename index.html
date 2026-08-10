@@ -2464,24 +2464,66 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="c1">附錄 C — 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</h2>
-<p>本教材主體講神經網路，但<strong>判別式 ML 的另一大主力是「梯度提升決策樹 (GBDT)」</strong>——在<strong>表格 / 結構化資料</strong>上常比 NN 更準、更快、更輕。<a href="#11.7">§11.7</a> 提過「表格資料 → 樹模型 (GBDT)」，本附錄補上它並與 NN 對照。<strong>因涉及教材主體（NN）未涵蓋的概念，先在 C.1 補齊先備知識（決策樹、集成學習），Autoencoder 於 C.6 就地說明。</strong></p>
+<p>本教材主體講神經網路，但<strong>判別式 ML 的另一大主力是「梯度提升決策樹 (GBDT)」</strong>——在<strong>表格 / 結構化資料</strong>上常比 NN 更準、更快、更輕。<a href="#11.7">§11.7</a> 提過「表格資料 → 樹模型 (GBDT)」，本附錄補上它並與 NN 對照。<strong>先建立適用範圍（C.1）、補齊先備知識（決策樹、集成，C.2），再用手算走完「一棵樹 → 多棵樹 → 分類梯度」（C.3–C.7）；Autoencoder 於 C.11 case study 就地說明。</strong></p>
 
-<h3>C.1 先備知識：決策樹與集成學習（教材未涵蓋，先補）</h3>
-<p><strong>決策樹 (Decision Tree)。</strong> 一棵樹用「一連串 if-else 問題」把資料切開：每個內部節點依<strong>某特徵的門檻</strong>分岔（例：「封包大小 &gt; 500?」），一路走到<strong>葉節點</strong>得到預測（分類看葉內多數類、迴歸看葉內平均）。挑分岔點的準則：分類用<strong>不純度</strong>（Gini / 熵）下降最多、迴歸用<strong>變異數</strong>下降最多。優點：好解釋、不需正規化；缺點：<strong>單棵易過擬合、不穩</strong>（所以要集成）。</p>
-<p><strong>集成學習 (Ensemble)：把很多弱模型合成強模型。</strong> 兩大流派：</p>
+<h3>C.1 GBDT 解決什麼問題（適用範圍）</h3>
 <ul>
-<li><strong>Bagging（並行、降變異）</strong>：各自獨立訓練多棵樹，再投票 / 平均 → 代表 <strong>隨機森林 (Random Forest)</strong>。</li>
-<li><strong>Boosting（串行、降偏差）</strong>：一棵接一棵、<strong>每棵修正前面的錯</strong> → 代表 <strong>GBDT / XGBoost / LightGBM</strong>（本附錄主角）。</li>
+<li><strong>輸入</strong>：通常是一列列<strong>結構化 / 表格特徵</strong>（每列一筆樣本、每欄一個特徵）。</li>
+<li><strong>輸出</strong>：連續數值（迴歸）、二元或多類別（分類）皆可。</li>
+<li><strong>不直接吃</strong>影像、文字、原始封包——這些要<strong>先抽成表格特徵</strong>才能餵樹（呼應 <a href="#11.7">§11.7</a>、<a href="#i1">附錄 I</a>）。</li>
+<li><strong>和 NN 學的是同一件事</strong>（輸入→輸出的函數），只是<strong>表示方式不同</strong>：<strong>NN</strong> 是一組<strong>連續權重</strong>、用梯度下降<strong>反覆微調同一組參數</strong>（<a href="#4">§4</a>、<a href="#5">§5</a>）；<strong>GBDT</strong> 是一疊<strong>離散的樹</strong>、<strong>逐輪增加新樹</strong>來逼近目標。</li>
+</ul>
+<p>流量分類的表格長相（IDS 例）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>flow_duration</th><th>packet_count</th><th>avg_packet_size</th><th>dst_port</th><th>label</th></tr></thead>
+<tbody>
+<tr><td>0.12 秒</td><td>80</td><td>64 bytes</td><td>443</td><td>正常</td></tr>
+<tr><td>8.40 秒</td><td>3,200</td><td>1,420 bytes</td><td>22</td><td>攻擊</td></tr>
+</tbody></table></div>
+
+<h3>C.2 先備：一棵決策樹怎麼預測（＋集成）</h3>
+<p><strong>節點術語。</strong> 一棵決策樹由<strong>根節點 (root)</strong> 出發，每個<strong>內部節點</strong>問一個「某特徵 vs 門檻」的 yes/no 問題（＝一條 <code>if-else</code>），依答案走<strong>左 / 右分支</strong>，最後落到<strong>葉節點 (leaf)</strong> 讀出預測。</p>
+<pre><code>packet_count &gt; 1000?
+├─ 否 → 正常機率 0.08
+└─ 是 → avg_packet_size &gt; 900?
+        ├─ 否 → 正常機率 0.35
+        └─ 是 → 攻擊機率 0.91</code></pre>
+<p><strong>追一筆資料</strong>（<code>packet_count=3200, avg_packet_size=1420</code>）：根節點「&gt;1000?」→ 是 → 「avg_packet_size&gt;900?」→ 是 → 葉「攻擊機率 0.91」。<strong>一次預測 ＝ 從根走到某個葉。</strong></p>
+<ul>
+<li><strong>葉節點存什麼</strong>：分類存<strong>類別機率 / 多數類</strong>；迴歸存<strong>葉內樣本的平均值</strong>。</li>
+<li><strong>樹深 (depth) / 葉數 (leaves) 越大 → 模型越複雜</strong>（能切更細，但更易過擬合，C.4）。</li>
+</ul>
+<p><strong>集成 (Ensemble)：很多弱樹合成強模型。</strong> 兩大流派：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>方法</th><th>樹之間</th><th>目的</th></tr></thead>
+<tbody>
+<tr><td><strong>決策樹 (Decision Tree)</strong></td><td>一棵</td><td>簡單、好解釋</td></tr>
+<tr><td><strong>隨機森林 (Random Forest)</strong></td><td>多棵<strong>並行</strong>、投票 / 平均</td><td><strong>降變異</strong>（Bagging）</td></tr>
+<tr><td><strong>GBDT / XGBoost / LightGBM</strong></td><td>多棵<strong>串行</strong>、每棵修前面的錯</td><td><strong>降偏差</strong>（Boosting，本附錄主角）</td></tr>
+</tbody></table></div>
+
+<h3>C.3 一棵樹怎麼選分裂點（直覺 → 手算 → 公式）</h3>
+<p><strong>直覺</strong>：切一刀，讓左右兩群<strong>比切之前更「純」</strong>（同一群盡量同類）。<strong>手算（6 筆）</strong>，以 <code>packet_count</code> 分「正常 / 攻擊」：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>packet_count</th><th>10</th><th>20</th><th>30</th><th>80</th><th>90</th><th>100</th></tr></thead>
+<tbody><tr><td>label</td><td>正常</td><td>正常</td><td>正常</td><td>攻擊</td><td>攻擊</td><td>攻擊</td></tr></tbody>
+</table></div>
+<p>用 <strong>Gini 不純度</strong> $\text{Gini}=1-\sum_c p_c^2$（越小越純）。<strong>切之前</strong>：3 正常 3 攻擊 → $1-(0.5^2+0.5^2)=0.5$。比較兩個候選門檻：</p>
+<ul>
+<li><strong><code>packet_count ≤ 25</code></strong>：左 {10,20}＝2 正常（Gini 0）；右 {30,80,90,100}＝1 正常 3 攻擊 → $1-\big((\tfrac14)^2+(\tfrac34)^2\big)=0.375$。加權 $\tfrac{2}{6}\cdot0+\tfrac{4}{6}\cdot0.375=0.25$ → <strong>下降 $0.5-0.25=0.25$</strong>。</li>
+<li><strong><code>packet_count ≤ 55</code></strong>：左 {10,20,30}＝全正常（Gini 0）；右 {80,90,100}＝全攻擊（Gini 0）→ 加權 <strong>0</strong> → <strong>下降 $0.5$</strong>（一刀切乾淨）。</li>
+</ul>
+<p>→ 樹選<strong>下降最多</strong>的 <code>≤55</code>。<strong>一般準則</strong>：分類用 <strong>Gini / 熵 (entropy)</strong> 下降、迴歸用<strong>變異數（平方誤差）下降</strong>、LightGBM 則用<strong>梯度 + Hessian</strong> 算增益（C.8、C.9）。</p>
+
+<h3>C.4 為什麼單棵樹不夠 → 要集成</h3>
+<ul>
+<li><strong>深樹會「背答案」</strong>：切夠深可完美記住訓練資料 → 過擬合、對新資料差。</li>
+<li><strong>不穩</strong>：資料稍變，樹結構可能大變（高變異）。</li>
+<li><strong>淺樹偏差高、深樹變異高</strong>，單棵難兩全 → 需<strong>集成</strong>（C.2 表）。GBDT 走 <strong>Boosting</strong>：不是並行投票，而是<strong>一棵接一棵修正殘餘的錯</strong>（C.5）。與 NN 的根本差異：<strong>NN 調同一組連續權重、GBDT 逐輪加離散的樹</strong>（兩者都用到「梯度」概念，<a href="#4">§4</a>）。</li>
 </ul>
 
-<h3>C.2 GBDT 是什麼（與 NN 的根本差異）</h3>
-<ul>
-<li><strong>梯度提升 (Gradient Boosting)</strong>：屬 Boosting——訓練一群<strong>弱決策樹</strong>，每棵新樹去<strong>擬合前面所有樹的殘差（負梯度）</strong>，把它們<strong>加總</strong>成強預測器。</li>
-<li><strong>與 NN 的對照</strong>：<strong>NN</strong> 是一個<strong>連續可微</strong>的大函數、用<strong>梯度下降</strong>調權重（<a href="#4">§4</a>、<a href="#5">§5</a>）；<strong>GBDT</strong> 是一疊<strong>離散的樹</strong>、<strong>逐棵</strong>擬合負梯度長出來。兩者都用到「梯度」，但一個<strong>調權重</strong>、一個<strong>加樹</strong>。</li>
-</ul>
-
-<h3>C.3 模型內部怎麼運作（逐步）</h3>
-<p>GBDT 的核心是「<strong>一棵接一棵、每棵補前一棵的錯</strong>」：</p>
+<h3>C.5 GBDT 如何逐輪修正錯誤（兩輪手算）★本章核心</h3>
+<p>核心一句：<strong>第一棵抓大方向，之後每一棵專門補「目前還差多少」</strong>。GBDT 的迴圈：</p>
 <figure><div style="overflow-x:auto"><svg viewBox="0 0 880 210" style="max-width:100%;min-width:860px" role="img" aria-label="GBDT 梯度提升內部逐步運作：初始→算殘差→訓練樹→更新→重複→加總">
   <defs><marker id="arg" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#94a3b8"/></marker>
   <marker id="arg2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#fbbf24"/></marker></defs>
@@ -2499,29 +2541,58 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   <path d="M613,84 L613,150 L307,150 L307,84" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arg2)"/>
   <text x="460" y="170" fill="#fbbf24" font-size="10.5" text-anchor="middle">↻ 重複 M 棵樹（每棵擬合前面的殘差）</text>
 </svg></div><figcaption>GBDT 內部：F₀ 起始 → 算殘差(負梯度) → 訓練一棵樹擬合殘差 → 加進來(乘學習率 η) → 重複 M 次 → 所有樹加總為最終預測。</figcaption></figure>
+<p>用三筆迴歸資料走兩輪（學習率 $\eta=0.1$）。真值 $y$：A=10、B=20、C=30；<strong>起始預測</strong>取平均 $F_0=20$。<strong>第 1 輪</strong>——先看差多少（<strong>殘差</strong> $r=y-F$），再長一棵小樹擬合殘差：</p>
 <div class="tablewrap"><table>
-<thead><tr><th>步驟</th><th>做什麼</th><th>數學</th></tr></thead>
+<thead><tr><th>樣本</th><th>$y$</th><th>$F_0$</th><th>殘差 $r$</th></tr></thead>
 <tbody>
-<tr><td>① 初始</td><td>給一個起始預測</td><td>$F_0(x)$ = 常數（如 $y$ 均值）</td></tr>
-<tr><td>② 算負梯度（殘差）</td><td>看目前預測差多少</td><td>$r_i = y_i - F(x_i)$（平方損失時）</td></tr>
-<tr><td>③ 訓練樹</td><td>長一棵樹擬合殘差</td><td>$h_m \approx r$</td></tr>
-<tr><td>④ 更新</td><td>把新樹乘學習率加進來</td><td>$F_m = F_{m-1} + \eta\,h_m$</td></tr>
-<tr><td>⑤ 重複</td><td>②–④ 共 $M$ 棵樹</td><td>—</td></tr>
-<tr><td>⑥ 最終</td><td>所有樹加總</td><td>$F(x)=F_0+\eta\sum_{m}h_m(x)$</td></tr>
-</tbody>
-</table></div>
-<p>分類任務最後把 $F(x)$ 過 sigmoid / softmax 轉成機率（<a href="#3.2">§3.2</a>）。<strong>直覺</strong>：第一棵樹抓大方向，後面每棵專門修正前面還沒抓對的部分（殘差），越加越準——與 NN 用梯度下降「連續調同一組權重」不同，GBDT 是「一直加新樹」。</p>
+<tr><td>A</td><td>10</td><td>20</td><td>−10</td></tr>
+<tr><td>B</td><td>20</td><td>20</td><td>0</td></tr>
+<tr><td>C</td><td>30</td><td>20</td><td>+10</td></tr>
+</tbody></table></div>
+<p>假設這棵 depth-1 小樹切成 <strong>{A}</strong> 與 <strong>{B,C}</strong> 兩葉，葉值＝該葉殘差平均：$h_1(\text{A})=-10$、$h_1(\text{B})=h_1(\text{C})=\tfrac{0+10}{2}=5$。更新 $F_1=F_0+\eta\,h_1$：$F_1(\text{A})=20+0.1(-10)=19$、$F_1(\text{B})=F_1(\text{C})=20.5$。</p>
+<p><strong>第 2 輪</strong>——用<strong>新的</strong>殘差 $r_2=y-F_1$ 再長一棵：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>樣本</th><th>$y$</th><th>$F_1$</th><th>殘差 $r_2$</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>10</td><td>19</td><td>−9</td></tr>
+<tr><td>B</td><td>20</td><td>20.5</td><td>−0.5</td></tr>
+<tr><td>C</td><td>30</td><td>20.5</td><td>+9.5</td></tr>
+</tbody></table></div>
+<p>小樹切 {A} 與 {B,C}：$h_2(\text{A})=-9$、$h_2(\text{B})=h_2(\text{C})=\tfrac{-0.5+9.5}{2}=4.5$。更新得 $F_2(\text{A})=18.1$、$F_2(\text{B})=20.95$、$F_2(\text{C})=20.95$。</p>
+<p><strong>損失（殘差平方和 SSE）逐輪下降</strong>：$F_0$：$10^2+0+10^2=200$ → $F_1$：$9^2+0.5^2+9.5^2=171.5$ → $F_2$：$8.1^2+0.95^2+9.05^2\approx148.4$。A、C 的預測正<strong>緩緩爬向</strong> 10、30。<strong>這就是 boosting「boost」的東西：一輪一輪把剩下的誤差往下壓</strong>；$\eta$ 越小 → 每步越保守、要越多棵，但通常更穩（調參時的權衡）。</p>
 
-<h3>C.4 LightGBM 的四個加速關鍵（微軟的 GBDT 實作）</h3>
+<h3>C.6 從殘差推廣到「負梯度」</h3>
+<p>上面「擬合殘差」只是<strong>平方損失下的特例</strong>。一般而言，每一輪的新樹擬合的是<strong>負梯度</strong>：</p>
+$$r_{im}=-\left[\frac{\partial L\big(y_i,F(x_i)\big)}{\partial F(x_i)}\right]_{F=F_{m-1}}$$
+<p><strong>白話</strong>：對某筆資料問「<strong>把它目前的分數調高一點，損失會不會下降？</strong>」——會 → 這輪新樹對它輸出<strong>正修正</strong>；反之輸出<strong>負修正</strong>。「Gradient Boosting」的名字就來自<strong>在函數空間裡沿負梯度方向、一棵一棵加樹</strong>。</p>
 <ul>
-<li><strong>GOSS（單邊梯度採樣）</strong>：全留誤差大的樣本、只抽樣容易的 → 算力集中在難點。</li>
-<li><strong>EFB（互斥特徵綁定）</strong>：把幾乎不同時出現的稀疏特徵綁一起 → 降維度。</li>
-<li><strong>Histogram（直方圖分箱）</strong>：連續值分箱、只看箱邊界 → 快又省 RAM。</li>
-<li><strong>Leaf-wise（逐葉生長）</strong>：每次分裂「最能降誤差」的葉。</li>
-<li><strong>效能</strong>：大資料（百萬列）比 XGBoost 快 <strong>10–20×</strong>；小資料差異不大；準度調參後相當或更好。</li>
+<li><strong>平方損失</strong> $L=\tfrac12(y-F)^2$：$-\partial L/\partial F=y-F$ ＝<strong>普通殘差</strong>（所以 C.5 直接用殘差）。</li>
+<li><strong>換損失就換目標</strong>：如分類用的對數損失，負梯度<strong>不再等於</strong>普通殘差（見 C.7）——別把「殘差」與「負梯度」畫等號。</li>
 </ul>
 
-<h3>C.5 用到的數學運算（不需矩陣乘法）</h3>
+<h3>C.7 二元分類內部怎麼運作</h3>
+<p>分類時，<strong>所有樹加總得到的 $F(x)$ 不是機率，而是 raw score（logit）</strong>；再用 <strong>sigmoid</strong> 轉成正類機率 $p=\sigma(F)=\tfrac{1}{1+e^{-F}}$（<a href="#3.2">§3.2</a>）。對數損失 (BCE) 對 logit 的梯度很乾淨：</p>
+$$g_i=\frac{\partial L}{\partial F}=p_i-y_i\quad\Rightarrow\quad\text{負梯度}=y_i-p_i$$
+<p>所以<strong>新樹擬合的是 $y_i-p_i$</strong>。直覺：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>情況</th><th>$y$</th><th>目前 $p$</th><th>負梯度 $y-p$</th><th>新樹該做</th></tr></thead>
+<tbody>
+<tr><td>正類卻信心不足</td><td>1</td><td>0.5</td><td>+0.5</td><td><strong>拉高</strong> logit</td></tr>
+<tr><td>負類卻信心太高</td><td>0</td><td>0.5</td><td>−0.5</td><td><strong>壓低</strong> logit</td></tr>
+<tr><td>已答對且很有信心</td><td>1</td><td>0.95</td><td>+0.05</td><td>幾乎不動</td></tr>
+</tbody></table></div>
+<p>（呼應 <a href="#3.2">§3.2</a>：sigmoid + BCE 的梯度也是「預測減真值」$\hat y-y$——GBDT 與邏輯迴歸在這點同源，只是一個加樹、一個調權重。）</p>
+
+<h3>C.8 LightGBM 的四個加速關鍵（微軟的 GBDT 實作）</h3>
+<ul>
+<li><strong>Histogram（直方圖分箱）</strong>：連續值先分成有限個 bins、只看箱邊界當候選切點 → 快又省 RAM（代價：近似切點，受 <code>max_bin</code> 影響）。</li>
+<li><strong>Leaf-wise（逐葉生長）</strong>：每次分裂「當下增益最大」的葉（不像傳統 level-wise 逐層長）→ 同葉數下通常更快降損失（風險：小資料易長太深，用 <code>num_leaves</code> / <code>max_depth</code> / <code>min_data_in_leaf</code> 控制）。</li>
+<li><strong>GOSS（單邊梯度採樣）</strong>：全留誤差大的樣本、只抽樣容易的 → 算力集中在難點。</li>
+<li><strong>EFB（互斥特徵綁定）</strong>：把幾乎不同時出現的稀疏特徵綁一起 → 降有效維度。</li>
+<li><strong>效能</strong>：大資料常<strong>明顯較快、記憶體較省</strong>；但<strong>實際速度取決於資料量、稀疏性、特徵數、超參數、硬體與版本，應以目標資料 benchmark</strong>，不宜套固定倍數。準度調參後與 XGBoost 相當或更好。</li>
+</ul>
+
+<h3>C.9 用到的數學運算（不需矩陣乘法）</h3>
 <p><strong>LightGBM 不像 NN 靠矩陣乘法 (matmul)</strong>，核心是<strong>統計累加 + 純量算術 + 比較</strong>——這是它 CPU-friendly、不太需要 GPU 的根本原因。</p>
 <div class="tablewrap"><table>
 <thead><tr><th>運算</th><th>是什麼</th><th>類型</th></tr></thead>
@@ -2537,7 +2608,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <p>分裂增益：$\text{Gain}=\frac12\left[\dfrac{G_L^2}{H_L+\lambda}+\dfrac{G_R^2}{H_R+\lambda}-\dfrac{(G_L+G_R)^2}{H_L+H_R+\lambda}\right]-\gamma$（$G,H$＝該側樣本的梯度、Hessian 總和），全是純量加減乘除。</p>
 <p><strong>有向量、無矩陣乘法</strong>：梯度陣列、直方圖陣列是「向量 / 陣列」資料，但運算是<strong>逐元素累加 + 純量算術 + 比較</strong>，<strong>沒有 <a href="#1.3">§1.3</a> 那種矩陣×向量 / 矩陣×矩陣乘法</strong>。→ 瓶頸偏在<strong>記憶體存取</strong>而非乘加 (FLOPs)，所以<strong>多數中小型表格情境 CPU 就夠、GPU 效益相對有限</strong>（LightGBM／XGBoost 亦有 GPU 版，<strong>超大資料、高基數或深樹時 GPU 才較有感</strong>；對照 NN 的 matmul 高度受益於 GPU/NPU，<a href="#20">§20</a>）——這也是網路 AI 邊緣 ML 常選 GBDT 的一項考量。</p>
 
-<h3>C.6 對照神經網路（何時用哪個）</h3>
+<h3>C.10 對照神經網路（何時用哪個）</h3>
 <div class="tablewrap"><table>
 <thead><tr><th>面向</th><th>GBDT (LightGBM)</th><th>神經網路</th></tr></thead>
 <tbody>
@@ -2550,7 +2621,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 </tbody>
 </table></div>
 
-<h3>C.7 Case study：網路入侵偵測 (IDS) / 流量分類</h3>
+<h3>C.11 Case study：網路入侵偵測 (IDS) / 流量分類</h3>
 <ul>
 <li><strong>問題</strong>：從流量特徵判斷「正常 vs 攻擊（哪一類）」。</li>
 <li><strong>特徵</strong>：flow 統計（封包大小、時序、上下行量…）——即 <a href="#11.7">§11.7</a> / nfstream 產出的<strong>表格特徵</strong>；資料集 NSL-KDD、UNSW-NB15、CICIDS2017。</li>
@@ -2564,8 +2635,18 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 </ul>
 <blockquote><p><strong>數字要謹慎看（本文只作定性示意）。</strong> 資安資料集常因<strong>類別不平衡、資料洩漏 (data leakage)、train/test 切法</strong>而<strong>容易得到異常高的 accuracy</strong>。引用任何準確率務必附<strong>資料集、train/test split、二元/多類定義、是否處理不平衡與洩漏、是否只看 accuracy（還是 precision/recall/F1）、原始論文來源</strong>——否則「漂亮的精確數字」反而降低可信度。此處只說明「GBDT 適合流量表格分類」的<strong>定性</strong>結論，不以特定數字為準。</p></blockquote>
 
-<h3>C.8 小結</h3>
-<p>NN 不是萬能：<strong>表格資料優先考慮 GBDT（LightGBM）</strong>，影像 / 序列才用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）LightGBM 是<strong>輕量首選</strong>。侷限：對特徵工程敏感、小資料易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / 正則化）、不吃原始序列/影像。</p>
+<blockquote><p><strong>常見誤解（GBDT 版）。</strong></p>
+<ul>
+<li>GBDT <strong>不是用反向傳播</strong>訓練樹——是<strong>逐輪加一棵樹擬合負梯度</strong>（C.5、C.6）。</li>
+<li><strong>殘差 ≠ 負梯度</strong>：只有<strong>平方損失</strong>下兩者才相等（C.6）。</li>
+<li>樹加總的 $F(x)$ 是 <strong>raw score / logit、不是機率</strong>，要過 sigmoid / softmax 才是機率（C.7）。</li>
+<li><strong>特徵重要度 ≠ 因果</strong>；高度相關的特徵會互相分攤重要度。</li>
+<li>LightGBM <strong>不保證一定比 XGBoost 快</strong>（視資料 / 硬體 / 版本，C.8）。</li>
+<li>「樹不需特徵正規化」<strong>不代表</strong>可以忽略資料品質與<strong>資料洩漏</strong>（<a href="#h1">附錄 H</a>）。</li>
+</ul></blockquote>
+
+<h3>C.12 小結</h3>
+<p>NN 不是萬能：<strong>表格資料優先考慮 GBDT（LightGBM）</strong>，影像 / 序列才用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）LightGBM 是<strong>輕量首選</strong>。侷限：對特徵工程敏感、小資料易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / 正則化）、不吃原始序列/影像。（本附錄後續可再擴充：傳統 GBDT / XGBoost / LightGBM 條件式比較表、重要超參數與 early stopping、訓練 / 驗證 / 防資料洩漏、feature importance 與 SHAP、GBDT↔NN 選型流程。）</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 
 <h2 id="d1">附錄 D — MSE ＝ 高斯誤差下的最大似然（推導）</h2>
