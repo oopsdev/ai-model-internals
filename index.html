@@ -365,7 +365,7 @@ AI（人工智慧）
   </g>
   <text x="590" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">↻ 接龍（自迴歸）</text>
 </svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 逐元素激活</strong>」，再<strong>視任務在輸出或注意力處加 softmax</strong>（分類輸出、attention 內部才用；純迴歸輸出可無、中間卷積/FFN 層也不以 softmax 收尾）；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（<a href="#20">§20</a>）。</figcaption></figure>
-<p><strong>看出共通性</strong>：把 <strong>1.1–1.5（線代）＋ 3（微積分）＋ 5（softmax/交叉熵）</strong> 學通，三種網路就都通了 — 推論是訓練的前向段、生成是推論加接龍。下面三張表是同一張圖的細節：</p>
+<p><strong>看出共通性</strong>：把 <strong>1.1–1.5（線代）＋ 3（softmax/交叉熵）＋ 4（微積分）</strong> 學通，三種網路就都通了 — 推論是訓練的前向段、生成是推論加接龍。下面三張表是同一張圖的細節：</p>
 <div class="tablewrap"><table class="t-train">
 <thead><tr><th>① 訓練 — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
