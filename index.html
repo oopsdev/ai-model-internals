@@ -1123,7 +1123,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>幾何意義</strong>：在資料散點中找一條「<strong>最能穿過點雲</strong>」的直線。</li>
 <li><strong>為何是「起點」</strong>：線性迴歸的算式 $\mathbf{w}^\top\mathbf{x}+b$（內積 <a href="#1.1">§1.1</a> 再加偏置）<strong>正是神經元的第一步</strong>（<a href="#1.2">§1.2</a>）——神經元只是在它後面<strong>多接一個非線性 $\sigma$</strong>：$a=\sigma(\mathbf{w}^\top\mathbf{x}+b)$。演進鏈：<strong>線性迴歸 → 加 $\sigma$ ＝ 一個神經元 → 一排 ＝ 一層 → 多層堆疊 ＝ 神經網路</strong>。也就是說，最複雜的網路拆到<strong>最小積木</strong>就是這條線性迴歸式子——懂它（怎麼算、怎麼學）就懂了整個網路的基本單元，所以從它學起。</li>
 </ul>
-<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點到線的<strong>垂直距離（殘差）整體最小</strong>——點越貼線越好（詳見 <a href="#3.1">§3.1</a> 幾何意義）。這正是線性迴歸與損失函數的關係：<strong>模型（線性迴歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
+<p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點<strong>沿 $y$ 軸方向的殘差</strong>整體最小——點越貼線越好（注意是 $y$ 軸殘差、非正交距離；詳見 <a href="#3.1">§3.1</a> 幾何意義）。這正是線性迴歸與損失函數的關係：<strong>模型（線性迴歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
 <h3 id="3.1">3.1 模型與損失</h3>
 <p><strong>先說「標籤 $y$」的作用（監督訊號）。</strong> 監督式學習的每筆訓練資料都配一個<strong>標籤 $y$</strong>——人事先標好的「正確答案」（分類是類別、迴歸是目標數值）。它是模型學習的<strong>監督訊號</strong>，作用有五：</p>
 <ul>
@@ -1151,7 +1151,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>具體例子：線性迴歸 + MSE。</strong> 線性迴歸假設 $\hat y=\mathbf{w}^\top\mathbf{x}+b$，用<strong>均方誤差 (MSE)</strong> 當損失：</p>
 <p>$$L(\mathbf{w},b)=\frac{1}{N}\sum_{i=1}^{N}\big(\hat y_i-y_i\big)^2=\frac{1}{N}\sum_{i=1}^{N}\big(\mathbf{w}^\top\mathbf{x}_i+b-y_i\big)^2$$</p>
 <p>MSE 其實是「誤差服從高斯分布」下的<strong>最大似然</strong>（<a href="#2.3">§2.3</a>）— 再次印證損失來自機率假設（完整推導見<a href="#d1">附錄 D</a>）。</p>
-<p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點到線的「垂直距離」平方和最小</strong>。垂直距離就是殘差 $\hat y_i - y_i$。<strong>取平方有三個用意</strong>：① <strong>用平方去加大誤差造成的影響</strong>——誤差越大、平方後被放大越多（誤差 ×10 → 影響 ×100），逼模型優先修掉大偏離；② <strong>正負不抵銷</strong>——高估（$r>0$）、低估（$r<0$）平方後都變正值，不會互相消掉（直接加殘差會正負相消、假準）；③ <strong>平滑可微、好最佳化</strong>——$r^2$ 處處可微、梯度連續（$\tfrac{d}{dr}r^2=2r$）又是凸函數，梯度下降與閉式解都好算（絕對值 $|r|$ 在 0 點有尖角、不可微）。</p>
+<p><span class="geo">幾何意義。</span> 在散點圖上<strong>找一條直線，讓每個點的「垂直殘差」平方和最小</strong>。垂直殘差就是 $\hat y_i - y_i$。（注意：這裡「垂直」指<strong>沿 $y$ 軸方向量</strong>的殘差，<strong>不是點到直線的正交最短距離</strong>——後者是 total least squares／正交迴歸的設定，兩者不同。）<strong>取平方有三個用意</strong>：① <strong>用平方去加大誤差造成的影響</strong>——誤差越大、平方後被放大越多（誤差 ×10 → 影響 ×100），逼模型優先修掉大偏離；② <strong>正負不抵銷</strong>——高估（$r>0$）、低估（$r<0$）平方後都變正值，不會互相消掉（直接加殘差會正負相消、假準）；③ <strong>平滑可微、好最佳化</strong>——$r^2$ 處處可微、梯度連續（$\tfrac{d}{dr}r^2=2r$）又是凸函數，梯度下降與閉式解都好算（絕對值 $|r|$ 在 0 點有尖角、不可微）。</p>
 <p><strong>平方也「對應高斯假設」是什麼意思？</strong> 白話說：用平方誤差，等於<strong>相信「真值大多落在預測值附近、離越遠越不可能，而且照鐘形（高斯）衰減」</strong>。因為高斯的機率密度 $e^{-\varepsilon^2/2\sigma^2}$ 的<strong>指數裡剛好是誤差的平方</strong> $\varepsilon^2$，所以「<strong>最小化平方和</strong>」其實就等於「<strong>假設誤差服從高斯、再做最大似然</strong>」——同一件事。換個誤差分布就換個損失（例如假設拉普拉斯分布 → 變成最小化<strong>絕對誤差 MAE</strong>）。這也是「選哪種損失＝對資料做哪種假設」（<a href="#2.3">§2.3</a>）的意思，完整推導見<a href="#d1">附錄 D</a>。</p>
 <p><strong>迴歸需要算機率嗎？（台前 vs 幕後）</strong> 不用——線性迴歸<strong>輸出的是數值</strong> $\hat y=\mathbf{w}^\top\mathbf{x}+b$，不過 sigmoid/softmax、不壓成機率。對比<strong>分類（邏輯迴歸，<a href="#3.2">§3.2</a>）：機率是輸出本身</strong>——要把分數壓成 $(0,1)$ 的機率（sigmoid/softmax），因為它要回答「<strong>屬於某類的機率是多少</strong>」。但機率在迴歸裡沒消失，只是<strong>退到幕後、當損失的假設</strong>：把 MSE 寫成 $y\mid\mathbf{x}\sim\mathcal{N}(\mathbf{w}^\top\mathbf{x}+b,\ \sigma^2)$（「$y$ 以 $\hat y$ 為中心呈高斯」），最小化 MSE 就等於這個高斯下的<strong>最大似然</strong>（<a href="#d1">附錄 D</a>）；你拿到的點預測 $\hat y$ 正是它的<strong>均值／條件期望</strong> $E[y\mid x]$（<a href="#e1">附錄 E</a>）。<strong>只有當你想知道「預測有多不確定」（預測區間）時</strong>，才需要估 $\sigma^2$、顯式用這個高斯算機率。<strong>一句話：分類把機率放台前（輸出），迴歸把機率藏幕後（損失假設）。</strong></p>
 <figure><svg viewBox="0 0 380 195" role="img" aria-label="線性迴歸最小平方">
@@ -1220,7 +1220,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>漂亮處：$\sigma'(z)=\sigma(z)(1-\sigma(z))$，且 BCE 對 $z$ 的梯度化簡成 $\frac{\partial L}{\partial z}=\hat y-y$ — 又是「預測減真值」，乾淨、數值穩定。</p>
 <p><strong>標籤定義原則（二元）。</strong> 上面 BCE 那條公式是<strong>假設 $y$ 是伯努利的 0/1 結果</strong>推導出來的（<a href="#2.3">§2.3</a>、<a href="#f1">附錄 F</a>），所以：</p>
 <ul>
-<li>標籤<strong>只能是 0 與 1</strong>——$y$ 一旦不是 0/1，$y\log\hat y+(1-y)\log(1-\hat y)$ 就失去意義。</li>
+<li>標準二元分類的標籤<strong>通常是 0 或 1</strong>（硬標籤）——$y$ 必須落在 $[0,1]$ 內、可解讀成「正類的目標機率」，$y\log\hat y+(1-y)\log(1-\hat y)$ 才有伯努利意義。<strong>例外</strong>：BCE 也接受 $y\in[0,1]$ 的<strong>軟標籤</strong>（label smoothing、知識蒸餾、機率型目標），此時 $y$ 就是介於 0、1 之間的目標機率。</li>
 <li><strong>哪一類當 0、哪一類當 1 可自由對調</strong>（它們是類別代號、無大小），但<strong>數值就是 0 和 1</strong>，不能改成如 3 與 7；習慣把「關心的正類」設 1，於是 $\hat y=P(y=1)$。</li>
 <li>想用別的編碼（如 $-1/+1$）就得<strong>換模型與損失</strong>（如 SVM 的 hinge loss、輸出改 tanh）——那是另一套，不屬 sigmoid+BCE。</li>
 </ul>
@@ -1234,7 +1234,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p><strong>標籤定義原則（多元）。</strong> 上面用的是 <strong>one-hot 目標</strong>（真類那格為 1、其餘 0）+ softmax + 交叉熵；背後原則看「類別<strong>有沒有順序</strong>」：</p>
 <ul>
 <li><strong>名目類別 (nominal，無順序)</strong>（貓/狗/鳥、A/B/C）：<strong>不可</strong>用單一數值（如 $1,3,5,7,9$）當訓練目標——那會讓模型誤以為類別有大小/距離（「9 &gt; 1」「5 在 3 與 7 中間」「猜 6 算接近」），把<strong>假的順序</strong>灌進梯度、把模型帶歪。正解是<strong>類別索引 $0\dots C-1$（只當 ID）→ one-hot → softmax</strong>；one-hot 讓各類<strong>互相正交、等距</strong>，徹底拿掉順序。ID 要命名成 $1,3,5,7,9$ 也行（反正會被 one-hot 抹掉大小），但<strong>別把它當一個連續數值餵進去回歸</strong>。</li>
-<li><strong>序數類別 (ordinal，有自然順序且間距有意義)</strong>（1~5 星評分、病情 輕/中/重、風險 低/中/高）：數字的<strong>大小與間距才是有用資訊</strong>，可用<strong>序數迴歸 (ordinal regression)</strong> 或直接當迴歸；此時選 $1,3,5,7,9$ 而非 $1,2,3,4,5$，等於在假設「相鄰級距不等寬」。</li>
+<li><strong>序數類別 (ordinal，只保證順序、間距未必相等)</strong>（1~5 星評分、病情 輕/中/重、風險 低/中/高）：<strong>順序</strong>是可靠資訊，但<strong>相鄰級距未必等寬</strong>。宜用<strong>序數迴歸 (ordinal regression，如 cumulative-link / threshold-based)</strong> 這類「用順序、不假設等距」的方法；若<strong>直接當迴歸</strong>（給 $1,2,3,4,5$ 或 $1,3,5,7,9$），等於<strong>額外假設了各級距的數值間距</strong>（前者假設等寬、後者假設不等寬）——這假設要講清楚、且未必成立。</li>
 </ul>
 <p>一句話：<strong>名目類別一律 index + one-hot（數字只是 ID、無大小）；只有序數類別才可以用帶大小/間距的數值編碼。</strong></p>
 <p><strong>argmax vs softmax（兩個常一起出現、別混淆）。</strong></p>
@@ -2353,14 +2353,14 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <div class="tablewrap"><table>
 <thead><tr><th>格式</th><th>位元</th><th>每參數</th><th>特點</th></tr></thead>
 <tbody>
-<tr><td><strong>FP32</strong></td><td>32</td><td>4 B</td><td>全精度，訓練預設</td></tr>
-<tr><td><strong>FP16</strong></td><td>16</td><td>2 B</td><td>半精度，範圍小、易溢位</td></tr>
-<tr><td><strong>BF16</strong></td><td>16</td><td>2 B</td><td>範圍同 FP32、精度較低 → 訓練常用</td></tr>
+<tr><td><strong>FP32</strong></td><td>32</td><td>4 B</td><td>全精度（1/8/23：sign/exp/fraction），訓練預設</td></tr>
+<tr><td><strong>FP16</strong></td><td>16</td><td>2 B</td><td>半精度（1/5/10），範圍小、易溢位</td></tr>
+<tr><td><strong>BF16</strong></td><td>16</td><td>2 B</td><td>腦浮點（1/8/7），範圍同 FP32、精度較低 → 訓練常用</td></tr>
 <tr><td><strong>INT8</strong></td><td>8</td><td>1 B</td><td>定點整數，推論量化</td></tr>
 <tr><td><strong>INT4</strong></td><td>4</td><td>0.5 B</td><td>更激進，邊緣部署</td></tr>
 </tbody>
 </table></div>
-<p>浮點數 = <strong>sign（正負）＋ exponent（範圍）＋ mantissa（精度）</strong>。BF16 給更多 exponent（大範圍不溢位）、較少 mantissa；FP16 相反（範圍小但精度略高）：</p>
+<p>浮點數 = <strong>sign（正負）＋ exponent（範圍）＋ mantissa（精度）</strong>。BF16 給更多 exponent（大範圍不溢位）、較少 fraction；FP16 相反（範圍小但精度略高）。註：正規化浮點有一個<strong>隱含的 leading 1</strong>，故<strong>有效尾數精度 ＝ fraction bits + 1</strong>（FP16 為 10+1、BF16 為 7+1）：</p>
 <figure><svg viewBox="0 0 460 130" role="img" aria-label="FP16 與 BF16 的位元組成比較">
   <text x="30" y="42" fill="#94a3b8" font-size="12">FP16</text>
   <rect x="80" y="28" width="24" height="24" fill="#f87171" fill-opacity="0.4" stroke="#475569"/><text x="92" y="45" fill="#e5e7eb" font-size="10" text-anchor="middle">S</text>
@@ -2873,9 +2873,9 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <tr><td>樣本 vs 特徵</td><td>$N \ge 10\times$ 特徵數（或參數量）</td><td>每個要估的權重都得有幾筆資料撐</td></tr>
 <tr><td>邏輯迴歸</td><td>每個預測變數 $\ge$ 10~20 個<strong>少數類事件</strong>（EPV）</td><td>分類看少數類筆數、不是總筆數</td></tr>
 <tr><td>每一類別</td><td>每類至少數十~數百筆</td><td>不平衡時少數類決定成敗</td></tr>
-<tr><td>硬底線</td><td>$d \ge N$ 幾乎必過擬合</td><td>維度災難</td></tr>
+<tr><td>傳統模型的底線</td><td>$d \ge N$ 時<strong>傳統</strong>模型易過擬合（<strong>過參數化 + 正則化可例外</strong>，見下方 double descent）</td><td>維度災難</td></tr>
 </tbody></table></div>
-<p><strong>量「樣本夠不夠」→ 學習曲線 (learning curve)。</strong> 用 10%、20%…100% 的訓練資料各訓一次，畫<strong>驗證分數 vs 樣本數</strong>：曲線<strong>仍在上升</strong> → 加資料還有用；<strong>壓平 (plateau)</strong> → 瓶頸在特徵/模型，再多資料無益。這是唯一能直接回答「資料夠了沒」的方法。</p>
+<p><strong>量「樣本夠不夠」→ 學習曲線 (learning curve)。</strong> 用 10%、20%…100% 的訓練資料各訓一次，畫<strong>驗證分數 vs 樣本數</strong>：曲線<strong>仍在上升</strong> → 加資料還有用；<strong>壓平 (plateau)</strong> → 瓶頸在特徵/模型，再多資料無益。這是<strong>最直接</strong>回答「資料夠了沒」的方法（搭配交叉驗證、外部 / held-out 驗證更穩，<a href="#19">§19</a>）。</p>
 <p><strong>量「特徵留多少」→ 驗證曲線 (validation curve)。</strong> 以特徵數 $d$（或 PCA 維度、top-$k$ 重要特徵）為橫軸畫<strong>驗證誤差</strong>：$d$ 太小欠擬合、太大過擬合又撞維度災難，取<strong>誤差最低的 $d$</strong>（偏差-變異的甜蜜點）。兩條曲線都要包在<strong>交叉驗證</strong>裡取平均（<a href="#19">§19</a>）。</p>
 <figure><svg viewBox="0 0 720 240" style="max-width:100%;width:100%;height:auto" role="img" aria-label="左：學習曲線，驗證分數隨樣本數上升後壓平；右：驗證曲線，驗證誤差隨特徵數呈 U 形、中間最低">
   <text x="200" y="24" fill="#e2e8f0" font-size="12.5" font-weight="700" text-anchor="middle">① 樣本夠不夠 → 學習曲線</text>
@@ -2898,8 +2898,8 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
   <text x="676" y="66" fill="#94a3b8" font-size="10" text-anchor="end">太多：過擬合</text>
 </svg><figcaption>左＝學習曲線：驗證分數隨樣本數上升，壓平即代表資料已足夠（再多無益）；右＝驗證曲線：驗證誤差隨特徵數呈 U 形，最低點＝最佳特徵數（偏差-變異平衡）</figcaption></figure>
 <p><strong>維度災難 (curse of dimensionality)。</strong> $d$ 一大，資料點在空間中極稀疏、距離失去意義，需要<strong>指數級</strong>更多樣本才填得滿；故<strong>少而精常勝過多而弱</strong>。挑特徵的具體演算法見 I.7，其中最接近「有公式」的是 <strong>PCA 保留累積解釋變異達門檻（常用 95%）所需的主成分數</strong>，以及 <strong>LASSO（L1）自動把無用權重壓成 0</strong>（<a href="#6">§6</a>）。</p>
-<p><strong>統一觀點：盯「樣本 / 模型容量」比值。</strong> 統計學習理論給出<strong>泛化落差</strong> $\approx \sqrt{\text{模型容量}/N}$（容量 $\approx$ 參數量 / VC 維度）。所以真正該放大的是 $N$ 相對於<strong>有效容量</strong>的比值；比值太小就<strong>加資料</strong>或<strong>降容量</strong>（減特徵 / 加正則化 <a href="#6">§6</a>）。深度學習的 <strong>scaling laws</strong> 就是這條的經驗冪律版。</p>
-<p><strong>唯二算得上「公式」的定量法：</strong></p>
+<p><strong>統一觀點（古典界，非鐵律）：盯「樣本 / 模型容量」比值。</strong> 古典統計學習理論的<strong>上界</strong>大致是<strong>泛化落差</strong> $\lesssim \sqrt{\text{模型容量}/N}$（容量 $\approx$ 參數量 / VC 維度），直覺是 $N$ 要大於有效容量。<strong>但這是上界、有前提</strong>：現代<strong>過參數化</strong>深度網路常在<strong>參數量遠大於 $N$</strong> 時仍泛化良好（<strong>double descent</strong>、隱式正則化），與此界的直覺相反。所以比值只是<strong>起點直覺、非保證</strong>；資料不足時仍以<strong>加資料 / 降容量 / 加正則化（<a href="#6">§6</a>）</strong> 為對策。深度學習的 <strong>scaling laws</strong> 則是另一條經驗冪律。</p>
+<p><strong>少數算得上「公式」的定量法（各限特定前提）：</strong></p>
 <ul>
 <li><strong>樣本</strong>：<strong>檢定力分析 (power analysis)</strong>——給定目標效果量、顯著水準 $\alpha$、檢定力（如 0.8），反推最小 $N$（多用於 A/B 測試、臨床）。</li>
 <li><strong>特徵</strong>：<strong>PCA 95% 變異準則</strong>（見上）。</li>
