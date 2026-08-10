@@ -469,6 +469,7 @@ AI（人工智慧）
 <p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（<a href="#3.2">§3.2</a>，即負對數似然 <a href="#2">§2</a>）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（<a href="#4">§4</a>）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§11.3 各架構的參數組成</a>；<a href="#4.2">§4.2</a>）→ 重複多輪（epoch，<a href="#6.2">§6.2</a>）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
+<blockquote><p><strong>編按（一顆神經元的全貌 — 把導覽的觀念收成一張最小圖像）。</strong> 一個神經元的核心是一組<strong>權重 $\mathbf{w}$</strong>——它就是這個神經元的<strong>特徵樣板</strong>（要偵測的樣式，<a href="#1.2">§1.2</a>）；輸入特徵向量 $\mathbf{x}$ 進來，神經元先做 $z=\mathbf{w}^\top\mathbf{x}+b$（加權加總，$b$ 是門檻），再過激活 $a=\sigma(z)$（<a href="#8">§8</a>）。訓練階段餵入多筆輸入向量，各自前向算出預測，用<strong>損失</strong>衡量與標籤的差距（分類用交叉熵、迴歸用 MSE，<a href="#3">§3</a>），再由<strong>反向傳播 + 梯度下降</strong>反覆微調 $\mathbf{w}, b$ 讓損失下降（<a href="#9">§9</a> / <a href="#5">§5</a>）；如此反覆到損失不再降。<strong>訓練收斂後固定下來的 $\mathbf{w}, b$，就是這個神經元學到的特徵樣板</strong>，推論時直接沿用。（實際網路由許多這樣的神經元分層堆疊，淺層樣板組合成深層更抽象的樣板，<a href="#layer-output">§1.3.1</a>。）</p></blockquote>
 <hr>
 <h2 id="1">1. 線性代數 — 向量、矩陣、內積</h2>
 <p>神經網路的每一層，本質就是<strong>矩陣乘法 + 非線性轉換</strong>。先把語言備齊。</p>
