@@ -1124,6 +1124,15 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 </ul>
 <p><strong>那怎麼知道這條線配得好不好？→ 這就要靠「損失函數」。</strong> 要「擬合得好」，得先有一個衡量「<strong>預測差多少</strong>」的標準——這就是<strong>損失</strong>；<strong>最小化損失 ＝ 找出最好的那組 $\mathbf{w}, b$</strong>（那條最貼合的線）。<strong>幾何上</strong>：就是讓所有資料點到線的<strong>垂直距離（殘差）整體最小</strong>——點越貼線越好（詳見 <a href="#3.1">§3.1</a> 幾何意義）。這正是線性迴歸與損失函數的關係：<strong>模型（線性迴歸）提出預測 → 損失衡量對錯 → 最佳化（下一章 <a href="#4">§4</a> 的梯度下降）調參數讓損失最小</strong>。下面 3.1 就從「為什麼要算損失」講起。</p>
 <h3 id="3.1">3.1 模型與損失</h3>
+<p><strong>先說「標籤 $y$」的作用（監督訊號）。</strong> 監督式學習的每筆訓練資料都配一個<strong>標籤 $y$</strong>——人事先標好的「正確答案」（分類是類別、迴歸是目標數值）。它是模型學習的<strong>監督訊號</strong>，作用有五：</p>
+<ul>
+<li><strong>對答案的基準</strong>：損失就是量「預測 $\hat y$ 離標籤 $y$ 多遠」——<strong>沒有 $y$ 就沒有損失</strong>，模型無從知道錯在哪。</li>
+<li><strong>學習的方向</strong>：反向傳播的起點正是誤差 $\hat y - y$（<a href="#4">§4</a> / <a href="#9">§9</a>），梯度與參數更新全由它推動——標籤決定「往哪學」。</li>
+<li><strong>界定任務與損失</strong>：$y$ 連續 → 迴歸（配 MSE）、$y$ 離散 → 分類（配交叉熵，<a href="#3.2">§3.2</a>）；<strong>標籤型態決定用哪種損失</strong>。</li>
+<li><strong>只在訓練需要</strong>：推論時沒有 $y$（那正是要預測的對象）——這是「訓練 vs 推論」的關鍵差異（<a href="#5.4">§5.4</a>）。</li>
+<li><strong>有無標籤 ＝ 學習範式分界</strong>：有標籤＝監督式；無標籤＝非監督 / 自監督（<a href="#i1">附錄 I</a>.8）；而標籤<strong>品質</strong>（標錯、弱標註）直接決定模型上限（<a href="#h1">附錄 H</a>）。</li>
+</ul>
+<p>一句話：<strong>標籤是「正確答案」＝監督訊號——讓損失算得出來、梯度有方向，模型才學得起來；它的型態決定任務與損失，且只在訓練用得到。</strong></p>
 <p><strong>為什麼要算損失？</strong> 模型要能「學」，必須先有一個可量化的「<strong>錯多少</strong>」分數——這就是<strong>損失 (loss)</strong>。它把「預測 $\hat y$ 與真值 $y$ 差多少」壓成<strong>單一個數</strong>：損失越小＝模型越準。有了這個數，訓練才從「模糊地想變好」變成一個明確的<strong>最佳化問題</strong>——調參數 $\theta$ 讓損失最小（下一章 <a href="#4">§4</a> 用梯度下降往低處走）。</p>
 <p><strong>損失的意義。</strong></p>
 <ul>
