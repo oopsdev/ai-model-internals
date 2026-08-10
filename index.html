@@ -2008,7 +2008,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>長距離、任意位置的關聯</strong>（語言長依賴）→ CNN 感受野有限，用 <strong>Transformer / 注意力</strong>（<a href="#15">§15</a>）。</li>
 <li><strong>非規則圖結構</strong>（社群網路、分子）→ 沒有網格，用 <strong>GNN</strong>。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 判別式 ML 邊緣線很吃 CNN 的特性：<strong>1D-CNN</strong> 掃封包大小 / 方向序列抓「加密流量局部指紋」、<strong>2D-CNN</strong> 做影像瑕疵 / 監控——都因<strong>參數少、平移不變、邊緣 NPU 為卷積最佳化</strong>而輕量好落地。反之，需長依賴或無網格結構的任務要換架構。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 判別式 ML 的<strong>邊緣部署</strong>很吃 CNN 的特性：<strong>1D-CNN</strong> 掃封包大小 / 方向序列抓「加密流量局部指紋」、<strong>2D-CNN</strong> 做影像瑕疵 / 監控——都因<strong>參數少、平移不變、邊緣 NPU 為卷積最佳化</strong>而輕量好落地。反之，需長依賴或無網格結構的任務要換架構。</p></blockquote>
 
 <h3 id="11.8">11.8 完整範例：深度-5 CNN（超參數 + 維度追蹤 + 參數量）</h3>
 <p>把 <a href="#11.4">§11.4</a>（尺寸公式）、<a href="#11.6">§11.6</a>（誰決定）、<a href="#7">§7</a>（參數量）串成一個具體例子。任務：32×32 RGB 影像分 10 類。<strong>深度 5 = 5 個有權重的層</strong>（池化 / ReLU / dropout 無權重，不算深度）：3 卷積 + 2 全連接。</p>
@@ -2084,7 +2084,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <ul>
 <li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $V\times d$，$V$ 詞表大小、$d$ 維度）——訓練學出來（參數）；或取模型某層輸出當表示。</li>
 <li><strong>幾何意義</strong>：向量活在一個<strong>語意空間</strong>裡，<strong>方向與距離 = 語意關係</strong>；比「像不像」用<strong>餘弦相似度</strong>（<a href="#1.4">§1.4</a>）。經典例：<code>king − man + woman ≈ queen</code>。</li>
-<li><strong>用途（你的 RAG 產品線核心）</strong>：把<strong>文件段落與查詢都 embed 成向量</strong>，用餘弦相似度找<strong>最相關的段落</strong>（語意檢索）→ 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
+<li><strong>用途（RAG 系統的核心）</strong>：把<strong>文件段落與查詢都 embed 成向量</strong>，用餘弦相似度找<strong>最相關的段落</strong>（語意檢索）→ 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
 </ul>
 <figure><svg viewBox="0 0 380 200" role="img" aria-label="Embedding 語意空間：相近意思的詞向量靠在一起">
   <ellipse cx="110" cy="72" rx="72" ry="46" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-dasharray="4 3"/>
@@ -2203,7 +2203,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <p>大模型分兩階段：</p>
 <ul>
 <li><strong>預訓練 (pretrain)</strong>：用<strong>海量無標籤資料</strong> + <strong>自監督</strong>目標（LLM = 一直「預測下一個 token」，<a href="#16">§16</a>）學到通用語言能力。成本極高，只有大廠做。</li>
-<li><strong>微調 (fine-tune)</strong>：拿預訓練好的模型，用<strong>少量任務/領域資料</strong>再訓練，適配到你的用途。</li>
+<li><strong>微調 (fine-tune)</strong>：拿預訓練好的模型，用<strong>少量任務/領域資料</strong>再訓練，適配到目標用途。</li>
 </ul>
 <h3 id="17.1">17.1 全量微調 vs 參數高效微調 (PEFT)</h3>
 <ul>
@@ -2223,7 +2223,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>微調 / LoRA</strong>：調整<strong>行為、格式、語氣、任務策略與領域適配</strong>。</li>
 <li>微調<strong>也可能吸收一些知識，但不保證準確回憶、可更新性或來源可追溯</strong>——要可靠地注入事實、且要能更新 / 查來源，用 RAG。</li>
 </ul>
-<p>你的產品線常<strong>兩者並用</strong>（RAG 給知識、微調給風格與任務適配）。</p></blockquote>
+<p>實務上常<strong>兩者並用</strong>（RAG 給知識、微調給風格與任務適配）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -2379,7 +2379,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>方法</strong>：<strong>PTQ</strong>（訓練後量化，快、免重訓）、<strong>QAT</strong>（量化感知訓練，較準但要重訓）。</li>
 <li><strong>取捨</strong>：位元越低越省，但<strong>精度誤差</strong>越大，需權衡。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>——INT4 讓 7B 模型從 14GB 壓到 ~3.5GB，才塞得進邊緣設備（換算見 ai-background-knowledge <a href="ai-background-knowledge.html#params">§3.1</a>）。這也是為什麼你的邊緣 NPU 產品線以 INT8/INT4 為主。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>——INT4 讓 7B 模型從 14GB 壓到 ~3.5GB，才塞得進邊緣設備（換算見 ai-background-knowledge <a href="ai-background-knowledge.html#params">§3.1</a>）。這也是為什麼邊緣 NPU 設備多以 INT8/INT4 為主。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -2560,7 +2560,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   <li><strong>1D-CNN + LightGBM（混合）</strong>：1D-CNN 抽特徵、LightGBM 當分類器——<strong>DL 抽特徵、GBDT 做決策</strong>，兩者互補。</li>
   </ul>
 </li>
-<li><strong>為何選它</strong>：流量特徵本質是<strong>表格型</strong> → 樹模型擅長；訓練快、推論輕、<strong>CPU 就能跑、模型小</strong> → <strong>適合邊緣即時</strong>（呼應判別式 ML 邊緣線）。</li>
+<li><strong>為何選它</strong>：流量特徵本質是<strong>表格型</strong> → 樹模型擅長；訓練快、推論輕、<strong>CPU 就能跑、模型小</strong> → <strong>適合邊緣即時</strong>（呼應判別式 ML 的邊緣部署）。</li>
 </ul>
 <blockquote><p><strong>數字要謹慎看（本文只作定性示意）。</strong> 資安資料集常因<strong>類別不平衡、資料洩漏 (data leakage)、train/test 切法</strong>而<strong>容易得到異常高的 accuracy</strong>。引用任何準確率務必附<strong>資料集、train/test split、二元/多類定義、是否處理不平衡與洩漏、是否只看 accuracy（還是 precision/recall/F1）、原始論文來源</strong>——否則「漂亮的精確數字」反而降低可信度。此處只說明「GBDT 適合流量表格分類」的<strong>定性</strong>結論，不以特定數字為準。</p></blockquote>
 
