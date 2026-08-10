@@ -181,7 +181,7 @@ AI（人工智慧）
 <tr><td>CNN</td><td>Convolutional Neural Network</td><td>卷積神經網路（影像/序列，<a href="#11">§11</a>）</td></tr>
 <tr><td>RNN / LSTM</td><td>Recurrent Neural Network / Long Short-Term Memory</td><td>循環神經網路 / 長短期記憶（序列）</td></tr>
 <tr><td>Transformer</td><td>—</td><td>注意力為主的架構（LLM 骨幹）</td></tr>
-<tr><td>GBDT / GBM</td><td>Gradient Boosting Decision Tree / Machine</td><td>梯度提升（決策）樹；判別式 ML 主力，表格資料常勝 NN（<a href="#c1">附錄 C</a>）</td></tr>
+<tr><td>GBDT / GBM</td><td>Gradient Boosting Decision Tree / Machine</td><td>梯度提升（決策）樹；判別式 ML 主力，中小型表格資料常有優勢（<a href="#c1">附錄 C</a>）</td></tr>
 <tr><td>LightGBM</td><td>Light Gradient Boosting Machine</td><td>微軟的高效 GBDT 實作（<a href="#c1">附錄 C</a> 主角）</td></tr>
 <tr><td>XGBoost</td><td>eXtreme Gradient Boosting</td><td>另一知名 GBDT 實作</td></tr>
 <tr><td>FFN</td><td>Feed-Forward Network</td><td>前饋層（Transformer 內）</td></tr>
@@ -364,7 +364,7 @@ AI（人工智慧）
     <line x1="170" y1="340" x2="185" y2="340"/><line x1="335" y1="340" x2="350" y2="340"/><line x1="500" y1="340" x2="515" y2="340"/>
   </g>
   <text x="590" y="398" fill="#94a3b8" font-size="12" text-anchor="middle">↻ 接龍（自迴歸）</text>
-</svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 激活 + softmax</strong>」；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（<a href="#20">§20</a>）。</figcaption></figure>
+</svg></div><figcaption>三種網路的骨幹都是「<strong>矩陣乘法 + 逐元素激活</strong>」，再<strong>視任務在輸出或注意力處加 softmax</strong>（分類輸出、attention 內部才用；純迴歸輸出可無、中間卷積/FFN 層也不以 softmax 收尾）；差別只在訓練多了「損失→反向→更新」、生成多了「逐字接龍」。所有 matmul 由 GPU/NPU 加速（<a href="#20">§20</a>）。</figcaption></figure>
 <p><strong>看出共通性</strong>：把 <strong>1.1–1.5（線代）＋ 3（微積分）＋ 5（softmax/交叉熵）</strong> 學通，三種網路就都通了 — 推論是訓練的前向段、生成是推論加接龍。下面三張表是同一張圖的細節：</p>
 <div class="tablewrap"><table class="t-train">
 <thead><tr><th>① 訓練 — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
@@ -446,7 +446,7 @@ AI（人工智慧）
 <tr><td>輸入影像</td><td>像素方格 → 數字矩陣，正規化到可比範圍</td><td>張量、正規化</td><td><a href="#1.5">§1.5</a></td></tr>
 <tr><td>卷積 Conv</td><td>小 filter 滑過影像，每處算<strong>局部內積 + 偏置</strong> → 特徵圖（$z$）</td><td>內積、矩陣乘法（filter＝一個神經元）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a></td></tr>
 <tr><td>ReLU</td><td>特徵圖逐元素非線性 $\max(0,x)$</td><td>非線性轉換、摺疊空間</td><td><a href="#1.2">§1.2</a>, <a href="#1.3">§1.3.1</a></td></tr>
-<tr><td>池化 Pool</td><td>縮小、取每小塊最大值（抓重點、降維、抗位移）</td><td>取最大（降維精神）</td><td><a href="#1.6">§1.6</a></td></tr>
+<tr><td>池化 Pool</td><td>縮小、取每小塊最大值（抓重點、降維、<strong>對小幅位移較穩健</strong>；非完整平移不變）</td><td>取最大（降維精神）</td><td><a href="#1.6">§1.6</a></td></tr>
 <tr><td>展平 + 全連接</td><td>特徵攤平成向量，$\mathbf{W}\mathbf{x}+\mathbf{b}$ → 各類分數 (logits)</td><td>矩陣乘法</td><td><a href="#1.3">§1.3</a></td></tr>
 <tr><td>Softmax</td><td>分數 → 機率分布，取最高分</td><td>softmax、argmax</td><td><a href="#3.3">§3.3</a></td></tr>
 <tr><td>輸出</td><td>預測類別 + 信心（「貓 0.92」）</td><td>argmax</td><td><a href="#3.2">§3.2</a></td></tr>
@@ -537,7 +537,7 @@ AI（人工智慧）
 <li>$\sigma$：激活函數（非線性，如 ReLU / sigmoid，見<a href="#8">§8</a>）</li>
 <li>$a$：輸出（激活值）。<strong>注意：單一神經元的 $a$ 是純量</strong>（一個數）——因為 $z=\mathbf{w}^\top\mathbf{x}+b$ 是一個內積結果（純量），$\sigma$ 作用後仍是純量。<strong>變成向量是「一整層」的事</strong>：把該層每個神經元的純量 $a$ 疊起來，才是向量 $\mathbf{a}^{(l)}$（就是 <a href="#7">§7</a> 說的「層輸出是向量」）。激活函數 $\sigma$ 多為<strong>逐元素 (element-wise)</strong> 作用——對向量就每個分量各算一次；softmax 例外，會跨元素一起算（<a href="#3.3">§3.3</a>）。</li>
 </ul>
-<p><strong>權重 $\mathbf{w}$ — 神經元本身（一組特徵樣板）。</strong> $\mathbf{w}^\top\mathbf{x}$ 是內積（<a href="#1.1">§1.1</a>），量測輸入與「樣板 $\mathbf{w}$」的對齊程度。所以<strong>這組權重 $\mathbf{w}$ 就是這個神經元</strong>——一個可學的「特徵樣板」：輸入越像 $\mathbf{w}$、內積越大、被激活的值越高（越可能激發）— 這就是「神經元＝特徵偵測器」的由來。</p>
+<p><strong>權重 $\mathbf{w}$ — 神經元的識別身分（一組特徵樣板）。</strong> $\mathbf{w}^\top\mathbf{x}$ 是內積（<a href="#1.1">§1.1</a>），量測輸入與「樣板 $\mathbf{w}$」的對齊程度。所以說<strong>這組權重 $\mathbf{w}$ 就是這個神經元</strong>——一個可學的「特徵樣板」：輸入越像 $\mathbf{w}$、內積越大、被激活的值越高（越可能激發）— 這就是「神經元＝特徵偵測器」的由來。（<strong>嚴格說</strong>，一個神經元 ＝ 權重 $\mathbf{w}$ ＋ 偏置 $b$ ＋ 加權整合 ＋ 激活 $\sigma$ 這一整組運算；說「$\mathbf{w}$ 就是神經元」是強調 <strong>$\mathbf{w}$ 決定它偵測什麼、是它的識別身分</strong>，$b$ 與 $\sigma$ 是配套。）</p>
 <p><strong>權重從哪來？</strong> 上面的 $\mathbf{w}, b$ 不是預設的，而是<strong>訓練學出來的</strong>：初始隨機，再用<strong>梯度下降 + 反向傳播</strong>依損失反覆微調（見<a href="#4">§4</a> / <a href="#5">§5</a> / <a href="#9">§9</a>）。幾何上，訓練就是一直<strong>挪動決策邊界</strong>（調整法向量 $\mathbf{w}$ 與偏置 $b$），從隨機初始逐步把不同類別分到正確的兩側；因為內積在對齊時最大，$\mathbf{w}$ 會自然長成「這神經元專門偵測的樣式」——這就是「特徵樣板」的由來（資料 + 損失驅動的表徵學習）。</p>
 <blockquote><p><strong>類比:欄位 vs 配分（順便看「特徵與權重誰先」）。</strong> 把<strong>特徵</strong>想成「題目有哪些<strong>欄位</strong>」（年資、學歷…）——<strong>先有</strong>；<strong>權重 $\mathbf{w}$</strong> 是「每個欄位<strong>該給多少分</strong>」——<strong>欄位定了才配得出分</strong>，而且分數是靠<strong>練習（訓練）調到最準</strong>的。所以順序是:<strong>先有特徵（欄位）→ 權重（配分）依它而生、隨機起步 → 再由訓練學出值</strong>（一個特徵配一個權重，故特徵維度決定 $\mathbf{w}$ 的形狀，見 <a href="#8">§8</a>）。</p></blockquote>
 <figure><svg viewBox="0 0 360 200" role="img" aria-label="訓練挪動決策邊界">
@@ -1168,11 +1168,11 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="32" y="40" fill="#94a3b8" font-size="12">y</text>
 </svg><figcaption>線性迴歸：找一條線讓各點到線的垂直誤差（虛線）平方和 (MSE) 最小</figcaption></figure>
 
-<p><strong>這個「最小」是唯一的全域最小（線性迴歸的特別之處）。</strong> 線性迴歸求的就是「讓損失最小」的 $\mathbf{w},b$，但要講清楚三件事：</p>
+<p><strong>這個「最小」是全域最小（線性迴歸的特別之處）；但「解是否唯一」要看資料。</strong> 線性迴歸求的就是「讓損失最小」的 $\mathbf{w},b$，但要講清楚三件事：</p>
 <ul>
 <li><strong>是「直線家族內、訓練資料上」的最小，通常不是 0。</strong> 只找到「所有直線中 MSE 最小」的那條；資料的雜訊與非線性成分是<strong>消不掉的不可約誤差 (irreducible error)</strong>。換更彈性的模型（加 $\sigma$ 的網路、GBDT）可能得到更低的損失——「最小」是<strong>在你選定的線性家族之內</strong>。</li>
-<li><strong>損失面是凸的（碗形）→ 只有一個谷底 → 唯一的全域最小。</strong> 不管從哪初始化都收斂到同一組 $\mathbf{w},b$。<strong>這點很特別</strong>：神經網路的損失面<strong>非凸</strong>、坑坑窪窪，梯度下降只保證走到某個<strong>局部／夠好</strong>的最小（不保證全域）。</li>
-<li><strong>達到它有兩條路。</strong> ① <strong>閉式解</strong>（又稱<strong>解析解</strong>，analytical / closed-form）——用<strong>一條公式一步算出精確答案</strong>：最小平方／正規方程 $\mathbf{w}=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$。② <strong>梯度下降</strong>（<a href="#4.2">§4.2</a>，屬<strong>數值解</strong>：用迭代<strong>逐步逼近</strong>）。線性迴歸之所以<strong>有解析解</strong>，是因為 MSE 是<strong>凸二次、導數為線性</strong>，設導數=0 是一組線性方程組、能解出封閉公式；<strong>但一旦加了非線性 $\sigma$ 或換成交叉熵（邏輯迴歸 <a href="#3.2">§3.2</a>、神經網路），方程就解不開——沒有解析解，只能用梯度下降</strong>。因為線性迴歸是凸的，兩條路收斂到同一答案。</li>
+<li><strong>損失面是凸的（碗形）→ 任何局部最小都是全域最小。</strong> 所以不會卡在「比全域差」的次佳解。<strong>但「最小點是否唯一」取決於設計矩陣 $\mathbf{X}$</strong>：$\mathbf{X}$ 滿秩時參數解<strong>唯一</strong>、從哪初始化都收斂到同一組 $\mathbf{w},b$；<strong>若特徵共線（秩不足），會有無限多組 $\mathbf{w},b$ 得到同樣的最小損失</strong>（正則化能從中挑一組穩定解，<a href="#6">§6</a>）。<strong>對比神經網路</strong>：損失面<strong>非凸</strong>、坑坑窪窪，有多個局部最小、<strong>鞍點 (saddle)</strong> 與<strong>平原 (plateau)</strong>，梯度下降<strong>不保證</strong>走到全域、甚至未必停在嚴格局部極小；但實務上 SGD 類方法<strong>常能找到訓練與泛化都不錯的解</strong>。</li>
+<li><strong>達到它有兩條路。</strong> ① <strong>閉式解</strong>（又稱<strong>解析解</strong>，analytical / closed-form）——正規方程 $\mathbf{w}=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$，<strong>前提是 $\mathbf{X}^\top\mathbf{X}$ 可逆（$\mathbf{X}$ 滿秩）</strong>；秩不足或病態時改用 <strong>QR、SVD 或 Moore–Penrose 偽逆</strong>（不直接求反矩陣、數值更穩）。② <strong>梯度下降</strong>（<a href="#4.2">§4.2</a>，屬<strong>數值解</strong>：迭代<strong>逐步逼近</strong>；是否收斂還取決於學習率等）。線性迴歸之所以<strong>有解析解</strong>，是因為 MSE 是<strong>凸二次、導數為線性</strong>，設導數=0 是一組線性方程組、能解出封閉公式；<strong>但一旦加了非線性 $\sigma$ 或換成交叉熵（邏輯迴歸 <a href="#3.2">§3.2</a>、神經網路），方程就解不開——沒有解析解，只能用梯度下降</strong>。線性迴歸凸，故（$\mathbf{X}$ 滿秩時）兩條路收斂到同一答案。</li>
 </ul>
 <p><span class="geo">分類 vs 迴歸（一張圖看懂）。</span> 同一堆資料點：<strong>分類是拿超平面把點雲「切開」</strong>（判在哪一側/哪一區）；<strong>迴歸是拿一條線「穿過」點雲</strong>（讓點盡量貼近、預測數值）。兩者都建立在 $\mathbf{w}^\top\mathbf{x}+b$ 上，差別只在輸出怎麼用 — 分類把輸出取 argmax 看落在哪一側，迴歸直接讀輸出的數值。</p>
 <p><strong>講清楚一點:兩張圖的「點」意義不同。</strong> <strong>迴歸</strong>的點是 $(\mathbf{x}, y)$、其中<strong>有一軸就是目標 $y$</strong>（如房價）；那條線 $\hat y=\mathbf{w}^\top\mathbf{x}+b$ 是<strong>趨勢線</strong>，<strong>讀它的高度</strong>當預測值，所以要<strong>穿過</strong>點雲（殘差小）。<strong>分類</strong>的點只有特徵 $\mathbf{x}$（類別用<strong>顏色</strong>標、不是座標軸）；$\mathbf{w}^\top\mathbf{x}+b=0$ 是<strong>分界線（決策超平面）</strong>，<strong>看點落在哪一側</strong>——即 $\mathbf{w}^\top\mathbf{x}+b$ 的<strong>正負</strong>（＝到邊界的帶符號距離，<a href="#1.2">§1.2</a>），多類則比<strong>哪個分數最大</strong>（argmax，<a href="#3.3">§3.3</a>）。<strong>同一個線性打分:迴歸把它當「輸出值」（讀高度）、分類把它當「離邊界哪一側」（讀符號）</strong>——一個問「值多少」、一個問「在哪一邊」。</p>
@@ -1227,7 +1227,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <h3 id="3.3">3.3 多元分類：Softmax + 交叉熵</h3>
 <p>$C$ 類時，輸出層給 $C$ 個分數 (logits) $\mathbf{z}=(z_1,\dots,z_C)$，用 <strong>softmax</strong> 轉成機率分布：</p>
 <p>$$\text{softmax}(\mathbf{z})_k=\frac{e^{z_k}}{\sum_{j=1}^{C} e^{z_j}}$$</p>
-<p><strong>名稱。</strong> Softmax <strong>非縮寫</strong>：soft（柔性、平滑可微）＋ max（最大值）＝「<strong>柔性最大值</strong>」——它是 argmax（贏者全拿、給最大項 1 其餘 0、不可微）的<strong>平滑可微版</strong>，中譯亦稱<strong>歸一化指數函數</strong>（中文文獻常直接寫 Softmax）。</p>
+<p><strong>名稱。</strong> Softmax <strong>非縮寫</strong>：soft（柔性、平滑可微）＋ max（最大值）＝「<strong>柔性最大值</strong>」——它常被當成 argmax（贏者全拿、給最大項 1 其餘 0、不可微）的<strong>平滑可微替身</strong>（更精確的關係見本節末），中譯亦稱<strong>歸一化指數函數</strong>（中文文獻常直接寫 Softmax）。</p>
 <p>各項 0~1 且總和為 1。損失用<strong>類別交叉熵</strong>（$y$ 為 one-hot、真類為 $t$）：</p>
 <p>$$L=-\sum_{k=1}^{C} y_k\log\hat y_k=-\log\hat y_t$$</p>
 <p>即「真類機率的負對數」— 越確信正確類、損失越小。梯度同樣化簡為 $\frac{\partial L}{\partial z_k}=\hat y_k-y_k$。</p>
@@ -1244,6 +1244,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <li><strong>怎麼接力</strong>:<strong>訓練</strong>用 <strong>softmax</strong> 得機率、算可微的<strong>交叉熵</strong>（才能反向傳播 <a href="#9">§9</a>、<a href="#10">§10</a>）；<strong>推論</strong>用 <strong>argmax</strong> 挑機率最大的類別當最終答案（<a href="#18">§18</a>）。典型流程 <strong>logits → softmax → argmax</strong>。</li>
 <li>因 softmax 不改變最大值的位置（單調），$\arg\max(\text{softmax}(\mathbf z))=\arg\max(\mathbf z)$——取完 softmax 再 argmax 與直接對 logits argmax 同結果。（LLM 生成則常不取 argmax，而按 softmax 分布<strong>取樣</strong> + 溫度/top-k，<a href="#16">§16</a>。）</li>
 </ul>
+<p><strong>更精確地說（softmax 的真正身分）。</strong> softmax <strong>不是</strong>嚴格意義的「argmax 平滑近似」——它是把 logits <strong>正規化成機率分布</strong>。真正平滑近似 $\max$ 的是 <strong>logsumexp</strong>（$\mathrm{LSE}(\mathbf z)=\log\sum_k e^{z_k}$），而 <strong>softmax 恰是 logsumexp 對 logits 的梯度</strong>（$\partial\,\mathrm{LSE}/\partial z_k=\text{softmax}(\mathbf z)_k$）。要真的逼近 argmax 得加<strong>溫度 $T$</strong>：$\text{softmax}(\mathbf z/T)$ 在 $T\to 0$ 時才趨近 one-hot（硬 argmax）、$T\to\infty$ 趨均勻分布。所以「柔性最大」指的是它輸出一個<strong>分布</strong>，不是它幫你<strong>選出類別</strong>（選類別是 argmax 的事）。</p>
 
 <p><span class="geo">幾何意義（多類怎麼「切」）。</span> 二元分類是「一個超平面切成兩邊」；<strong>多類不是連續二分，而是 $C$ 個分數各自比高低、取最大（argmax）</strong>：</p>
 <ul>
@@ -1893,7 +1894,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <ul>
 <li><strong>局部連接（感受野）</strong>：每個輸出只看一小塊，符合「相鄰像素才相關」。</li>
 <li><strong>參數共享</strong>：<strong>同一個 filter 掃全圖</strong>——不管物件在哪都用同一組權重 → 參數量大減（3×3 filter 只有 9 個權重，卻掃遍全圖）。</li>
-<li><strong>平移不變</strong>：物件移到別處，同一 filter 仍抓得到 → 認得出「換位置的同一物件」。</li>
+<li><strong>平移等變 → 近似平移不變</strong>：卷積本身是<strong>等變</strong>（特徵跟著位置一起移），再靠 <strong>pooling / global pooling</strong> 把它變成對位置<strong>近似不變</strong>——所以同一 filter 移到別處仍抓得到、認得出「換位置的同一物件」（嚴格的完整不變需 global pooling）。</li>
 <li><strong>多通道</strong>：輸入 RGB 有 3 通道、filter 也有對應深度；用<strong>多個 filter</strong> 就得<strong>多張特徵圖</strong>（每張抓一種樣式）。</li>
 </ul>
 <p><strong>輸入通道 vs 輸出通道。</strong> 「通道 (channel)」是影像／特徵圖的<strong>深度層數</strong>（同一位置疊了幾張圖）：</p>
@@ -2534,15 +2535,15 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 </tbody>
 </table></div>
 <p>分裂增益：$\text{Gain}=\frac12\left[\dfrac{G_L^2}{H_L+\lambda}+\dfrac{G_R^2}{H_R+\lambda}-\dfrac{(G_L+G_R)^2}{H_L+H_R+\lambda}\right]-\gamma$（$G,H$＝該側樣本的梯度、Hessian 總和），全是純量加減乘除。</p>
-<p><strong>有向量、無矩陣乘法</strong>：梯度陣列、直方圖陣列是「向量 / 陣列」資料，但運算是<strong>逐元素累加 + 純量算術 + 比較</strong>，<strong>沒有 <a href="#1.3">§1.3</a> 那種矩陣×向量 / 矩陣×矩陣乘法</strong>。→ 瓶頸在<strong>記憶體存取</strong>而非乘加 (FLOPs)，所以 <strong>CPU 就好、GPU 幫助有限</strong>（對照 NN 的 matmul 需 GPU/NPU，<a href="#20">§20</a>；也是網路 AI 邊緣 ML 選 GBDT 的數學根據）。</p>
+<p><strong>有向量、無矩陣乘法</strong>：梯度陣列、直方圖陣列是「向量 / 陣列」資料，但運算是<strong>逐元素累加 + 純量算術 + 比較</strong>，<strong>沒有 <a href="#1.3">§1.3</a> 那種矩陣×向量 / 矩陣×矩陣乘法</strong>。→ 瓶頸偏在<strong>記憶體存取</strong>而非乘加 (FLOPs)，所以<strong>多數中小型表格情境 CPU 就夠、GPU 效益相對有限</strong>（LightGBM／XGBoost 亦有 GPU 版，<strong>超大資料、高基數或深樹時 GPU 才較有感</strong>；對照 NN 的 matmul 高度受益於 GPU/NPU，<a href="#20">§20</a>）——這也是網路 AI 邊緣 ML 常選 GBDT 的一項考量。</p>
 
 <h3>C.6 對照神經網路（何時用哪個）</h3>
 <div class="tablewrap"><table>
 <thead><tr><th>面向</th><th>GBDT (LightGBM)</th><th>神經網路</th></tr></thead>
 <tbody>
 <tr><td>最適資料</td><td><strong>表格 / 結構化</strong></td><td><strong>影像 / 文字 / 序列</strong></td></tr>
-<tr><td>大資料速度</td><td>最快</td><td>慢（需 GPU）</td></tr>
-<tr><td>記憶體 / 模型大小</td><td>低 / 小（數 MB）</td><td>高</td></tr>
+<tr><td>大資料速度</td><td>常較快（視資料 / 實作 / 硬體）</td><td>相對慢、且高度依賴 GPU</td></tr>
+<tr><td>記憶體 / 模型大小</td><td>通常較小（常見數 MB～數十 MB，隨樹數 / 深度變動）</td><td>通常較大</td></tr>
 <tr><td>邊緣部署</td><td><strong>很友善（CPU）</strong></td><td>需 NPU / 量化（<a href="#20">§20</a>）</td></tr>
 <tr><td>可解釋性</td><td>好（特徵重要度）</td><td>較差</td></tr>
 <tr><td>不吃</td><td>原始序列 / 影像（需先抽特徵）</td><td>—</td></tr>
@@ -2861,7 +2862,7 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
   </ul></li>
 <li><strong>④ 嵌入層 (embedding, <a href="#13">§13</a>)</strong>：離散輸入（token / 類別）用<strong>可學的查表</strong>映射成向量、與模型一起訓 → 學出語意表徵。</li>
 </ul>
-<p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>不該用</strong>——<strong>表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，<strong>GBDT + 人工特徵工程常勝過 NN</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
+<p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>不該用</strong>——<strong>表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，<strong>GBDT + 人工特徵工程在中小型表格資料常與 NN 相當或更好</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
 <p><strong>一句話</strong>：表徵學習 ＝ 讓「損失 + 反向傳播」自動把原始輸入逐層轉成有用特徵、再取中間層當特徵用；實作靠 <strong>監督 end-to-end / 遷移學習 / 自監督</strong> 三條路。</p>
 
 <h3>I.9 該取多少樣本、留多少特徵？</h3>
