@@ -2947,6 +2947,7 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
 <p><strong>一句話</strong>：表徵學習 ＝ 讓「損失 + 反向傳播」自動把原始輸入逐層轉成有用特徵、再取中間層當特徵用；實作靠 <strong>監督 end-to-end / 遷移學習 / 自監督</strong> 三條路。</p>
 
 <h3>I.9 該取多少樣本、留多少特徵？</h3>
+<blockquote><p><strong>TL;DR：更多特徵 ≠ 更好。</strong> 無關 / 冗餘特徵會帶來維度災難與過擬合，特徵要<strong>有資訊、不冗餘、不洩漏</strong>，寧缺勿濫；<strong>更多樣本通常有幫助但邊際遞減</strong>，且前提是<strong>資料品質</strong>。以下講怎麼判斷「剛好」。</p></blockquote>
 <p><strong>沒有 closed-form 公式</strong>能算出「$N$ 筆樣本、$d$ 個特徵剛好」——「剛好」取決於訊號強弱、雜訊、模型容量、類別平衡與目標準確度。但有一套<strong>原則性流程</strong>，而且「夠不夠」是可以<strong>量測</strong>的。</p>
 <p><strong>經驗法則（起手粗估，非定論）。</strong></p>
 <div class="tablewrap"><table>
