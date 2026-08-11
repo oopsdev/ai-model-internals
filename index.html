@@ -2264,6 +2264,14 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   </ul>
   <strong>多類情境只說「F1」會有歧義，務必指明用哪種平均</strong>（實務常用 <strong>macro-F1</strong>；<strong>用途</strong>:報一個跨類總分又不想被多數類蓋過）。<strong>搭配 per-class floor</strong>：除了 macro-F1，另看<strong>「每類 F1 的最低者」</strong>，別讓平均掩蓋弱類（分開判定）；有群組結構再考慮<strong>分組加權</strong>避免大群組主導（<a href="#19.2">§19.2</a>）。</li>
 </ul>
+<p><strong>分數要多高才算「可用」?（沒有固定門檻，要看脈絡）</strong> 沒有「F1 &gt; 0.9 就算好模型」這種普世線——同一個 0.90 在某任務是頂標、在另一任務是不及格。判斷「可用」看四件事：</p>
+<ul>
+<li><strong>先比基準 (baseline)</strong>：問「不學習能拿幾分」——<strong>多數類基準</strong>（不平衡時全猜多數類的 accuracy）、隨機基準、<strong>現有系統 / 人工</strong>的表現。模型至少要<strong>明顯贏過基準</strong>才有意義（99.9% 正常時，99.9% accuracy 等於沒做事）。</li>
+<li><strong>錯誤成本 → 決定看哪個指標、門檻訂多少</strong>：漏報 (FN) 與誤報 (FP) 代價常不對等。資安 / 醫療<strong>漏報代價高 → 要求 recall 高</strong>（如 recall ≥ 0.95）；誤報擾民 → 要求 precision 高。門檻應<strong>由業務 / 營運需求反推</strong>（例：「recall ≥ 0.95 且 precision ≥ 0.8」），不是拍腦袋定 0.9。</li>
+<li><strong>不平衡下別看 accuracy</strong>：改看 <strong>per-class recall / precision、PR-AUC、macro-F1、每類 F1 的最低者</strong>（見上、<a href="#19.2">§19.2</a>）。</li>
+<li><strong>分數是「樣本估計」、要看信賴區間與顯著性</strong>：$F1=0.91$ 只是這批測試資料的估計，換一批會變；要問「贏過基準 / 對手是真的，還是抽樣雜訊?」——用 bootstrap CI、配對檢定（<a href="#19">§19</a>）。且<strong>分類門檻 (threshold) 要在 validation set 選</strong>，不能拿 test set 挑（否則高估）。</li>
+</ul>
+<p>一句話：<strong>「可用」不是看某個絕對分數，而是「明顯贏過合理基準 ＋ 滿足由錯誤成本反推的業務門檻 ＋ 統計上站得住腳」三者兼具。</strong></p>
 <h3 id="18.2">18.2 迴歸</h3>
 <p><strong>MSE / MAE</strong>：均方 / 平均絕對誤差（<a href="#3">§3</a>、<a href="#1.4">§1.4</a>）；<strong>R²</strong>：模型解釋了多少變異。</p>
 <h3 id="18.3">18.3 生成 / 檢索</h3>
