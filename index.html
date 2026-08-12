@@ -2253,8 +2253,8 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <p><strong>先定「正類 (positive)」＝ 你要偵測的目標類</strong>（本節以<strong>惡意 / 攻擊</strong>為例，其餘為<strong>負類</strong>＝正常）；四格由「實際 × 預測」交叉：<strong>TP</strong> 實際正、也判正（抓對惡意）；<strong>FP</strong> 實際負、卻判正（正常被誤判＝<strong>誤報</strong>）；<strong>FN</strong> 實際正、卻判負（惡意被放走＝<strong>漏抓</strong>）；<strong>TN</strong> 實際負、也判負（判對正常）。一切指標都由這四格算出。</p>
 <ul>
 <li><strong>Accuracy（正確率）</strong> $=\frac{TP+TN}{\text{全部}}$：全部猜對的比例；<strong>不平衡時會騙人</strong>（99.9% 正常，全猜正常也 99.9%）。（注意別和下面的<strong>精確率 precision</strong> 混——兩者不同。）</li>
-<li><strong>Precision（精確率）</strong> $=\frac{TP}{TP+FP}$：「<strong>判為正類的裡面，真的是正類的比例</strong>」（此處：說是惡意的，有多少真的是）＝ 少<strong>誤報 (FP)</strong>。</li>
-<li><strong>Recall（召回率）</strong> $=\frac{TP}{TP+FN}$：「<strong>真正類裡，被抓到的比例</strong>」（此處：真惡意的，抓到多少）＝ 少<strong>漏抓 (FN)</strong>。</li>
+<li><strong>Precision（精確率）</strong> $=\frac{TP}{TP+FP}$：「<strong>判為正類的裡面，真的是正類的比例</strong>」（此處：說是惡意的，有多少真的是）——<strong>誤報 (FP) 越少，Precision 越高</strong>（FP 在分母）。</li>
+<li><strong>Recall（召回率）</strong> $=\frac{TP}{TP+FN}$：「<strong>真正類裡，被抓到的比例</strong>」（此處：真惡意的，抓到多少）——<strong>漏抓 (FN) 越少，Recall 越高</strong>（FN 在分母）。</li>
 <li><strong>F1（正式名 F1 score / F1-measure）</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的<strong>調和平均</strong>（是 $F_\beta$ 在 $\beta=1$ 的特例；$\beta&gt;1$ 偏重 recall、$&lt;1$ 偏重 precision）。<strong>它算的是「單一類別 / 二元」的分數</strong>——同時要求少誤報 (P) 與少漏抓 (R)，任一低則 F1 低，比 accuracy 適合不平衡。<strong>用途</strong>:二元偵測（惡意/正常）、以及多類裡的<strong>逐類</strong>評估。</li>
 <li><strong>ROC / AUC</strong>：調不同門檻畫出的曲線 / 曲線下面積，衡量整體區辨力。</li>
 <li><strong>多類別怎麼把各類 F1 合成一個?（平均方式——<code>macro-F1</code> 就是從這來的，不是 F1 的別名）</strong>：先對<strong>每類各算一個 F1</strong>，再合成成一個總分:
