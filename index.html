@@ -2266,6 +2266,25 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   </ul>
   <strong>多類情境只說「F1」會有歧義，務必指明用哪種平均</strong>（實務常用 <strong>macro-F1</strong>；<strong>用途</strong>:報一個跨類總分又不想被多數類蓋過）。<strong>搭配 per-class floor</strong>：除了 macro-F1，另看<strong>「每類 F1 的最低者」</strong>，別讓平均掩蓋弱類（分開判定）；有群組結構再考慮<strong>分組加權</strong>避免大群組主導（<a href="#19.2">§19.2</a>）。</li>
 </ul>
+<p><strong>怎麼看出「哪一類爛、哪兩類互相混」（多類診斷）。</strong> 別只看一個總分，做兩件事（以 3 類「正常 / DoS / 掃描」為例）：</p>
+<p><strong>① per-class 表 → 找最爛的類。</strong> 每類各算 precision / recall / F1：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>類別</th><th>precision</th><th>recall</th><th>F1</th><th>support</th></tr></thead>
+<tbody>
+<tr><td>正常</td><td>0.98</td><td>0.99</td><td>0.985</td><td>9000</td></tr>
+<tr><td>DoS</td><td>0.92</td><td>0.90</td><td>0.91</td><td>800</td></tr>
+<tr><td><strong>掃描</strong></td><td>0.60</td><td><strong>0.45</strong></td><td><strong>0.51</strong></td><td>200</td></tr>
+</tbody></table></div>
+<p><strong>F1 最低者 ＝ 最爛的類</strong>（掃描 0.51）；再比該類 <strong>recall vs precision 判斷「爛在哪」——recall 低 → 漏抓、precision 低 → 誤報</strong>（掃描 recall 0.45 &lt; precision 0.60 → 主要在漏抓）。注意 accuracy / micro-F1 會被大類「正常」蓋住、看不出掃描爛掉，<strong>要看 per-class 與 macro-F1 / 最低類</strong>；小 support 類本就分數低又不穩（補資料 / class weight / 調門檻）。</p>
+<p><strong>② 混淆矩陣 → 找最常混的一對</strong>（列＝實際、欄＝預測；非對角線格 $(i,j)$ ＝「實際 $i$ 被判成 $j$」的數量）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>預測正常</th><th>預測 DoS</th><th>預測掃描</th></tr></thead>
+<tbody>
+<tr><td>實際正常</td><td>8910</td><td>40</td><td>50</td></tr>
+<tr><td>實際 DoS</td><td>60</td><td>720</td><td>20</td></tr>
+<tr><td><strong>實際掃描</strong></td><td><strong>95</strong></td><td>15</td><td>90</td></tr>
+</tbody></table></div>
+<p><strong>非對角線最大的格 ＝ 最嚴重的混淆對</strong>：此處「實際掃描 → 預測正常 ＝ 95」最大 → <strong>「掃描 ↔ 正常」最常混</strong>，方向是<strong>掃描被誤當正常放走（漏抓）</strong>。<strong>列正規化</strong>（每格 ÷ 該列 support）後掃描列：正常 47.5%、掃描 45% → 正對應 recall(掃描)=0.45。→ 該修的是「掃描 vs 正常」的<strong>決策邊界</strong>（可能特徵不足以區分低流量掃描與正常）。（實作：<code>sklearn</code> 的 <code>classification_report</code> 給 per-class P/R/F1/support；<code>confusion_matrix(..., normalize='true')</code> 給列正規化矩陣。）</p>
 <p><strong>分數要多高才算「可用」?（沒有固定門檻，要看脈絡）</strong> 沒有「F1 &gt; 0.9 就算好模型」這種普世線——同一個 0.90 在某任務是頂標、在另一任務是不及格。判斷「可用」看四件事：</p>
 <ul>
 <li><strong>先比基準 (baseline)</strong>：<strong>baseline ＝ 一個「陽春、不費力」的參照</strong>（不學習、或最簡單的模型 / 規則），當比較的<strong>起點與及格線</strong>。常見的有——<strong>多數類基準</strong>（永遠猜最常見的類；不平衡時全猜多數類的 accuracy）、<strong>隨機</strong>、<strong>簡單規則 / 邏輯迴歸 / 單棵樹</strong>、<strong>現有系統 / 前一版 / 人工</strong>的表現；<strong>迴歸的 baseline 是「永遠猜平均值」</strong>（對應 <strong>R²＝0</strong>，<a href="#18.2">§18.2</a>）。模型的價值 ＝ <strong>它比 baseline 高多少（lift ＝ 模型 − baseline）</strong>，不是它的絕對分數；至少要<strong>明顯贏過基準</strong>才有意義（99.9% 正常時，99.9% accuracy 等於沒做事）。</li>
