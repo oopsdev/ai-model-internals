@@ -2251,7 +2251,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   <text x="200" y="200" fill="#94a3b8" font-size="9.5" text-anchor="middle">Precision=TP/(TP+FP)　Recall=TP/(TP+FN)</text>
 </svg><figcaption>混淆矩陣：綠=判對（TP/TN）、紅=判錯（FP 誤報、FN 漏抓）。Precision 少誤報、Recall 少漏抓，是一切分類指標的基礎。</figcaption></figure>
 <ul>
-<li><strong>Accuracy</strong> $=\frac{TP+TN}{\text{全部}}$：<strong>不平衡時會騙人</strong>（99.9% 正常，全猜正常也 99.9%）。</li>
+<li><strong>Accuracy（正確率）</strong> $=\frac{TP+TN}{\text{全部}}$：全部猜對的比例；<strong>不平衡時會騙人</strong>（99.9% 正常，全猜正常也 99.9%）。（注意別和下面的<strong>精確率 precision</strong> 混——兩者不同。）</li>
 <li><strong>Precision（精確率）</strong> $=\frac{TP}{TP+FP}$：「說是惡意的，有多少真的是」（少誤報）。</li>
 <li><strong>Recall（召回率）</strong> $=\frac{TP}{TP+FN}$：「真惡意的，抓到多少」（少漏抓）。</li>
 <li><strong>F1（正式名 F1 score / F1-measure）</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的<strong>調和平均</strong>（是 $F_\beta$ 在 $\beta=1$ 的特例；$\beta&gt;1$ 偏重 recall、$&lt;1$ 偏重 precision）。<strong>它算的是「單一類別 / 二元」的分數</strong>——同時要求少誤報 (P) 與少漏抓 (R)，任一低則 F1 低，比 accuracy 適合不平衡。<strong>用途</strong>:二元偵測（惡意/正常）、以及多類裡的<strong>逐類</strong>評估。</li>
