@@ -2251,6 +2251,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   <text x="200" y="200" fill="#94a3b8" font-size="9.5" text-anchor="middle">Precision=TP/(TP+FP)　Recall=TP/(TP+FN)</text>
 </svg><figcaption>混淆矩陣：綠=判對（TP/TN）、紅=判錯（FP 誤報、FN 漏抓）。Precision 少誤報、Recall 少漏抓，是一切分類指標的基礎。</figcaption></figure>
 <p><strong>先定「正類 (positive)」＝ 你要偵測的目標類</strong>（本節以<strong>惡意 / 攻擊</strong>為例，其餘為<strong>負類</strong>＝正常）；四格由「實際 × 預測」交叉：<strong>TP</strong> 實際正、也判正（抓對惡意）；<strong>FP</strong> 實際負、卻判正（正常被誤判＝<strong>誤報</strong>）；<strong>FN</strong> 實際正、卻判負（惡意被放走＝<strong>漏抓</strong>）；<strong>TN</strong> 實際負、也判負（判對正常）。一切指標都由這四格算出。</p>
+<p><strong>命名規則（別看錯）</strong>：<strong>第 2 字母＝模型「預測」的類</strong>（P 正 / N 負）、<strong>第 1 字母＝那個預測「對不對」</strong>（T 對 / F 錯）——<strong>與「實際是哪一類 / 在哪一列」無關</strong>。所以<strong>對角線 TP、TN 都是猜對 (T)、反對角線 FP、FN 都是猜錯 (F)</strong>。例：右上格 FN ＝「模型<strong>預測負 (N)</strong>、但<strong>猜錯 (F)</strong>」＝ 實際正卻判負 ＝ <strong>漏抓</strong>（不是 TN——因為它猜錯了）。</p>
 <ul>
 <li><strong>Accuracy（正確率）</strong> $=\frac{TP+TN}{\text{全部}}$：全部猜對的比例；<strong>不平衡時會騙人</strong>（99.9% 正常，全猜正常也 99.9%）。（注意別和下面的<strong>精確率 precision</strong> 混——兩者不同。）</li>
 <li><strong>Precision（精確率）</strong> $=\frac{TP}{TP+FP}$：「<strong>判為正類的裡面，真的是正類的比例</strong>」（此處：說是惡意的，有多少真的是）——<strong>誤報 (FP) 越少，Precision 越高</strong>（FP 在分母）。</li>
