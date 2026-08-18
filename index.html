@@ -2367,6 +2367,17 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 </ul>
 <p><strong>要不要用契約?一句話判準：</strong> 若兩個團隊都照<strong>同一份軟體規格 + API 文件</strong>實作，<strong>卻仍可能產出不同的 label、分母、PASS/BLOCK 或 training set</strong>，就代表設計文件不夠——<strong>必須先訂契約</strong>把語義釘死。ML 系統幾乎都符合這條件（語義分歧空間大），所以「評估要可信」光有 API 設計不夠。</p>
 <p><strong>契約不取代規格書 / API 文件</strong>，而是疊在其上，固定「<strong>什麼結果才正確、誰有權決定、證據不足時何時必須停</strong>」；衝突時的權威順序通常是 <strong>已簽核契約 ＞ 程式碼 ＞ 實作計畫 ＞ 舊報告 / 聊天</strong>。這正是把 19.1–19.5 的驗證嚴謹性，從「文件建議」升級成「<strong>上線前擋得下來的停止條件</strong>」。</p>
+<p><strong>契約給誰看?兩層、兩讀者——但都不是給模型看。</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>給誰看</th><th>內容</th><th>權威</th></tr></thead>
+<tbody>
+<tr><td><strong>語義層</strong>（<code>.md</code>）</td><td><strong>人</strong></td><td>什麼才算正確、為什麼、裁示、誰決定、何時停</td><td>owner <strong>簽核 + 綁 digest</strong>（變更要重簽）</td></tr>
+<tr><td><strong>規則層</strong>（<code>rules.yaml</code> / schema）</td><td><strong>validator 程式</strong></td><td>exact keys、值域、門檻、<code>BLOCK</code> 條件</td><td>由語義層<strong>衍生</strong>，供機器自動強制</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>關鍵:讀契約的是「人」與「validator（一段確定性程式碼）」，不是 ML 模型。</strong> 模型<strong>不讀契約</strong>，只拿到被契約守住的乾淨、可信、已簽核的資料——<strong>契約治理的是「資料與流程」，不是模型內部</strong>。所以「給 AI 看」是常見誤會:它不餵進神經網路 / LLM，執行它的是普通驗證程式。</li>
+<li><strong>為什麼要分兩層</strong>:「正確的定義」是<strong>人的領域判斷、無法自動推導</strong>（label 該怎麼標、哪些混淆變數要固定、門檻訂多少），所以<strong>語義層要人審、人簽、人負責</strong>；規則層再把它翻成機器可檢的條件，才能<strong>一致、大規模、違反即擋</strong>。業界兩傳統——<strong>YAML 為權威</strong>（機器檔權威、人看 <code>description</code> 欄）vs <strong>散文 <code>.md</code> 為權威 + 另生機器規則</strong>；後者讓「為什麼算正確」由人扛、「有沒有做到」交機器查。</li>
+</ul>
 
 <h3 id="19.7">19.7 一句話</h3>
 <p><strong>評估的可信度 = 驗證設計（分組 / held-out / nested CV，19.2）× 統計推論（CI / bootstrap / permutation，19.4）× 防自欺（控混淆、凍結協定、測試只用一次，19.5）。</strong> 模型分數高 ≠ 模型好；能通過這三關，才敢相信、才撐得起上線。<strong>要讓這三關真的擋得住，還得把它們寫成可強制、經簽核凍結的契約（<a href="#19.6">§19.6</a>）——否則只是文件建議。</strong>（資料面的來源可信度、採樣、漂移見 <a href="#h1">附錄 H</a>；特徵選擇的穩定度見 <a href="#i1">附錄 I</a>。）</p>
