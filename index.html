@@ -2348,8 +2348,28 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 </ul>
 <p>這正是本章開頭那句:<strong>先定義失敗、寫成可執行檢查、凍結，再採樣</strong>。</p>
 
-<h3 id="19.6">19.6 一句話</h3>
-<p><strong>評估的可信度 = 驗證設計（分組 / held-out / nested CV，19.2）× 統計推論（CI / bootstrap / permutation，19.4）× 防自欺（控混淆、凍結協定、測試只用一次，19.5）。</strong> 模型分數高 ≠ 模型好；能通過這三關，才敢相信、才撐得起上線。（資料面的來源可信度、採樣、漂移見 <a href="#h1">附錄 H</a>；特徵選擇的穩定度見 <a href="#i1">附錄 I</a>。）</p>
+<h3 id="19.6">19.6 把驗證語義變成可強制的「契約」（ML 契約 vs API 設計）</h3>
+<p>19.1–19.5 講「什麼才算<strong>正確的驗證</strong>」；但<strong>文件寫了 ≠ 會被遵守</strong>。散文式規格可以<em>描述</em>語義，卻<strong>擋不下違反</strong>（散文不是機器可檢的條件）。<strong>ML 契約</strong>就是把這些語義變成<strong>機器可檢、違反即擋 (fail-closed)、且經簽核凍結</strong>的規則——它和一般 <strong>API 設計</strong>是<strong>不同層次</strong>的東西：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>面向</th><th>一般 API 設計</th><th>ML 契約</th></tr></thead>
+<tbody>
+<tr><td>管什麼</td><td>介面:怎麼呼叫、欄位、型別、錯誤碼</td><td>什麼資料 / 標籤 / 證據<strong>才有資格被相信、進訓練</strong></td></tr>
+<tr><td>「正確」＝</td><td>欄位合法、型別對、存取成功（<strong>語法層</strong>）</td><td>內容可信:label 語義對、樣本有效、分母對、無洩漏（<strong>語義層</strong>）</td></tr>
+<tr><td>最危險的失敗</td><td>型別錯、欄位缺（呼叫端立刻看得到）</td><td><strong>型別全對、也存進去了，但語義是錯的</strong>（表面成功、結論錯）</td></tr>
+<tr><td>怎麼把關</td><td>schema validation / API gateway</td><td><strong>enforcement</strong>:違反語義條件 → <strong>BLOCK</strong>（fail-closed）</td></tr>
+<tr><td>變更控制</td><td>版本化</td><td><strong>freeze</strong>:owner 簽核 + 綁定 digest，語義變更要<strong>重簽</strong></td></tr>
+</tbody></table></div>
+<p><strong>關鍵一句:欄位合法 ≠ 內容可信。</strong> API 保證「格式對、傳輸成功」，但保證不了「這筆資料的<strong>意義</strong>是對的」。</p>
+<p><strong>實例（流量分類收資料）。</strong> schema / API 要求每筆 capture 有 <code>{duration: float, packets: int, avg_size: int, label: str}</code>。某筆進來：<code>duration=42.0</code>、<code>packets=3200</code>、<code>label="VOD"</code>——<strong>型別全合法、成功寫入資料庫，API 契約完全滿足</strong>。但語義是錯的：這 42 秒其實<strong>整段是影片前的前置廣告</strong>，不是真正的 VOD 內容；這個 <code>label="VOD"</code> 是假的，拿去訓練會讓模型學到「廣告流量 ＝ VOD」。<strong>API validation 抓不到</strong>（欄位、型別全對）。ML 契約要多兩件 API 沒有的東西：</p>
+<ul>
+<li><strong>可執行的語義驗收條件</strong>：capture 必須<strong>排除純廣告內容</strong>；<code>capture_window_seconds</code> 必須 ＝ <strong>60</strong>（固定）；label 必須來自<strong>真實使用行為</strong>，不能只憑 DPI 認出應用程式就標記（例:認出 Teams 就標「通話」，但使用者並未通話）。<strong>任一不符 → BLOCK</strong>（在進資料集<strong>之前</strong>擋下，不是事後才發現）。</li>
+<li><strong>凍結「可自由選的參數」清單</strong>：把擷取視窗、來源主機、批次時間、韌體版本等<strong>混淆變數</strong>（<a href="#19.5">§19.5</a>）列成 <strong>exact keys 並固定值</strong>；<strong>出現清單外的 key → BLOCK</strong>（防止有人偷偷多調一個變數把分數拉高、卻沒人知道）。</li>
+</ul>
+<p><strong>要不要用契約?一句話判準：</strong> 若兩個團隊都照<strong>同一份軟體規格 + API 文件</strong>實作，<strong>卻仍可能產出不同的 label、分母、PASS/BLOCK 或 training set</strong>，就代表設計文件不夠——<strong>必須先訂契約</strong>把語義釘死。ML 系統幾乎都符合這條件（語義分歧空間大），所以「評估要可信」光有 API 設計不夠。</p>
+<p><strong>契約不取代規格書 / API 文件</strong>，而是疊在其上，固定「<strong>什麼結果才正確、誰有權決定、證據不足時何時必須停</strong>」；衝突時的權威順序通常是 <strong>已簽核契約 ＞ 程式碼 ＞ 實作計畫 ＞ 舊報告 / 聊天</strong>。這正是把 19.1–19.5 的驗證嚴謹性，從「文件建議」升級成「<strong>上線前擋得下來的停止條件</strong>」。</p>
+
+<h3 id="19.7">19.7 一句話</h3>
+<p><strong>評估的可信度 = 驗證設計（分組 / held-out / nested CV，19.2）× 統計推論（CI / bootstrap / permutation，19.4）× 防自欺（控混淆、凍結協定、測試只用一次，19.5）。</strong> 模型分數高 ≠ 模型好；能通過這三關，才敢相信、才撐得起上線。<strong>要讓這三關真的擋得住，還得把它們寫成可強制、經簽核凍結的契約（<a href="#19.6">§19.6</a>）——否則只是文件建議。</strong>（資料面的來源可信度、採樣、漂移見 <a href="#h1">附錄 H</a>；特徵選擇的穩定度見 <a href="#i1">附錄 I</a>。）</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="20">20. 浮點、量化與硬體加速</h2>
