@@ -106,6 +106,23 @@ AI（人工智慧）
 </pre>
 <p>「深」＝<strong>多層</strong>堆疊；單一神經元或單層一般不算深度學習。CNN 天生多層，是標準的 DL 成員。</p>
 
+<h2 id="ml-def">訓練一個模型在做什麼？（不分 NN 或決策樹的通用定義）</h2>
+<p><strong>機器學習產生模型的過程，是先選定一個「模型家族（假設空間）」與一個衡量預測好壞的「損失函數 (loss)」；再用某種最佳化 / 搜尋演算法，依訓練資料在這個家族中找出「讓損失最小、且能泛化到未見資料」的那個模型。</strong> 過程中被「學」出來的，可能是<strong>一組連續參數</strong>（如神經網路的權重、線性模型的係數），也可能是<strong>一套結構與規則</strong>（如決策樹要在哪個特徵、哪個門檻切分，以及每個葉節點的輸出）。最後固定下來的<strong>「模型本體」（結構 ＋ 參數 / 規則），就是訓練完成的機器學習模型</strong>。</p>
+<p>（「損失函數」是每筆誤差的度量；再加上抑制過擬合的<strong>正則化</strong>項，就是更廣義的<strong>目標函數</strong>，見 <a href="#6">§6</a>。本文統一用較易懂的「損失函數」。）</p>
+<p><strong>共同主軸（不分模型家族）：</strong></p>
+<blockquote><p>選一個<strong>假設空間 H</strong> → 定一個<strong>損失函數</strong> → 用某種演算法在 H 裡搜出「損失最小又能泛化」的成員 → <strong>固定成模型</strong>拿去預測。</p></blockquote>
+<p>差別只在 <strong>H 是什麼</strong>（連續參數的網路 vs 離散的樹集成）與<strong>怎麼搜</strong>（梯度下降 vs 貪婪長樹 / boosting）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>通用元件</th><th>神經網路 (NN)</th><th>決策樹 / GBDT</th></tr></thead>
+<tbody>
+<tr><td>模型家族 / 假設空間</td><td>選定的網路架構（層數、維度）</td><td>樹的集成（受 <code>max_depth</code> / <code>num_leaves</code> 約束）</td></tr>
+<tr><td>被學出來的東西</td><td>連續<strong>權重 $\mathbf{w}$、偏置 $b$</strong></td><td><strong>樹結構</strong>（切分特徵＋門檻）＋ <strong>葉值</strong>（GBDT 有多棵）</td></tr>
+<tr><td>怎麼搜 / 最佳化</td><td><strong>梯度下降 ＋ 反向傳播</strong>（<a href="#4">§4</a>、<a href="#5">§5</a>、<a href="#9">§9</a>）</td><td><strong>貪婪找最佳切點</strong>（降不純度 / gain）；GBDT <strong>逐輪加樹擬合負梯度</strong>（<a href="#c1">附錄 C</a>）</td></tr>
+<tr><td>特徵</td><td>常<strong>自學新表示</strong>（表徵學習，<a href="#i1">附錄 I</a>.8）</td><td><strong>用既有特徵</strong>、學「挑哪個特徵 / 門檻」</td></tr>
+<tr><td>訓練成品</td><td>架構 ＋ 權重</td><td>整組樹的結構 ＋ 葉值</td></tr>
+</tbody></table></div>
+<p><strong>「用損失衡量、往降低損失的方向找」是 NN 與 GBDT 共通的</strong>（GBDT 也在最小化損失，只是沿函數空間加樹、而非調權重，<a href="#c1">附錄 C</a>）；「調參數 vs 長結構」才是差異。<strong>本教材主體以 NN 講解這套流程的數學細節，附錄 C 則把同一框架套到決策樹 / GBDT。</strong></p>
+
 <section class="learning-paths">
 <h2 id="start">我該從哪裡開始？</h2>
 <p>本文從線性代數一路到 CNN / Transformer / 量化 / GBDT，內容完整但長。<strong>不用從頭讀到尾</strong>——先選你的學習目標、按推薦順序讀；完整章節見下方<a href="#toc">目錄</a>。（不熟的縮寫如 CNN／Transformer／GBDT，見下方<a href="#abbr">縮寫對照表</a>。）</p>
