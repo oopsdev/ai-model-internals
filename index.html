@@ -1235,6 +1235,14 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
   <text x="152" y="38" fill="#38bdf8" font-size="12">σ(z)</text>
 </svg><figcaption>Sigmoid 把任意實數壓進 (0,1) 當機率；z=0 → 0.5，兩端趨近 0 與 1</figcaption></figure>
 <p><strong>名稱。</strong> Sigmoid <strong>非縮寫</strong>：希臘字母 sigma（σ，即字母 S）＋ -oid（像…形狀）＝「<strong>S 形函數</strong>」，中譯亦稱<strong>乙狀函數</strong>（「乙」形似 S）。$\sigma(z)=\frac{1}{1+e^{-z}}$ 這條特別叫<strong>邏輯函數（logistic function）</strong>。</p>
+<p><strong>為什麼要把分數 $z$ 轉成機率?（不是多此一舉）</strong> 線性打分 $z=\mathbf{w}^\top\mathbf{x}+b$ 範圍是整條實數線、<strong>沒有絕對量級意義</strong>；轉成機率有四個關鍵理由：</p>
+<ol>
+<li><strong>可解釋、可設門檻的信心</strong>：<code>z=3.7</code> 無從解讀，但「$P=0.92$」是<strong>可行動的信心</strong>——能設門檻（<a href="#18.1">§18.1</a>）、跨類比較、對齊錯誤成本、跟人溝通風險。</li>
+<li><strong>才定得出「原則性的損失」＝ 最大似然（最重要）</strong>：有了 $P(y\mid x)$，才能把損失寫成<strong>交叉熵 ＝ 負對數似然</strong>——讓輸出機率去逼近真實標籤，數學上就是<strong>最大似然估計 (MLE)</strong>（<a href="#2.3">§2.3</a>、<a href="#f1">附錄 F</a>）。原始分數 $z$ <strong>沒有「似然」可言</strong>，根本定義不出這個損失。</li>
+<li><strong>可微、才能訓練</strong>：直接對分數取 <strong>argmax</strong> 挑最大類是<strong>不可微</strong>的（換最大項才會跳、梯度 0 或未定義），無法反向傳播；sigmoid / softmax 是它的<strong>平滑可微版</strong>，梯度才流得動（<a href="#3.3">§3.3</a>）。所以<strong>訓練用機率、推論才用 argmax</strong>。</li>
+<li><strong>界定範圍 $(0,1)$、對上機率語義</strong>：機率有界、對應伯努利 / 類別分布的假設；$z$ 無界，硬當機率會出界、也對不上語義（這正是「分類不用線性輸出＋MSE」的原因，見 <a href="#3.1">§3.1</a>）。</li>
+</ol>
+<p>一句話：<strong>轉成機率 ＝ 為了「拿到可解釋的信心」＋「定得出可微、且等於最大似然的損失來訓練」；兩者缺一，分類就既訓不動、也讀不懂。</strong></p>
 <p>$\hat y=\sigma(z)$ 解讀為 $P(y=1\mid x)$。損失用<strong>二元交叉熵 (BCE)</strong>（即負對數似然）：</p>
 <p>$$L=-\frac{1}{N}\sum_{i=1}^{N}\big[y_i\log\hat y_i+(1-y_i)\log(1-\hat y_i)\big]$$</p>
 <p>漂亮處：$\sigma'(z)=\sigma(z)(1-\sigma(z))$，且 BCE 對 $z$ 的梯度化簡成 $\frac{\partial L}{\partial z}=\hat y-y$ — 又是「預測減真值」，乾淨、數值穩定。</p>
@@ -1249,6 +1257,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>$$\text{softmax}(\mathbf{z})_k=\frac{e^{z_k}}{\sum_{j=1}^{C} e^{z_j}}$$</p>
 <p><strong>名稱。</strong> Softmax <strong>非縮寫</strong>：soft（柔性、平滑可微）＋ max（最大值）＝「<strong>柔性最大值</strong>」——它常被當成 argmax（贏者全拿、給最大項 1 其餘 0、不可微）的<strong>平滑可微替身</strong>（更精確的關係見本節末），中譯亦稱<strong>歸一化指數函數</strong>（中文文獻常直接寫 Softmax）。</p>
 <p>各項 0~1 且總和為 1。損失用<strong>類別交叉熵</strong>（$y$ 為 one-hot、真類為 $t$）：</p>
+<p><strong>為什麼多元要「歸一化成總和 = 1 的分布」，而不是各類各自 sigmoid?</strong>（一般理由同 <a href="#3.2">§3.2</a>：可解釋信心、可微、才定得出＝MLE 的交叉熵損失。softmax 多一個關鍵作用——）<strong>歸一化讓 $C$ 個機率總和為 1 → 類別互相競爭</strong>：拉高一類會壓低其他，剛好編碼「<strong>互斥、剛好屬於一類</strong>」(single-label) 的語義，也才能用交叉熵去<strong>比對 one-hot 目標</strong>。若改成各類各自 sigmoid、不歸一化，機率彼此獨立、總和不為 1 → 那是「<strong>每類可各自成立</strong>」的<strong>多標籤 (multi-label)</strong> 設定（此時才對每類各用一個 BCE），表達不了「多選一」。</p>
 <p>$$L=-\sum_{k=1}^{C} y_k\log\hat y_k=-\log\hat y_t$$</p>
 <p>即「真類機率的負對數」— 越確信正確類、損失越小。梯度同樣化簡為 $\frac{\partial L}{\partial z_k}=\hat y_k-y_k$。</p>
 <p><strong>標籤定義原則（多元）。</strong> 上面用的是 <strong>one-hot 目標</strong>（真類那格為 1、其餘 0）+ softmax + 交叉熵；背後原則看「類別<strong>有沒有順序</strong>」：</p>
