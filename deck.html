@@ -241,7 +241,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
     <h1 style="font-size:clamp(22px,3vw,38px)">從資料、訓練、架構到評估與部署</h1>
     <p class="sub">看懂模型如何學習、如何預測，以及 CNN、Transformer、GBDT 等架構的差異。</p>
     <p class="sub">操作：<b>&larr; &rarr;</b> / 按鈕換頁 &middot; <b>F</b> 全螢幕 &middot; <b>Home</b> 回第一頁 &middot; 輸入頁碼跳頁 &middot; <b>P</b> 列印 / PDF &middot; <b>N</b> 講者備註</p>
-    <p class="ref" style="text-align:center;margin-top:1em">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html" target="_blank" rel="noopener">教材首頁（首頁 + 9 冊）</a></p>
+    <p class="ref" style="text-align:center;margin-top:1em">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html">教材首頁（首頁 + 9 冊）</a></p>
     <aside class="notes">這份簡報只建立全貌，不做完整推導。目標讀者：有工程背景、尚未系統學過 ML／DL。時間 30～40 分鐘。每頁右下角的延伸閱讀連到公開教材的對應分冊。</aside>
   </section>
   <section class="slide">
@@ -265,7 +265,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
     </svg>
     </div>
     <div class="key"><p><b>模型只是 ML 系統的一部分。</b>資料品質、驗證方式與部署條件，同樣決定最後的結果。</p></div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#pipeline" target="_blank" rel="noopener">教材首頁：ML 完整管線</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#pipeline">教材首頁：ML 完整管線</a></p>
     <aside class="notes">這張圖是整場簡報的主地圖，之後每一頁都可以指回其中一格：第 3–10 頁在「模型與訓練」，第 11–15 頁是不同架構，第 16 頁是「驗證與測試」，第 17 頁是「部署與推論」。</aside>
   </section>
   <section class="slide">
@@ -302,7 +302,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
         <div class="key"><p>「深」指的是<b>多層</b>堆疊，不是指模型比較聰明。</p></div>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#landscape" target="_blank" rel="noopener">教材首頁：AI／ML／深度學習定位</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#landscape">教材首頁：AI／ML／深度學習定位</a></p>
     <aside class="notes">只放常見的模型名稱，避免變成演算法目錄。強調 GBDT 的位置：後面第 15 頁會拿它和神經網路對照。</aside>
   </section>
   <section class="slide">
@@ -318,7 +318,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       </tbody>
     </table>
     <div class="key" style="margin-top:1.1em"><p><b>訓練</b> ＝ 先選定模型家族（假設空間）與損失函數，再用資料在這個家族裡找出損失低、又能泛化到新資料的那一個模型。</p></div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#ml-def" target="_blank" rel="noopener">教材首頁：訓練一個模型在做什麼</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#ml-def">教材首頁：訓練一個模型在做什麼</a></p>
     <aside class="notes">「學到的東西」可能是連續參數（權重），也可能是結構與規則（樹的切分）。共同點：都由「損失函數＋資料」決定。泛化靠驗證資料、正則化與複雜度控制，第 10 頁會講。</aside>
   </section>
   <section class="slide">
@@ -355,7 +355,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
     </svg>
     </div>
     <div class="key"><p><b>推論只用已學到的模型；訓練才會計算梯度並更新參數。</b>所以同一批資料，一次訓練步驟比一次推論貴得多。</p></div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html#5" target="_blank" rel="noopener">02 模型訓練與神經網路 §5、§7、§9</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html#5">02 模型訓練與神經網路 §5、§7、§9</a></p>
     <aside class="notes">「訓練比推論貴」是指同一模型、同一批資料的單次步驟；產品上線後的總推論量可能遠高於一次訓練。GBDT 沒有反向傳播，但同樣是「訓練時搜尋、推論時固定」。</aside>
   </section>
   <section class="slide">
@@ -371,7 +371,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
         <tr><td><b>導數與梯度</b></td><td>指出每個參數該往哪個方向、調多少</td><td>反向傳播、SGD／Adam、GBDT</td></tr>
       </tbody>
     </table>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html#1" target="_blank" rel="noopener">01 數學基礎 §1–4</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html#1">01 數學基礎 §1–4</a></p>
     <aside class="notes">內積是貫穿全場的主角：神經元算的是輸入與權重的內積、卷積是滑動的內積、注意力是 query 與 key 的內積。</aside>
   </section>
   <section class="slide">
@@ -417,7 +417,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       </svg>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html#1.2" target="_blank" rel="noopener">01 數學基礎 §1.2–1.3；02 §7–8</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html#1.2">01 數學基礎 §1.2–1.3；02 §7–8</a></p>
     <aside class="notes">z 是內積：輸入和權重越對齊，z 越大。沒有非線性 φ，疊再多層也只等於一層線性變換。</aside>
   </section>
   <section class="slide">
@@ -429,7 +429,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       <div class="card"><h3>多類分類</h3><p>輸出多個 logits → <b>softmax</b> → 各類機率（總和 = 1）</p><p>損失：<b>cross-entropy</b></p><p class="sub">例：貓 / 狗 / 鳥</p></div>
     </div>
     <div class="key" style="margin-top:1.1em"><p><b>自監督學習</b>：答案可以從資料本身產生，不必人工標註。LLM 預訓練的答案，就是「這段文字的下一個 token」。</p></div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html#3" target="_blank" rel="noopener">01 數學基礎 §3；05 §15.3</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html#3">01 數學基礎 §3；05 §15.3</a></p>
     <aside class="notes">MSE 對應高斯誤差下的最大似然、交叉熵對應類別分布的最大似然：損失函數多半是負對數似然，不是隨便挑的。細節在 01 §3 與 09 附錄 D、F。</aside>
   </section>
   <section class="slide">
@@ -448,7 +448,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
         <div class="key"><p><b>兩者不是同一件事</b>：換優化器不必改反向傳播；反向傳播也不決定步長。</p></div>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html#9" target="_blank" rel="noopener">02 §5、§9；另見 01 §4.3</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html#9">02 §5、§9；另見 01 §4.3</a></p>
     <aside class="notes">學習率是最常見的調不動元兇：太大會發散，太小會很慢。Adam 是常見的預設起點，但不代表永遠最好。</aside>
   </section>
   <section class="slide">
@@ -484,7 +484,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       </svg>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html#6" target="_blank" rel="noopener">02 §6；06 評估與統計驗證 §19</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html#6">02 §6；06 評估與統計驗證 §19</a></p>
     <aside class="notes">分組資料（同使用者、同 session、同來源）要按群組切，否則同群組跨 train／test 會讓分數虛高。時間序列要按時間切。細節在 06 §19。</aside>
   </section>
   <section class="slide">
@@ -500,7 +500,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       </tbody>
     </table>
     <div class="key" style="margin-top:1.1em"><p>這是 <b>baseline 起點</b>，不是「某種資料只能用某種模型」。最後仍要在自己的資料上，用相同的驗證流程比較。</p></div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#volumes" target="_blank" rel="noopener">教材首頁：分冊總覽（03、04、05、08）</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#volumes">教材首頁：分冊總覽（03、04、05、08）</a></p>
     <aside class="notes">接下來三頁（12、13–14、15）分別用 CNN、LLM、GBDT 示範：同一個「降低損失」的框架，內部表示與更新方式不同。</aside>
   </section>
   <section class="slide">
@@ -531,7 +531,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
     </svg>
     </div>
     <div class="key"><p><b>同一個小 filter 滑過整張圖、權重共享</b>：參數少，而且同一種圖案出現在哪裡都抓得到。逐層從邊緣、紋理組合出高階特徵。</p></div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/03-cnn-and-vision.html#11" target="_blank" rel="noopener">03 CNN 與影像模型 §11</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/03-cnn-and-vision.html#11">03 CNN 與影像模型 §11</a></p>
     <aside class="notes">卷積就是滑動的內積：filter 是樣板，特徵圖是每個位置和樣板的對齊強度。維度與參數量的算法在 03 冊有完整的深度 5 範例。</aside>
   </section>
   <section class="slide">
@@ -562,7 +562,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
         <div class="key"><p><b>tokenization、embedding、Transformer、取樣</b>是四個不同階段，不要混為一件事。</p></div>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/04-text-representations.html#12" target="_blank" rel="noopener">04 §12–14；05 §15–16</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/04-text-representations.html#12">04 §12–14；05 §15–16</a></p>
     <aside class="notes">token 數是 API 計費與 context 長度的單位；每個字耗用幾個 token 依 tokenizer 與語言而異，估算成本要用目標模型的 tokenizer 實際計數。例子中的 id 是虛構示意。</aside>
   </section>
   <section class="slide">
@@ -608,7 +608,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
         <div class="key"><p>圖為常見的 decoder-only <b>Pre-LN</b> 配置，只是其中一種；原始 Transformer 用 Post-LN，也有模型改用 RMSNorm。</p></div>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/05-transformers-and-generation.html#15.1" target="_blank" rel="noopener">05 Transformer 與生成 §15.1–15.4</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/05-transformers-and-generation.html#15.1">05 Transformer 與生成 §15.1–15.4</a></p>
     <aside class="notes">成本要分兩種：訓練／prefill 一次處理整段輸入，注意力約為 O(n²)；生成時每步只算一個新 token，搭配 KV cache，每步計算量隨既有長度近似線性增加，但 KV cache 的記憶體也隨長度線性增長（05 §15.4）。</aside>
   </section>
   <section class="slide">
@@ -638,7 +638,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
         <div class="key"><p>樹和樹之間是<b>相加</b>，但每棵樹對特徵是<b>非線性</b>的：加法模型 ≠ 線性模型。</p></div>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/08-classical-ml-and-feature-engineering.html#c1" target="_blank" rel="noopener">08 傳統 ML 與特徵工程：附錄 C</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/08-classical-ml-and-feature-engineering.html#c1">08 傳統 ML 與特徵工程：附錄 C</a></p>
     <aside class="notes">經典 GBM 擬合負梯度；XGBoost／LightGBM 再用二階資訊（Hessian）算分裂增益與葉值，相當於在每片葉子走一步牛頓法。新樹擬合的是「全部樣本」的梯度，誤差大的影響較大，不是只學錯的樣本。表格資料應把 GBDT 列入優先比較，但最終仍看目標資料上的驗證結果。</aside>
   </section>
   <section class="slide">
@@ -666,7 +666,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       <li><b>類別不平衡時</b>看每個類別的指標與 PR-AUC；99.9% 都是正常時，99.9% accuracy 等於沒做事。</li>
       <li><b>同一測試集比較兩個模型</b>，用配對方法（paired bootstrap、McNemar）；「打亂標籤」只能回答資料裡有沒有訊號。</li>
     </ul>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/06-evaluation-and-validation.html#18" target="_blank" rel="noopener">06 評估與統計驗證 §18–19</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/06-evaluation-and-validation.html#18">06 評估與統計驗證 §18–19</a></p>
     <aside class="notes">一個數字只是樣本估計，要看信賴區間；CI 跨過門檻時應判「無法斷定」。p-value 是在虛無假設與檢定前提都成立時，觀察到至少同樣極端結果的機率，不是「結果只是運氣的機率」。</aside>
   </section>
   <section class="slide">
@@ -698,7 +698,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       </svg>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/07-hardware-and-deployment.html#20" target="_blank" rel="noopener">07 硬體、數值格式與部署 §20；KV cache 見 05 §15.4</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/07-hardware-and-deployment.html#20">07 硬體、數值格式與部署 §20；KV cache 見 05 §15.4</a></p>
     <aside class="notes">「訓練比推論貴」只對同一模型、同一批資料的單次步驟成立；參數量只能粗估計算量，實際成本還受序列長度、batch、稀疏性（如 MoE）與記憶體頻寬影響。部分層（如 embedding、LM head）可能保留較高精度。</aside>
   </section>
   <section class="slide cozy">
@@ -708,20 +708,20 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
       <div class="card route"><h3>第一次系統學習</h3><p class="sub" style="margin:.1em 0 .3em">從數學到訓練迴圈，再學怎麼評估</p>
         <ol><li>01 數學基礎</li><li>02 模型訓練</li><li>06 評估驗證</li></ol>
         <div class="qrbox"><svg class="qr" shape-rendering="crispEdges" role="img" aria-label="QR code：https://oopsdev.github.io/ai-model-internals/01-math-foundations.html" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 164 164"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#0f172a" d="M2 2.5h7m1 0h1m3 0h4m1 0h1m5 0h1m1 0h1m2 0h1m1 0h7m-37 1h1m5 0h1m1 0h2m2 0h1m1 0h1m2 0h2m2 0h3m1 0h1m4 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m2 0h3m3 0h2m2 0h1m4 0h2m4 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h3m5 0h4m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h1m4 0h1m1 0h1m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m5 0h2m2 0h5m3 0h2m2 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h5m2 0h2m5 0h2m3 0h2m-29 1h1m1 0h2m1 0h3m3 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m-34 1h1m1 0h1m1 0h1m1 0h2m2 0h3m1 0h2m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m2 0h2m-36 1h4m1 0h2m1 0h3m1 0h2m2 0h8m1 0h1m4 0h1m1 0h3m-35 1h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m1 0h1m4 0h3m1 0h2m3 0h1m-33 1h5m1 0h3m4 0h1m1 0h1m1 0h1m2 0h5m1 0h3m1 0h1m1 0h3m-37 1h1m2 0h1m7 0h1m3 0h3m1 0h1m1 0h1m2 0h1m1 0h8m1 0h2m-37 1h1m1 0h2m1 0h2m2 0h1m3 0h1m2 0h1m2 0h1m5 0h2m3 0h1m1 0h1m1 0h1m-35 1h2m5 0h3m2 0h1m1 0h1m1 0h1m3 0h2m1 0h1m3 0h2m1 0h3m2 0h1m-34 1h1m2 0h3m1 0h3m1 0h1m1 0h1m1 0h1m7 0h1m3 0h1m1 0h1m1 0h3m-31 1h1m1 0h1m2 0h2m2 0h1m2 0h3m2 0h3m2 0h1m2 0h1m3 0h3m-36 1h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h1m3 0h1m1 0h2m2 0h1m2 0h3m1 0h1m1 0h1m1 0h2m-37 1h2m2 0h1m2 0h1m3 0h1m2 0h5m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m-34 1h1m1 0h3m2 0h1m4 0h6m1 0h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h1m-36 1h2m5 0h1m1 0h1m2 0h1m2 0h6m1 0h4m1 0h2m3 0h1m1 0h1m-35 1h2m2 0h3m5 0h2m3 0h1m4 0h1m2 0h1m3 0h2m-32 1h1m3 0h1m2 0h1m1 0h1m4 0h4m2 0h1m1 0h2m1 0h2m2 0h1m2 0h3m-32 1h2m1 0h3m2 0h3m1 0h2m2 0h1m1 0h1m2 0h7m1 0h1m1 0h2m-35 1h1m2 0h1m4 0h1m1 0h1m9 0h1m4 0h7m2 0h2m-36 1h1m1 0h1m2 0h1m2 0h2m1 0h2m3 0h2m3 0h1m1 0h3m6 0h3m-36 1h1m2 0h1m1 0h1m1 0h2m1 0h3m2 0h1m2 0h7m3 0h1m1 0h4m1 0h2m-33 1h1m1 0h1m1 0h1m1 0h3m3 0h1m1 0h4m1 0h1m1 0h1m1 0h6m1 0h1m-27 1h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h5m3 0h1m3 0h1m1 0h1m1 0h1m-37 1h7m1 0h2m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m-37 1h1m5 0h1m1 0h2m1 0h2m1 0h1m1 0h3m2 0h1m1 0h2m2 0h2m3 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m2 0h1m2 0h1m3 0h1m3 0h1m1 0h1m1 0h6m-34 1h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h3m6 0h1m1 0h1m2 0h3m1 0h1m1 0h1m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h3m3 0h2m1 0h2m3 0h2m2 0h1m3 0h1m1 0h2m-34 1h1m5 0h1m4 0h2m2 0h1m3 0h1m3 0h3m3 0h1m1 0h4m-35 1h7m1 0h2m2 0h1m1 0h1m2 0h1m4 0h2m1 0h2m5 0h5"/></g></svg>
-        <p class="url"><a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html" target="_blank" rel="noopener">掃描開啟：01 數學基礎</a></p></div>
+        <p class="url"><a href="https://oopsdev.github.io/ai-model-internals/01-math-foundations.html">掃描開啟：01 數學基礎</a></p></div>
       </div>
       <div class="card route"><h3>深度學習與生成式 AI</h3><p class="sub" style="margin:.1em 0 .3em">從訓練迴圈走到 LLM 與部署</p>
         <ol><li>02 模型訓練</li><li>03 CNN 或 04 文字表示</li><li>05 Transformer</li><li>07 部署</li></ol>
         <div class="qrbox"><svg class="qr" shape-rendering="crispEdges" role="img" aria-label="QR code：https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 164 164"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#0f172a" d="M2 2.5h7m1 0h1m2 0h2m2 0h1m1 0h2m2 0h3m2 0h3m1 0h7m-37 1h1m5 0h1m2 0h3m7 0h1m1 0h2m1 0h1m5 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m2 0h1m2 0h4m1 0h1m2 0h2m1 0h2m5 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m4 0h4m2 0h1m2 0h2m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h4m1 0h1m3 0h2m4 0h1m1 0h3m2 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m1 0h2m3 0h3m3 0h1m1 0h2m2 0h1m4 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h2m1 0h4m1 0h2m2 0h2m1 0h1m2 0h1m-27 1h1m3 0h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h6m5 0h5m2 0h1m-36 1h3m4 0h2m3 0h1m3 0h2m2 0h1m1 0h1m1 0h1m1 0h2m3 0h4m-35 1h1m1 0h1m2 0h1m2 0h3m1 0h1m1 0h1m1 0h2m4 0h5m2 0h2m-29 1h1m1 0h1m4 0h1m2 0h1m1 0h4m1 0h2m1 0h2m1 0h2m2 0h1m2 0h3m-36 1h2m2 0h3m2 0h2m1 0h2m3 0h1m1 0h4m1 0h1m2 0h5m1 0h4m-37 1h3m1 0h2m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m1 0h4m3 0h2m-31 1h1m2 0h1m1 0h1m1 0h2m2 0h4m5 0h1m2 0h2m1 0h7m-36 1h3m6 0h1m2 0h1m1 0h1m2 0h1m2 0h2m2 0h1m1 0h2m3 0h2m1 0h1m1 0h1m-36 1h1m4 0h5m1 0h1m2 0h1m2 0h2m1 0h4m4 0h3m1 0h2m1 0h1m-35 1h1m1 0h1m4 0h1m2 0h2m2 0h3m3 0h2m3 0h1m4 0h1m2 0h1m-36 1h1m3 0h1m1 0h1m4 0h2m3 0h2m3 0h3m3 0h1m2 0h1m1 0h3m-35 1h1m4 0h1m2 0h1m1 0h1m3 0h1m2 0h2m2 0h1m2 0h1m1 0h1m3 0h1m2 0h3m-36 1h3m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m1 0h1m2 0h5m4 0h3m1 0h2m-34 1h3m4 0h1m1 0h3m2 0h4m4 0h3m1 0h3m1 0h2m2 0h1m-35 1h6m1 0h3m1 0h5m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h5m-32 1h1m1 0h1m1 0h1m4 0h1m1 0h1m1 0h1m2 0h4m4 0h1m1 0h4m1 0h2m-36 1h1m1 0h1m2 0h2m1 0h2m4 0h1m1 0h1m3 0h3m1 0h1m4 0h2m2 0h3m-36 1h1m1 0h2m1 0h1m1 0h2m1 0h1m2 0h2m2 0h2m2 0h1m1 0h1m1 0h4m3 0h1m-31 1h1m1 0h3m1 0h2m1 0h2m2 0h1m2 0h1m2 0h4m1 0h4m3 0h1m-32 1h2m1 0h1m2 0h1m2 0h2m2 0h3m1 0h3m1 0h2m4 0h1m1 0h1m1 0h2m-35 1h3m1 0h4m1 0h4m3 0h2m2 0h2m1 0h2m2 0h6m1 0h2m-28 1h2m1 0h6m4 0h1m1 0h1m1 0h2m1 0h1m3 0h1m-33 1h7m1 0h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h3m3 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h1m3 0h3m-35 1h1m1 0h3m1 0h1m1 0h3m1 0h3m3 0h1m1 0h3m1 0h1m3 0h7m1 0h1m-37 1h1m1 0h3m1 0h1m4 0h2m1 0h1m1 0h1m3 0h5m1 0h6m1 0h2m1 0h1m-37 1h1m1 0h3m1 0h1m2 0h2m3 0h1m1 0h3m1 0h2m1 0h1m3 0h2m1 0h1m3 0h1m-35 1h1m5 0h1m2 0h2m3 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h1m1 0h2m-36 1h7m1 0h1m3 0h2m1 0h1m1 0h1m1 0h5m3 0h1m1 0h3m1 0h4"/></g></svg>
-        <p class="url"><a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html" target="_blank" rel="noopener">掃描開啟：02 模型訓練與神經網路</a></p></div>
+        <p class="url"><a href="https://oopsdev.github.io/ai-model-internals/02-training-neural-networks.html">掃描開啟：02 模型訓練與神經網路</a></p></div>
       </div>
       <div class="card route"><h3>表格資料與傳統 ML</h3><p class="sub" style="margin:.1em 0 .3em">GBDT、特徵工程與資料可信度</p>
         <ol><li>01 數學基礎</li><li>08 傳統 ML 與特徵工程</li><li>06 評估驗證</li></ol>
         <div class="qrbox"><svg class="qr" shape-rendering="crispEdges" role="img" aria-label="QR code：https://oopsdev.github.io/ai-model-internals/08-classical-ml-and-feature-engineering.html" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><g transform="scale(4)"><path fill="#fff" d="M0 0h45v45h-45z"/><path class="qrline" stroke="#0f172a" d="M2 2.5h7m3 0h6m2 0h3m2 0h2m3 0h5m1 0h7m-41 1h1m5 0h1m2 0h1m1 0h4m3 0h1m1 0h1m1 0h1m4 0h2m3 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h4m2 0h1m11 0h3m1 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h1m1 0h2m1 0h2m4 0h1m2 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h5m1 0h3m1 0h2m1 0h1m1 0h5m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h4m2 0h1m1 0h1m2 0h2m3 0h2m1 0h1m2 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h1m1 0h1m2 0h1m1 0h2m3 0h2m1 0h1m2 0h1m5 0h1m-33 1h1m1 0h5m3 0h2m1 0h3m1 0h1m1 0h1m2 0h2m1 0h3m1 0h1m1 0h1m2 0h5m-39 1h2m2 0h2m1 0h5m2 0h3m1 0h4m1 0h1m1 0h2m1 0h9m1 0h3m-39 1h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h2m2 0h1m2 0h1m3 0h3m2 0h1m1 0h1m1 0h3m-34 1h1m1 0h1m3 0h7m3 0h3m2 0h1m2 0h2m2 0h5m1 0h1m1 0h2m-40 1h1m1 0h4m1 0h1m5 0h4m1 0h1m3 0h1m1 0h3m1 0h1m1 0h1m5 0h3m-39 1h4m3 0h1m4 0h2m1 0h2m2 0h1m1 0h1m1 0h1m2 0h10m1 0h3m-41 1h1m3 0h3m2 0h9m1 0h1m1 0h2m6 0h1m2 0h2m1 0h1m1 0h1m-38 1h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m2 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m-35 1h1m4 0h1m3 0h1m1 0h1m1 0h4m1 0h1m2 0h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m2 0h3m-40 1h1m2 0h1m2 0h3m1 0h2m4 0h5m1 0h1m1 0h2m1 0h1m1 0h3m1 0h3m2 0h2m-41 1h1m2 0h4m1 0h1m1 0h2m2 0h1m2 0h1m2 0h2m2 0h4m2 0h1m1 0h1m3 0h3m-37 1h1m5 0h1m2 0h1m1 0h13m2 0h1m1 0h1m1 0h2m2 0h2m-38 1h1m4 0h2m2 0h3m1 0h4m4 0h1m2 0h1m1 0h3m1 0h2m6 0h2m-40 1h1m2 0h1m3 0h1m1 0h2m2 0h3m1 0h4m1 0h3m3 0h4m1 0h2m1 0h1m1 0h3m-41 1h2m3 0h2m2 0h3m2 0h1m2 0h1m2 0h2m3 0h5m4 0h2m1 0h1m-38 1h2m1 0h3m2 0h1m2 0h2m1 0h3m2 0h1m1 0h1m1 0h2m2 0h2m3 0h1m2 0h3m-37 1h1m1 0h2m1 0h5m1 0h1m4 0h2m3 0h1m1 0h2m1 0h1m1 0h1m1 0h1m6 0h3m-41 1h2m1 0h2m2 0h2m1 0h6m2 0h2m2 0h2m4 0h2m1 0h1m1 0h2m1 0h2m2 0h1m-40 1h3m2 0h1m3 0h1m5 0h3m2 0h1m5 0h3m2 0h3m1 0h1m-37 1h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h2m3 0h1m1 0h1m1 0h1m2 0h1m3 0h4m1 0h1m1 0h1m-36 1h1m1 0h1m1 0h1m2 0h3m1 0h2m1 0h2m2 0h1m3 0h6m1 0h1m5 0h2m-39 1h1m2 0h3m1 0h2m2 0h1m1 0h1m1 0h2m4 0h1m5 0h1m3 0h2m1 0h7m-41 1h1m1 0h2m2 0h1m2 0h1m3 0h1m6 0h5m1 0h3m4 0h5m-38 1h1m1 0h2m1 0h1m1 0h1m7 0h1m5 0h3m3 0h1m2 0h1m1 0h4m1 0h1m2 0h1m-41 1h1m1 0h1m3 0h1m4 0h1m2 0h2m1 0h1m4 0h2m1 0h3m1 0h2m1 0h5m1 0h2m-32 1h1m1 0h1m1 0h2m1 0h1m2 0h3m2 0h1m2 0h1m1 0h3m1 0h1m3 0h1m2 0h2m-41 1h7m4 0h2m5 0h1m3 0h1m4 0h3m1 0h2m1 0h1m1 0h2m-38 1h1m5 0h1m1 0h1m1 0h1m3 0h3m2 0h2m5 0h5m1 0h1m3 0h2m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h2m1 0h2m1 0h2m9 0h5m1 0h1m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h5m1 0h1m4 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m-39 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m3 0h2m2 0h3m1 0h4m2 0h7m1 0h1m-39 1h1m5 0h1m3 0h1m2 0h3m4 0h3m4 0h2m1 0h1m1 0h1m3 0h2m1 0h1m-40 1h7m1 0h2m1 0h3m2 0h2m1 0h1m2 0h8m1 0h1m3 0h2m1 0h1"/></g></svg>
-        <p class="url"><a href="https://oopsdev.github.io/ai-model-internals/08-classical-ml-and-feature-engineering.html" target="_blank" rel="noopener">掃描開啟：08 傳統 ML 與特徵工程</a></p></div>
+        <p class="url"><a href="https://oopsdev.github.io/ai-model-internals/08-classical-ml-and-feature-engineering.html">掃描開啟：08 傳統 ML 與特徵工程</a></p></div>
       </div>
     </div>
-    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#volumes" target="_blank" rel="noopener">教材首頁：分冊總覽</a></p>
+    <p class="ref">延伸閱讀：<a href="https://oopsdev.github.io/ai-model-internals/index.html#volumes">教材首頁：分冊總覽</a></p>
     <aside class="notes">完成標準：聽完後能用自己的話說明訓練與推論的差異、loss／gradient／optimizer 的關係、CNN／Transformer／GBDT 的主要差異、為什麼不能只看 training accuracy，以及量化改變了什麼、為什麼實際記憶體不只有權重。</aside>
   </section>
 
@@ -775,6 +775,10 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
     if (s.scrollHeight > s.clientHeight + 2) s.style.overflow = '';
   }
   function refit(){ if (slides[i]) fitSlide(slides[i]); }
+  // 延伸閱讀預設在同一頁開啟（可按返回回到原投影片）；從 iOS 主畫面以全螢幕開啟時沒有返回鍵，改為另開 Safari
+  if (window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)) {
+    Array.prototype.forEach.call(document.querySelectorAll('.ref a, .route .url a'), function(a){ a.target = '_blank'; a.rel = 'noopener'; });
+  }
   window.addEventListener('resize', refit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
   window.addEventListener('load', refit);
