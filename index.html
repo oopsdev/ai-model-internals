@@ -360,7 +360,7 @@ AI（人工智慧）
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
     <a href="#1.5" xlink:href="#1.5"><text x="95" y="72">標準化 §1.5</text></a><a href="#6" xlink:href="#6"><text x="95" y="86">超參數 §6</text></a>
-    <a href="#1.3" xlink:href="#1.3"><text x="260" y="70">matmul §1.3</text></a><a href="#1.2" xlink:href="#1.2"><text x="260" y="84">神經元 §1.2·激活 §3.2</text></a>
+    <a href="#1.3" xlink:href="#1.3"><text x="260" y="70">matmul §1.3</text></a><text x="260" y="84"><a href="#1.2" xlink:href="#1.2"><tspan>神經元 §1.2</tspan></a><tspan>·</tspan><a href="#8" xlink:href="#8"><tspan>激活 §8</tspan></a></text>
     <a href="#3" xlink:href="#3"><text x="425" y="70">MSE §3·交叉熵 §3.2</text></a><a href="#2" xlink:href="#2"><text x="425" y="84">最大似然 §2</text></a>
     <a href="#4" xlink:href="#4"><text x="590" y="70">偏導·鏈鎖律 §4</text></a><text x="590" y="84">梯度·Jacobian</text>
     <a href="#4.2" xlink:href="#4.2"><text x="755" y="70">梯度下降 §4.2/§5</text></a><a href="#1.4" xlink:href="#1.4"><text x="755" y="84">正則化 §1.4·§6</text></a>
@@ -432,7 +432,7 @@ AI（人工智慧）
 <tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td>下一個 token 的機率分布 → 取樣出的 token</td><td><a href="#3.3">§3.3</a>, <a href="#2">§2</a>, <a href="#16">§16</a></td></tr>
 </tbody>
 </table></div>
-<blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（<a href="#13">§13</a>）。</p></blockquote>
+<blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需查表式 embedding</strong>；ViT 則會把影像 patch 線性投影成 patch embedding，見 <a href="#13">§13</a>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（<a href="#13">§13</a>）。</p></blockquote>
 <blockquote><p><strong>註：表中的「參數」是什麼?</strong> ①「更新參數」更新的，就是<strong>模型參數</strong>——<strong>訓練學出、推論時固定的所有權重＋偏置</strong>（各架構的參數組成見 <a href="#params">§11.3 各架構的參數組成</a>）；訓練前人為設定、不屬於模型權重的「超參數」則見 <a href="#6">§6 正則化</a>。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
@@ -1024,7 +1024,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>例：$(2,1)\cdot\frac1{\sqrt2}(1,1)=\frac{3}{\sqrt2}\approx2.12$。注意 $(2,1)$ 與 $(1,2)$ <strong>都變 2.12</strong> — 它們沿 $\mathbf{v}_1$ 落在同位置、只差在被丟掉的 $\mathbf{v}_2$ 方向；分不出這兩點，就是那損失的 10%。若這 10% 不重要，用 1 個數取代 2 個數就很划算（真實場景：50 維壓到 5 維幾乎不失真）。</p>
 <p>因為 $\mathbf{C}$ <strong>對稱</strong>，特徵向量必互相垂直 → 主軸是一組<strong>正交新座標系</strong>（呼應 1.3.1 換座標系）。幾何上 $\mathbf{C}$ 把資料雲編碼成一個沿 $(1,1)$ 拉長的橢圓：長軸方向 = $\mathbf{v}_1$、半軸長² = 特徵值。</p>
 
-<blockquote><p><strong>工程意涵。</strong> 「模型推論」在數學上 ≈ 一串矩陣乘法。模型大小（參數量）≈ 所有 $\mathbf{W}$ 的元素數；推論算力 ≈ 矩陣乘法次數 (FLOPs)。這直接對應「模型越大越吃 VRAM 與算力」。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 「模型推論」在數學上 ≈ 一串矩陣乘法。模型大小（參數量）≈ 所有 $\mathbf{W}$ 的元素數；推論算力可粗估為矩陣乘法次數 (FLOPs)（實際還受序列長度、batch、稀疏性與記憶體頻寬影響，<a href="#20.1">§20.1</a>）。這直接對應「模型越大越吃 VRAM 與算力」。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1661,7 +1661,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>訓練</strong> = 重複多個 epoch，直到<strong>驗證損失觸底（早停）</strong>或達 max epoch 上限。</li>
 </ul>
 <p><strong>w、b 多久更新一次？每一步（每個 mini-batch），不是每個 epoch。</strong> 更新在 batch 迴圈<strong>裡面</strong>——一個 epoch 有「資料量 ÷ batch size」步，w、b 就被更新那麼多次。而且是<strong>同一組參數的值一直被原地修改</strong>（$\theta \leftarrow \theta-\eta\nabla L$），不是「每輪產生一組全新的」；epoch 只是「資料跑完一遍」的計數單位。</p>
-<p><strong>訓練可重現嗎？（同資料 + 同初始權重 ≠ 同參數）</strong> 預設<strong>不可重現</strong>——即使固定初始權重、用同一組資料，每次跑出的參數多半仍略不同，因為訓練還有其他隨機源：<strong>mini-batch 洗牌順序（<a href="#5.1">§5.1</a>）、Dropout（<a href="#10">§10</a>）、資料增強、GPU 平行運算的浮點非確定性</strong>。要<strong>完全可重現（bit-for-bit）</strong>須把<strong>所有 seed 固定</strong>（初始化 / shuffle / dropout / augmentation）＋<strong>強制確定性運算</strong>（deterministic CUDA / 單執行緒）＋<strong>相同硬體與函式庫版本</strong>。又因損失曲面非凸、有很多局部解，不同隨機路徑會走到<strong>不同但表現相近</strong>的解；實務追求「<strong>結果穩定相近</strong>」而非「參數完全相同」，只有做<strong>可重現實驗</strong>（論文 / 除錯 / 對照）才刻意鎖死所有隨機。</p>
+<p><strong>訓練可重現嗎？（同資料 + 同初始權重 ≠ 同參數）</strong> 預設<strong>不可重現</strong>——即使固定初始權重、用同一組資料，每次跑出的參數多半仍略不同，因為訓練還有其他隨機源：<strong>mini-batch 洗牌順序（<a href="#5.1">§5.1</a>）、Dropout（<a href="#6.1">§6.1</a>）、資料增強、GPU 平行運算的浮點非確定性</strong>。要<strong>完全可重現（bit-for-bit）</strong>須把<strong>所有 seed 固定</strong>（初始化 / shuffle / dropout / augmentation）＋<strong>強制確定性運算</strong>（deterministic CUDA / 單執行緒）＋<strong>相同硬體與函式庫版本</strong>。又因損失曲面非凸、有很多局部解，不同隨機路徑會走到<strong>不同但表現相近</strong>的解；實務追求「<strong>結果穩定相近</strong>」而非「參數完全相同」，只有做<strong>可重現實驗</strong>（論文 / 除錯 / 對照）才刻意鎖死所有隨機。</p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1735,7 +1735,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <ul>
 <li><strong>神經元數</strong> = 各<strong>隱藏層 + 輸出層</strong>寬度相加（輸入層是特徵、不算）：$8+6+3=\mathbf{17}$。</li>
 <li><strong>參數量</strong>（權重 + 偏置，「幾 B 參數」講的是這個）：$\sum_l(m_l\times m_{l-1}+m_l)=(8{\times}4{+}8)+(6{\times}8{+}6)+(3{\times}6{+}3)=40+54+21=\mathbf{115}$。</li>
-<li>→ <strong>17 個神經元、115 個參數</strong>——兩者不同；模型大小 / 算力（<a href="#17">§17</a>、<a href="#20">§20</a>）看的是<strong>參數量</strong>，不是神經元數。CNN 則較少數神經元，看 <strong>filter 數 / 通道數與參數量</strong>（<a href="#11.4">§11.4</a>）。</li>
+<li>→ <strong>17 個神經元、115 個參數</strong>——兩者不同；模型大小 / 算力（<a href="#17">§17</a>、<a href="#20">§20</a>）粗估看的是<strong>參數量</strong>，不是神經元數。CNN 則較少數神經元，看 <strong>filter 數 / 通道數與參數量</strong>（<a href="#11.4">§11.4</a>）。</li>
 </ul>
 <p><strong>全連接 (fully connected / Dense)</strong>：每個神經元連到上一層<strong>所有</strong>輸出（$\mathbf{W}$ 是滿矩陣）。CNN（<a href="#11">§11</a>）則是<strong>局部連接 + 權重共享</strong>（filter 只看局部），參數少很多——這是兩者的結構差異。各層維度誰決定：<strong>輸入 = 特徵數（資料）、輸出 = 任務、隱藏層寬 $m_l$ 與層數 $L$ = 超參數（<a href="#6">§6</a>、<a href="#7">§7</a>）</strong>。</p>
 <p>一路算到最後一層 $\mathbf{a}^{(L)}$ 就是輸出（分類則再過 softmax）。</p>
@@ -1936,7 +1936,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <p>淺層 filter 學到邊緣 / 角 / 紋理等<strong>低階樣板</strong>，多層堆疊後組合成部件、物件等<strong>高階樣板</strong>——就是「在越來越抽象的樣板空間裡量對齊」（呼應 <a href="#1.3">§1.3.1</a> 逐層換座標）。</p>
 <blockquote><p><strong>filter 是「學出來」的，不是人設計的。</strong> filter 的數值就是<strong>權重</strong>：一開始隨機初始化，再用梯度下降＋反向傳播訓練（<a href="#1.2">§1.2</a>、<a href="#4">§4</a>）。資料與損失會自動逼它長成有用的樣板——淺層自己學成邊緣/角、深層組合成部件/物件，沒有人手動設定「去學邊緣」。（本節與 <a href="#11.1">§11.1</a> 示意圖的 filter 數字是<strong>為講解手填</strong>的；只有傳統影像處理才用人工設計的固定 filter，如 Sobel、高斯模糊。）</p></blockquote>
 
-<p><strong>filter 的初始值怎麼來（從零訓練）。</strong> 每一層、每個 filter、每個輸入通道的權重都<strong>各自獨立隨機抽樣</strong>——這樣才能<strong>打破對稱 (symmetry breaking)</strong>：若同層 filter 初值都一樣，會收到相同梯度、學到一模一樣的東西，多幾個 filter 也是白費。配 ReLU 常用 <strong>He 初始化</strong>：從變異數 $2/\text{fan\_in}$ 的分布抽，其中一個 filter 的 $\text{fan\_in}=F\times F\times C_{in}$（它的參數數，故<strong>不同層的隨機尺度不同</strong>）；偏置 $b$ 一律設 0（初始化細節見 <a href="#8">§8</a>）。<strong>例外</strong>：用<strong>預訓練 / 遷移學習</strong>時，部分或全部 filter 是從別的模型（如在 ImageNet 訓練好的）<strong>複製</strong>來當初始值、再微調（<a href="#17">§17</a>），只有新加的層才隨機——此時就不是全部隨機。</p>
+<p><strong>filter 的初始值怎麼來（從零訓練）。</strong> 每一層、每個 filter、每個輸入通道的權重都<strong>各自獨立隨機抽樣</strong>——這樣才能<strong>打破對稱 (symmetry breaking)</strong>：若同層 filter 初值都一樣，會收到相同梯度、學到一模一樣的東西，多幾個 filter 也是白費。配 ReLU 常用 <strong>He 初始化</strong>：從變異數 $2/\text{fan\_in}$ 的分布抽，其中一個 filter 的 $\text{fan\_in}=F\times F\times C_{in}$（它的參數數，故<strong>不同層的隨機尺度不同</strong>）；偏置 $b$ 一律設 0（初始化細節見 <a href="#10.1">§10.1</a>）。<strong>例外</strong>：用<strong>預訓練 / 遷移學習</strong>時，部分或全部 filter 是從別的模型（如在 ImageNet 訓練好的）<strong>複製</strong>來當初始值、再微調（<a href="#17">§17</a>），只有新加的層才隨機——此時就不是全部隨機。</p>
 
 <h3 id="11.3">11.3 三個關鍵性質（為什麼卷積適合影像）</h3>
 <ul>
@@ -2216,7 +2216,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li>以<strong>檢索目標</strong>訓練：常用<strong>對比學習 (contrastive learning)</strong>，讓「query 與相關文件」的向量接近、與不相關文件的向量拉遠。有的模型對 query 與文件使用不同的前綴指令或編碼器。</li>
 <li><strong>RAG 流程</strong>：把文件段落與查詢都 embed 成向量，用餘弦相似度（或內積）找最相關段落 → 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
 <li><strong>「意思相近 → 向量相近」在這裡是明確的訓練目標</strong>；對 lookup embedding 而言只是訓練後的傾向（<a href="#13.1">§13.1</a>）。</li>
-<li>query 與文件必須用<strong>同一個 embedding 模型</strong>（及相同前處理）編碼，向量才能互相比較。</li>
+<li>query 與文件必須用<strong>同一套 embedding 系統</strong>編碼（同一個模型，或成對訓練的 query / 文件編碼器），並依該模型規定的前綴或前處理，向量才能互相比較。</li>
 </ul>
 <blockquote><p><strong>工程意涵。</strong> RAG 靠 retrieval embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>檢索品質很大程度取決於 embedding 模型是否符合你的語言、領域與查詢型態</strong>，應以自己的資料評估（如 recall@k，<a href="#18.3">§18.3</a>）。</p></blockquote>
 
@@ -2317,7 +2317,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <tbody>
 <tr><td>0. token ids</td><td>tokenizer 輸出（<a href="#12">§12</a>）</td><td><code>[1, 4]</code></td></tr>
 <tr><td>1. embedding lookup</td><td>查表 $E$（大小 $|V|\times 8$），每個 id 取一列（<a href="#13.1">§13.1</a>）</td><td><code>[1, 4, 8]</code></td></tr>
-<tr><td>2. 加入位置資訊</td><td>注意力本身不分先後，需補位置：加上絕對位置 embedding；或用 RoPE 等方法在 Q、K 上旋轉（不改 shape）</td><td><code>[1, 4, 8]</code></td></tr>
+<tr><td>2. 加入位置資訊</td><td>注意力本身不分先後，需補位置：例如加上絕對位置 embedding（RoPE 等方法則不在這一步加，而是在步驟 4 之後對 Q、K 旋轉，不改 shape）</td><td><code>[1, 4, 8]</code></td></tr>
 <tr><td>3. LayerNorm</td><td>（Pre-LN）每個 token 的 8 維各自正規化（<a href="#10">§10</a>）</td><td><code>[1, 4, 8]</code></td></tr>
 <tr><td>4. QKV 投影</td><td>$Q=XW_Q,\ K=XW_K,\ V=XW_V$，三個 $W$ 各 $8\times 8$，都是學出來的參數</td><td><code>各 [1, 4, 8]</code></td></tr>
 <tr><td>5. 拆成多頭</td><td>8 維切成 $h=2$ 頭 × $d_\text{head}=4$，並把頭的軸移到前面</td><td><code>各 [1, 2, 4, 4]</code></td></tr>
@@ -2364,6 +2364,16 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 </ul>
 <p>$$\text{KV cache bytes}\approx 2\times L\times n_\text{kv}\times d_\text{head}\times n\times B\times(\text{每元素 bytes})$$</p>
 <p>（2＝K 與 V 各一份；$L$＝層數、$n_\text{kv}$＝KV head 數。GQA / MQA 讓多個 query 頭共用較少的 KV head，就是為了縮小這一項。）</p>
+<p><strong>prefill vs 單步 decode 的 shape</strong>（沿用 <a href="#15.2">§15.2</a> 的例子：$h=2$、$d_\text{head}=4$；既有 context 長度 $n$）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>prefill（一次處理 $n$ 個 token）</th><th>decode 單步（只處理 1 個新 token）</th></tr></thead>
+<tbody>
+<tr><td>Q</td><td><code>[1, 2, n, 4]</code></td><td><code>[1, 2, 1, 4]</code></td></tr>
+<tr><td>K、V</td><td><code>[1, 2, n, 4]</code>，算完寫入 KV cache</td><td>新 token 的 <code>[1, 2, 1, 4]</code> 接到 cache 後 → <code>[1, 2, n+1, 4]</code></td></tr>
+<tr><td>注意力分數 $QK^\top$</td><td><code>[1, 2, n, n]</code></td><td><code>[1, 2, 1, n+1]</code></td></tr>
+<tr><td>注意力輸出（concat 後）</td><td><code>[1, n, 8]</code></td><td><code>[1, 1, 8]</code></td></tr>
+<tr><td>LM head logits</td><td><code>[1, n, |V|]</code>（生成只用最後一個位置）</td><td><code>[1, 1, |V|]</code></td></tr>
+</tbody></table></div>
 <blockquote><p><strong>工程意涵。</strong> prefill 階段運算密集、較常受算力限制；decode 階段每步計算量小，但要讀取全部權重與 KV cache，較常受<strong>記憶體頻寬</strong>限制。長 context 同時推高 prefill 的計算量與 KV cache 的記憶體需求——這是 LLM 推論需要大容量、高頻寬記憶體的主因之一。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
@@ -2493,10 +2503,10 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li>模型可能排序很好（AUC 高），但機率系統性偏高或偏低。類別加權、過採樣、強正則化等訓練設定都可能讓輸出機率偏離實際頻率。</li>
 <li><strong>Brier score</strong> $=\frac1N\sum_i (p_i-y_i)^2$：預測機率與 0/1 結果的平方差，越低越好；同時反映區辨力與校準。</li>
 <li><strong>ECE（Expected Calibration Error）</strong>：把預測機率分成 $M$ 個區間，比較每個區間的平均預測機率 $\bar p_b$ 與實際正類比例 $o_b$：$\text{ECE}=\sum_{b=1}^{M}\frac{n_b}{N}\,|o_b-\bar p_b|$。數值會受分箱數與分箱方式影響，報告時要註明。</li>
-<li><strong>Reliability diagram（可靠度圖）</strong>：橫軸為各區間的平均預測機率、縱軸為實際正類比例；點落在對角線上表示校準良好，落在對角線下方表示過度自信。</li>
+<li><strong>Reliability diagram（可靠度圖）</strong>：橫軸為各區間的平均預測機率、縱軸為實際正類比例；點落在對角線上表示校準良好；落在對角線下方表示預測機率高於實際比例（高估）。過度自信的模型通常在高機率區落在下方、低機率區落在上方。</li>
 <li><strong>校準方法</strong>：Platt scaling（擬合一個 sigmoid）、isotonic regression、temperature scaling（NN 常用）。校準器要在 <strong>validation set</strong> 上擬合，不可用 test set。</li>
 </ul>
-<figure><svg viewBox="0 0 420 280" style="max-width:100%" role="img" aria-label="Reliability diagram：對角線為完美校準，過度自信的模型點落在對角線下方">
+<figure><svg viewBox="0 0 450 280" style="max-width:100%" role="img" aria-label="Reliability diagram：對角線為完美校準，過度自信的模型在高機率區落在對角線下方">
   <defs><marker id="relax" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#94a3b8"/></marker></defs>
   <line x1="50" y1="230" x2="262" y2="230" stroke="#94a3b8" marker-end="url(#relax)"/><line x1="50" y1="230" x2="50" y2="20" stroke="#94a3b8" marker-end="url(#relax)"/>
   <g fill="#94a3b8" font-size="10" text-anchor="middle"><text x="50" y="244">0</text><text x="150" y="244">0.5</text><text x="250" y="244">1</text></g>
@@ -2515,7 +2525,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
   <text x="278" y="164" fill="#f87171" font-size="10.5">|o − p̄|（ECE 的加權來源）</text>
   <text x="278" y="200" fill="#cbd5e1" font-size="10.5">例：預測 0.9 的那一群，</text>
   <text x="278" y="214" fill="#cbd5e1" font-size="10.5">實際只有 0.7 是正類</text>
-</svg><figcaption>Reliability diagram（幾何意義）：每個點是一個預測機率區間。點在對角線上 = 說幾成就真的是幾成；點在對角線下方 = 說得比實際更有把握（過度自信）。各區間到對角線的垂直距離依樣本數加權平均，就是 ECE。</figcaption></figure>
+</svg><figcaption>Reliability diagram（幾何意義）：每個點是一個預測機率區間。點在對角線上 = 說幾成就真的是幾成；點在對角線下方 = 預測機率高於實際比例（高估）。此例高機率區落在下方、低機率區（0.1）略在上方，是典型的過度自信形狀。各區間到對角線的垂直距離依樣本數加權平均，就是 ECE。</figcaption></figure>
 <p><strong>門檻選擇的完整流程：</strong></p>
 <ol>
 <li>在 training set 訓練模型（必要時在 validation set 上校準）。</li>
@@ -2645,7 +2655,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>脈動陣列 (systolic array)</strong>：一整片 MAC 單元排成網格，資料像水流過、每個單元邊流邊乘加 → 一次吞一大塊矩陣乘，能效比 GPU 更高。</li>
 <li>晶片面積大量用於乘加器，並常針對<strong>低精度</strong>運算最佳化 → 低功耗高吞吐，<strong>適合邊緣設備</strong>（代價是通用性低）。支援的數值格式<strong>依硬體而異</strong>：常見 INT8、INT4，也有 FP16、BF16 或混合精度。</li>
 </ul>
-<p><strong>反向傳播的「微積分」也是矩陣乘法。</strong> 以一層 $\mathbf{z}=\mathbf{W}\mathbf{x}$ 為例（鏈鎖律，3.2）：</p>
+<p><strong>反向傳播的「微積分」也是矩陣乘法。</strong> 以一層 $\mathbf{z}=\mathbf{W}\mathbf{x}$ 為例（鏈鎖律，<a href="#4.3">§4.3</a>）：</p>
 <p>$$\text{前向：}\ \mathbf{z}=\mathbf{W}\mathbf{x}\qquad \text{反向：}\ \frac{\partial L}{\partial \mathbf{x}}=\mathbf{W}^\top\frac{\partial L}{\partial \mathbf{z}},\quad \frac{\partial L}{\partial \mathbf{W}}=\frac{\partial L}{\partial \mathbf{z}}\,\mathbf{x}^\top$$</p>
 <p>反向兩式<strong>又都是 matmul</strong>；激活函數的導數是逐元素運算。所以「訓練 = 前向 matmul + 反向 matmul + 逐元素」，全是 GPU/NPU 的強項；<strong>自動微分 (autodiff)</strong> 就是把微分自動拆成這串可平行運算。</p>
 <blockquote><p><strong>工程意涵。</strong> ① <strong>訓練 vs 推論</strong>：就同一個模型、同一批樣本或 token 而言，一次訓練步驟（前向＋反向＋更新）遠貴於一次推論，且訓練要重複多輪 → 對應「邊緣做推論、再訓練放中央」；但上線後的<strong>總推論量</strong>可能遠高於一次訓練。② <strong>參數量只能粗估計算量</strong>：dense Transformer 推論每個 token 約 $2\times$ 參數量 FLOPs，可當直覺；實際成本還受序列長度、activation、稀疏性（如 MoE 每次只啟用部分參數）、batch、架構與記憶體頻寬影響。③ <strong>量化</strong>（依硬體支援的格式，如 INT8 / INT4）可提高吞吐、降低記憶體 → 邊緣落地的關鍵之一。</p></blockquote>
@@ -2870,7 +2880,7 @@ $$r_{im}=-\left[\frac{\partial L\big(y_i,F(x_i)\big)}{\partial F(x_i)}\right]_{F
 <ul>
 <li><strong>平方損失</strong> $L=\tfrac12(y-F)^2$：$-\partial L/\partial F=y-F$ ＝<strong>普通殘差</strong>（所以 C.5 直接用殘差）。</li>
 <li><strong>換損失就換目標</strong>：如分類用的對數損失，負梯度<strong>不再等於</strong>普通殘差（見 C.7）——別把「殘差」與「負梯度」畫等號。</li>
-<li><strong>一階 vs 二階</strong>：上式是經典 GBM（Friedman）的做法——新樹擬合負梯度，再算葉值。XGBoost / LightGBM 則對損失做<strong>二階泰勒近似</strong>，同時用梯度 $g_i$ 與 Hessian（二階導）求分裂增益與葉值 $w=-G/(H+\lambda)$（C.9），相當於在每片葉子上走一步<strong>牛頓法 (Newton step)</strong>。此時學習率 $\eta$ 的角色是 <strong>shrinkage（收縮係數）</strong>：把每棵樹的貢獻再打折，換取更穩的泛化。（符號提醒：C.9 的 Hessian $h_i$ 以樣本 $i$ 為下標，第 $m$ 棵樹 $h_m$ 以輪次 $m$ 為下標，兩者不同。）</li>
+<li><strong>一階 vs 二階</strong>：上式是經典 GBM（Friedman）的基本形式——新樹擬合負梯度，再算葉值（Friedman 處理 logistic 損失時，葉值已用一步牛頓近似）。XGBoost / LightGBM 則把損失的<strong>二階泰勒近似</strong>同時用在分裂增益與葉值：用梯度 $g_i$ 與 Hessian（二階導）求得葉值 $w=-G/(H+\lambda)$（C.9），相當於在每片葉子上走一步<strong>牛頓法 (Newton step)</strong>。學習率 $\eta$ 的角色是 <strong>shrinkage（收縮係數）</strong>：把每棵樹的貢獻再打折，換取更穩的泛化。（符號提醒：C.9 的 Hessian $h_i$ 以樣本 $i$ 為下標，第 $m$ 棵樹 $h_m$ 以輪次 $m$ 為下標，兩者不同。）</li>
 <li><strong>每輪看的是全部樣本</strong>：新樹擬合的是<strong>所有樣本</strong>的梯度；誤差大的樣本梯度大，對切分與葉值的影響也大，但不是「只挑錯的樣本來學」。這和 AdaBoost「調高錯誤樣本權重」的做法不同。（LightGBM 的 GOSS 依梯度大小抽樣，是加速手段，見 C.8。）</li>
 </ul>
 
@@ -2908,7 +2918,7 @@ $$F_M(x)=F_0+\eta\sum_{m=1}^{M}h_m(x)$$
 <tr><td>模型形式</td><td>$\sum_i w_i x_i+b$</td><td>$F_0+\eta\sum_m h_m(x)$</td></tr>
 <tr><td>加總的對象</td><td><strong>特徵</strong>（各乘一個固定權重）</td><td><strong>樹</strong>（每棵都是非線性函數）</td></tr>
 <tr><td>權重 / 門檻來源</td><td>人定；或由線性 / 邏輯迴歸從資料學</td><td>不設逐特徵權重；分裂與葉值由損失函數在資料上逐輪貪婪決定</td></tr>
-<tr><td>特徵從 30→40 與 80→90</td><td>對預測的影響必定相同</td><td>可以不同</td></tr>
+<tr><td>特徵從 30→40 與 80→90</td><td>對預測的影響必定相同（邏輯迴歸指 logit 尺度）</td><td>可以不同</td></tr>
 <tr><td>特徵交互</td><td>需手動加交叉項</td><td>樹深 &gt; 1 時有能力表達</td></tr>
 <tr><td>解讀方式</td><td>係數直觀；但特徵相關或尺度不同時，不能直接當重要性或因果</td><td>需事後分析：feature importance（無方向）、SHAP / partial dependence（有方向）</td></tr>
 </tbody></table></div>
@@ -2937,7 +2947,7 @@ $$g_i=\frac{\partial L}{\partial F}=p_i-y_i\quad\Rightarrow\quad\text{負梯度}
 </ul>
 
 <h3>C.9 用到的數學運算（不需矩陣乘法）</h3>
-<p><strong>LightGBM 不像 NN 靠矩陣乘法 (matmul)</strong>，核心是<strong>統計累加 + 純量算術 + 比較</strong>——這是它 CPU-friendly、不太需要 GPU 的根本原因。</p>
+<p><strong>LightGBM 不像 NN 靠矩陣乘法 (matmul)</strong>，核心是<strong>統計累加 + 純量算術 + 比較</strong>——這是它在多數中小型情境下 CPU 就足夠的主因；GPU 能帶來多少收益需實測（見本節末）。</p>
 <div class="tablewrap"><table>
 <thead><tr><th>運算</th><th>是什麼</th><th>類型</th></tr></thead>
 <tbody>
@@ -3063,7 +3073,7 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 <li><strong>假設關係形式</strong>：先設定 $f$ 的形態（直線、多項式、多變數線性…），留下待定的<strong>參數</strong>（如 $\mathbf{w}, b$）。</li>
 <li><strong>用資料擬合參數</strong>：調參數讓模型<strong>最貼合資料</strong>——通常最小化<strong>殘差平方和</strong>（＝最小平方 / MSE，<a href="#3.1">§3.1</a>）。在「誤差服從高斯分布」假設下，這等價於<strong>最大似然</strong>（<a href="#d1">附錄 D</a>）。</li>
 <li><strong>預測</strong>：把新的自變數代入擬合好的 $f$，得到 $\hat y$，即估計的 $E[y\mid x]$。</li>
-<li><strong>評估</strong>：看 $R^2$、殘差圖、參數顯著性，判斷模型好壞與是否過擬合（<a href="#6">§6</a>、<a href="#18">§18.2</a>）。</li>
+<li><strong>評估</strong>：看 $R^2$、殘差圖、參數顯著性，判斷模型好壞與是否過擬合（<a href="#6">§6</a>、<a href="#18.2">§18.2</a>）。</li>
 </ol>
 
 <h3>E.4 常用的迴歸形式</h3>
@@ -3092,11 +3102,11 @@ $$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最
 <li><strong>線性迴歸</strong>：關係接近直線時最簡潔、可解釋性高。</li>
 <li><strong>複迴歸</strong>：真實問題多半多因子，這是最常用的形式；也正是本教材「$\mathbf{w}^\top\mathbf{x}+b$」的由來。</li>
 <li><strong>多項式迴歸</strong>：資料呈曲線時，用高次項把「直線」彎起來；本質是把 $x,x^2,\dots$ 當成<strong>新特徵</strong>餵給複迴歸（特徵工程的雛形）。</li>
-<li><strong>延伸</strong>：輸出改成「機率」就是<strong>邏輯迴歸</strong>（分類，<a href="#3.2">§3.2</a>）；用「多層 ＋ 非線性 $\sigma$」達成更一般的非線性迴歸，就是<strong>神經網路</strong>（<a href="#1.2">§1.2</a>、<a href="#11">§11</a>）。</li>
+<li><strong>延伸</strong>：輸出改成「機率」就是<strong>邏輯迴歸</strong>（分類，<a href="#3.2">§3.2</a>）；用「多層 ＋ 非線性 $\sigma$」達成更一般的非線性迴歸，就是<strong>神經網路</strong>（<a href="#1.2">§1.2</a>、<a href="#7">§7</a>、<a href="#8">§8</a>）。</li>
 </ul>
 
 <h3>E.5 與本教材的銜接</h3>
-<p>迴歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複迴歸</strong> → <a href="#3">主題 3</a>、神經元的線性部分（<a href="#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="#d1">附錄 D</a>、<a href="#2.3">§2.3</a>；<strong>非線性迴歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="#layer-output">§1.3.1</a>、<a href="#11">§11</a>）；<strong>評估</strong> → $R^2$／MSE 等迴歸指標（<a href="#18">§18.2</a>）。</p>
+<p>迴歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複迴歸</strong> → <a href="#3">主題 3</a>、神經元的線性部分（<a href="#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="#d1">附錄 D</a>、<a href="#2.3">§2.3</a>；<strong>非線性迴歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="#layer-output">§1.3.1</a>、<a href="#7">§7</a>）；<strong>評估</strong> → $R^2$／MSE 等迴歸指標（<a href="#18">§18.2</a>）。</p>
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
 <h2 id="f1">附錄 F — 熵 (Entropy) &amp; 交叉熵 (Cross-Entropy)</h2>
