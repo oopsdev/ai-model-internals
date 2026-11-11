@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 數學推導附錄 — AI 模型原理與數學</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/ai-model-internals.css">
+<script src="assets/ai-model-internals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body class="mathjax_ignore">
+<div class="wrap">
+<header class="doc" id="top">
+<p class="kicker"><a href="index.html">AI 模型原理與數學 — 工程師深入教材</a></p>
+<h1>09. 數學推導附錄</h1>
+<div class="meta"><span>2026-11-11</span><span>v0.3.0</span><span>NikeChen</span></div>
+</header>
+<nav class="volnav"><a href="08-classical-ml-and-feature-engineering.html">← 08 傳統 ML 與特徵工程</a><a href="index.html">教材首頁</a><span class="off"></span></nav>
+<section class="vol-intro mathjax_process"><p><strong>本冊回答：</strong>正文用到的公式從哪裡推出來？</p><p><strong>內容：</strong>餘弦定律、貝氏定理、MSE = 高斯 MLE、熵與交叉熵、高斯密度函數</p><p><strong>先備：</strong>依需要從各冊的引用連入即可。</p></section>
+<nav id="vol-toc" class="vol-toc mathjax_process"><p><strong>本冊目錄</strong></p>
+<ul>
+<li><a href="#a1">附錄 A — 餘弦定律 (Law of Cosines)</a>
+</li>
+<li><a href="#b1">附錄 B — 貝氏定理推導</a>
+</li>
+<li><a href="#d1">附錄 D — MSE ＝ 高斯誤差下的最大似然（推導）</a>
+</li>
+<li><a href="#f1">附錄 F — 熵 (Entropy) &amp; 交叉熵 (Cross-Entropy)</a>
+</li>
+<li><a href="#g1">附錄 G — 高斯分布密度函數的證明（歸一化常數）</a>
+</li>
+</ul></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
+  <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+  <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+</defs></svg>
+<main class="content mathjax_process">
+<h2 id="a1">附錄 A — 餘弦定律 (Law of Cosines)</h2>
+<p>內積的代數定義與幾何定義為何相等 (<a href="01-math-foundations.html#1.1">§1.1</a>)？關鍵是餘弦定律。本附錄先給餘弦定律的敘述 (A.1) 與<strong>自足推導</strong> (A.2，不使用內積)，再用它證明內積兩種定義等價 (A.3)。</p>
+
+<h3>A.1 敘述</h3>
+<p>三角形三邊長 $a, b, c$，設 $C$ 為邊 $c$ 所對的夾角，則</p>
+<p>$$c^2 = a^2 + b^2 - 2ab\cos C$$</p>
+<ul>
+<li><strong>是畢氏定理的推廣</strong>：當 $C=90^\circ$，$\cos C=0$ → $c^2=a^2+b^2$（畢氏定理）。餘弦定律多了修正項 $-2ab\cos C$。</li>
+<li>$C \lt 90^\circ$（銳角）→ $\cos C \gt 0$ → $c^2 \lt a^2+b^2$；$C \gt 90^\circ$（鈍角）→ $\cos C \lt 0$ → $c^2 \gt a^2+b^2$。夾角越大，對邊越長。</li>
+</ul>
+
+<h3>A.2 推導（座標法，最乾淨）</h3>
+<p>把夾角 $C$ 放在原點、邊 $b$ 沿 x 軸：$C=(0,0)$、$A=(b,0)$、$B=(a\cos C,\ a\sin C)$。</p>
+<figure><svg viewBox="0 0 380 210" role="img" aria-label="餘弦定律座標法推導三角形">
+  <line x1="60" y1="170" x2="330" y2="170" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
+  <line x1="60" y1="170" x2="180" y2="55" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
+  <line x1="330" y1="170" x2="180" y2="55" stroke="#fbbf24" stroke-width="2.2"/>
+  <line x1="180" y1="55" x2="180" y2="170" stroke="#64748b" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <path d="M168,170 L168,158 L180,158" fill="none" stroke="#64748b" stroke-width="1"/>
+  <path d="M102,170 A42 42 0 0 0 88,148" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="92" y="161" fill="#94a3b8" font-size="12">C</text>
+  <text x="112" y="106" fill="#38bdf8" font-size="12" font-weight="700">a</text>
+  <text x="255" y="104" fill="#fcd34d" font-size="12" font-weight="700">c</text>
+  <text x="192" y="188" fill="#34d399" font-size="12" font-weight="700">b</text>
+  <text x="186" y="120" fill="#94a3b8" font-size="10.5">a sin C</text>
+  <text x="52" y="188" fill="#94a3b8" font-size="10.5">C=(0,0)</text>
+  <text x="300" y="188" fill="#94a3b8" font-size="10.5">A=(b,0)</text>
+  <text x="150" y="48" fill="#94a3b8" font-size="10.5">B=(a cos C, a sin C)</text>
+</svg><figcaption>把角 C 置於原點、邊 b 沿 x 軸；對 c = |AB| 用距離公式即得餘弦定律</figcaption></figure>
+<p>邊 $c=\lvert AB\rvert$，用距離公式：</p>
+<p>$$c^2 = (b - a\cos C)^2 + (0 - a\sin C)^2$$</p>
+<p>展開：</p>
+<p>$$c^2 = b^2 - 2ab\cos C + a^2\cos^2 C + a^2\sin^2 C$$</p>
+<p>因 $\cos^2 C + \sin^2 C = 1$（畢氏恆等式），$a^2\cos^2 C + a^2\sin^2 C = a^2$：</p>
+<p>$$\boxed{\;c^2 = a^2 + b^2 - 2ab\cos C\;}\qquad\blacksquare$$</p>
+<p>此推導只用了<strong>距離公式 + 畢氏恆等式</strong>，完全獨立於內積，所以下面 A.3「用餘弦定律證內積」不構成循環論證。（等價作法：從 $B$ 對邊 $b$ 作垂線、用畢氏定理分段相加，結果相同。）</p>
+
+<h3>A.3 用餘弦定律證明內積的兩種定義等價</h3>
+<p>內積有兩個定義 — 代數的「<strong>分量乘積之和</strong> $\sum_i a_ib_i$」與幾何的「$\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$」。用 A.2 的餘弦定律可證它們相等。取由 $\mathbf{a}$、$\mathbf{b}$ 與其差 $\mathbf{a}-\mathbf{b}$ 圍成的三角形（夾角 $\phi$）：</p>
+<figure><svg viewBox="0 0 380 210" role="img" aria-label="用餘弦定律推內積的三角形：邊 a、b、a-b">
+  <line x1="70" y1="170" x2="232" y2="58" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#ar-b)"/>
+  <line x1="70" y1="170" x2="330" y2="170" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar-g)"/>
+  <line x1="232" y1="58" x2="330" y2="170" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="6 4"/>
+  <path d="M112,170 A42 42 0 0 0 96,146" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="118" y="162" fill="#94a3b8" font-size="12">φ</text>
+  <text x="132" y="104" fill="#38bdf8" font-size="12" font-weight="700">a　|a|</text>
+  <text x="188" y="188" fill="#34d399" font-size="12" font-weight="700">b　|b|</text>
+  <text x="292" y="108" fill="#fcd34d" font-size="12" font-weight="700">|a−b|</text>
+</svg><figcaption>三邊 |a|、|b|、|a−b| 與夾角 φ；對這個三角形套餘弦定律即可推出內積</figcaption></figure>
+<p><strong>(1) 代數展開</strong>（純用分量、畢氏）：</p>
+<p>$$\lVert\mathbf{a}-\mathbf{b}\rVert^2=\sum_i (a_i-b_i)^2=\sum_i a_i^2-2\sum_i a_ib_i+\sum_i b_i^2=\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2-2\sum_i a_ib_i$$</p>
+<p><strong>(2) 餘弦定律</strong>（A.2，三邊 $\lVert\mathbf{a}\rVert$、$\lVert\mathbf{b}\rVert$、$\lVert\mathbf{a}-\mathbf{b}\rVert$，夾角 $\phi$）：</p>
+<p>$$\lVert\mathbf{a}-\mathbf{b}\rVert^2=\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2-2\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi$$</p>
+<p>兩式左邊同為 $\lVert\mathbf{a}-\mathbf{b}\rVert^2$，右邊相等；消去 $\lVert\mathbf{a}\rVert^2+\lVert\mathbf{b}\rVert^2$ 得：</p>
+<p>$$\boxed{\;\sum_i a_ib_i=\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert\cos\phi\;}$$</p>
+<p>即<strong>「分量乘積之和」恰等於「兩向量長度 × 夾角餘弦」</strong> — 代數與幾何兩種內積定義其實是同一件事，這也解釋了為什麼「分量硬乘相加」會等於「量測方向對齊程度」。</p>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="b1">附錄 B — 貝氏定理推導</h2>
+<p>貝氏定理（<a href="01-math-foundations.html#2.2">§2.2</a>）可由<strong>條件機率的定義</strong>直接推出，不需額外假設。</p>
+<h3>B.1 從條件機率定義出發</h3>
+<p>條件機率的定義：</p>
+<p>$$P(A\mid B)=\frac{P(A\cap B)}{P(B)}\quad\Rightarrow\quad P(A\cap B)=P(A\mid B)\,P(B)$$</p>
+<p>交集是對稱的（$A\cap B=B\cap A$），所以同一個聯合機率也能從另一邊寫：</p>
+<p>$$P(A\cap B)=P(B\mid A)\,P(A)$$</p>
+<p>兩式左邊相同、右邊相等：</p>
+<p>$$P(A\mid B)\,P(B)=P(B\mid A)\,P(A)$$</p>
+<p>兩邊除以 $P(B)$：</p>
+<p>$$\boxed{\;P(A\mid B)=\frac{P(B\mid A)\,P(A)}{P(B)}\;}$$</p>
+<p>換符號 $A\to y$（類別）、$B\to x$（證據 / 特徵）即得 <a href="01-math-foundations.html#2.2">§2.2</a> 的貝氏定理：</p>
+<p>$$P(y\mid x)=\frac{P(x\mid y)\,P(y)}{P(x)}$$</p>
+<h3>B.2 分母 $P(x)$ — 全機率公式（歸一化常數）</h3>
+<p>分母 $P(x)$ 可用<strong>全機率公式</strong>攤開成各類別的貢獻：</p>
+<p>$$P(x)=\sum_{y} P(x\mid y)\,P(y)\quad(\text{離散})\qquad P(x)=\int P(x\mid y)\,P(y)\,dy\quad(\text{連續})$$</p>
+<p>它的角色是<strong>歸一化常數</strong>：確保所有後驗 $P(y\mid x)$ 加起來 = 1。因此貝氏常寫成「後驗 $\propto$ 似然 × 先驗」：</p>
+<p>$$P(y\mid x)\ \propto\ \underbrace{P(x\mid y)}_{\text{似然}}\;\underbrace{P(y)}_{\text{先驗}}$$</p>
+<p>直覺回顧：先驗 $P(y)$ 是看資料前的信念，乘上似然 $P(x\mid y)$、再歸一化，就更新成後驗 $P(y\mid x)$（見 <a href="01-math-foundations.html#2.2">§2.2</a>）。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="d1">附錄 D — MSE ＝ 高斯誤差下的最大似然（推導）</h2>
+<p>3.1 說「MSE 其實是『假設誤差服從高斯分布』下的<strong>最大似然 (MLE)</strong>」。這裡把它推出來——說明<strong>為什麼平方誤差不是隨便挑的</strong>，而是一個明確機率假設的必然結果。</p>
+
+<h3>D.1 假設：誤差服從高斯分布</h3>
+<p>線性迴歸假設真值 $y_i$ 等於模型預測 $\hat y_i=\mathbf{w}^\top\mathbf{x}_i+b$ 再加上一個<strong>隨機誤差 $\varepsilon_i$</strong>：</p>
+$$y_i = \mathbf{w}^\top\mathbf{x}_i + b + \varepsilon_i,\qquad \varepsilon_i \overset{\text{i.i.d.}}{\sim}\mathcal{N}(0,\sigma^2)$$
+<p>也就是誤差<strong>平均為 0</strong>（模型不系統性偏高或偏低）、<strong>變異數固定 $\sigma^2$</strong>、各筆資料<strong>獨立同分布</strong>。等價地說，給定輸入 $\mathbf{x}_i$，真值 $y_i$ 以 $\hat y_i$ 為中心呈高斯分布：</p>
+$$y_i\mid\mathbf{x}_i\ \sim\ \mathcal{N}(\hat y_i,\ \sigma^2)$$
+
+<h3>D.2 寫出似然</h3>
+<p>單筆資料的機率密度（高斯 PDF，見 <a href="01-math-foundations.html#2.1">§2.1</a> 表）：</p>
+$$p(y_i\mid\mathbf{x}_i)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y_i-\hat y_i)^2}{2\sigma^2}\right)$$
+<p>因各筆獨立，整份資料的<strong>似然</strong>是連乘（<a href="01-math-foundations.html#2">§2.3</a>）：</p>
+$$L(\mathbf{w},b)=\prod_{i=1}^{N}p(y_i\mid\mathbf{x}_i)$$
+
+<h3>D.3 取對數（連乘 → 連加）</h3>
+<p>連乘難處理，取<strong>對數似然</strong>（log 單調遞增，最大化 $L$ 等價於最大化 $\log L$）：</p>
+$$\log L=\sum_{i=1}^{N}\left[-\tfrac12\log(2\pi\sigma^2)-\frac{(y_i-\hat y_i)^2}{2\sigma^2}\right]=-\frac{N}{2}\log(2\pi\sigma^2)-\frac{1}{2\sigma^2}\sum_{i=1}^{N}(y_i-\hat y_i)^2$$
+
+<h3>D.4 對 $\mathbf{w},b$ 最大化 ＝ 對 MSE 最小化</h3>
+<p>右邊第一項 $-\tfrac N2\log(2\pi\sigma^2)$ <strong>與 $\mathbf{w},b$ 無關</strong>（常數）；第二項前面的 $\tfrac{1}{2\sigma^2}$ 是<strong>正的常數</strong>。所以「調 $\mathbf{w},b$ 讓 $\log L$ 最大」只剩下一件事——讓 $\sum(y_i-\hat y_i)^2$ <strong>最小</strong>：</p>
+$$\arg\max_{\mathbf{w},b}\ \log L\ =\ \arg\min_{\mathbf{w},b}\ \sum_{i=1}^{N}(y_i-\hat y_i)^2\ =\ \arg\min_{\mathbf{w},b}\ \underbrace{\frac1N\sum_{i=1}^{N}(y_i-\hat y_i)^2}_{\text{MSE}}$$
+<p>（除以 $N$ 也是正常數，不影響 $\arg\min$。）</p>
+$$\boxed{\ \text{高斯誤差下的最大似然}\ \Longleftrightarrow\ \text{最小化 MSE}\ }$$
+
+<h3>D.5 意涵</h3>
+<ul>
+<li><strong>平方不是任意選的</strong>：它直接來自高斯 PDF 指數項裡的 $(y-\hat y)^2$。換一種誤差假設就換一種損失——例如假設誤差服從<strong>拉普拉斯分布</strong>，MLE 會變成最小化<strong>絕對誤差 (MAE, $\sum|y_i-\hat y_i|$)</strong>。</li>
+<li><strong>呼應「選損失＝做假設」</strong>（<a href="01-math-foundations.html#3.1">§3.1</a>、<a href="01-math-foundations.html#2.3">§2.3</a>）：MSE ↔ 高斯、交叉熵 ↔ 類別分布，都是最大似然的特例。</li>
+<li><strong>$\sigma^2$ 去哪了</strong>：它不影響 $\arg\min$（不改變最佳 $\mathbf{w},b$），但會影響對數似然的絕對值；若也要估 $\sigma^2$，對它取偏導＝0 會得到「$\sigma^2$ ＝殘差的平均平方」，正是最小化後的 MSE 本身。</li>
+</ul>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="f1">附錄 F — 熵 (Entropy) &amp; 交叉熵 (Cross-Entropy)</h2>
+<p><a href="01-math-foundations.html#3.2">§3.2</a> / <a href="01-math-foundations.html#3.3">§3.3</a> 用<strong>交叉熵</strong>當分類損失、<a href="01-math-foundations.html#2.3">§2.3</a> 說它是<strong>負對數似然</strong>。本附錄補上背後的資訊理論：資訊量 → 熵 → 交叉熵 → KL 散度，以及為什麼分類用它。</p>
+
+<h3>F.1 資訊量：越意外，資訊越多</h3>
+<p>一個機率為 $p$ 的事件發生時，帶來的<strong>資訊量</strong>定義為 $I = -\log p$。</p>
+<ul>
+<li><strong>越不可能的事發生，資訊越多</strong>（越「驚訝」）：太陽升起（$p\approx1$）→ $I\approx0$（沒新意）；中樂透（$p$ 極小）→ $I$ 很大。</li>
+<li>為什麼用 $-\log$：要讓「兩獨立事件一起發生的資訊 ＝ 各自資訊相加」（$-\log(p_1p_2)=-\log p_1-\log p_2$），且機率越小資訊越大。</li>
+<li>單位：$\log_2$ → <strong>bit</strong>；$\ln$（自然對數）→ <strong>nat</strong>（ML 多用 nat）。</li>
+</ul>
+
+<h3>F.2 熵：一個分布的「平均資訊量／不確定性」</h3>
+<p>把分布 $p$ 的資訊量取<strong>期望</strong>，就是<strong>熵 (entropy)</strong>：</p>
+<p>$$H(p) = -\sum_x p(x)\log p(x) = \mathbb{E}_{x\sim p}[-\log p(x)]$$</p>
+<ul>
+<li>直覺：<strong>分布越均勻（越不確定）→ 熵越大；越集中（越確定）→ 熵越小</strong>。它量化「這個分布有多不確定／多亂」。</li>
+<li>例：公平硬幣 $H=1$ bit（最不確定）；兩面都正的硬幣 $H=0$（完全確定）；公平骰子 $H=\log_2 6\approx2.58$ bits。</li>
+<li><strong>用途</strong>：量化不確定性；<strong>資料壓縮的理論下限</strong>（Shannon）——無損編碼平均至少要 $H$ bits/符號。</li>
+</ul>
+<figure><svg viewBox="0 0 420 210" role="img" aria-label="二元熵曲線：H(p) 在 p=0.5 最高、兩端為 0">
+  <line x1="60" y1="170" x2="380" y2="170" stroke="#475569" stroke-width="1.3"/>
+  <line x1="60" y1="30" x2="60" y2="170" stroke="#475569" stroke-width="1.3"/>
+  <polyline points="60,170 90,109 120,76 150,55 180,44 210,40 240,44 270,55 300,76 330,109 360,170" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="210" y1="40" x2="210" y2="170" stroke="#64748b" stroke-width="1" stroke-dasharray="4 3"/>
+  <circle cx="210" cy="40" r="4" fill="#fbbf24"/>
+  <text x="210" y="28" fill="#fcd34d" font-size="11" text-anchor="middle">最不確定（H=1）</text>
+  <text x="60" y="185" fill="#94a3b8" font-size="10" text-anchor="middle">0</text>
+  <text x="210" y="185" fill="#94a3b8" font-size="10" text-anchor="middle">0.5</text>
+  <text x="360" y="185" fill="#94a3b8" font-size="10" text-anchor="middle">1</text>
+  <text x="220" y="200" fill="#94a3b8" font-size="11">p（正類機率）</text>
+  <text x="30" y="46" fill="#94a3b8" font-size="11">H(p)</text>
+  <text x="66" y="165" fill="#34d399" font-size="9">確定</text>
+  <text x="338" y="165" fill="#34d399" font-size="9">確定</text>
+</svg><figcaption>二元熵 $H(p)$：$p=0.5$（五五波）最不確定、熵最高；兩端（$p=0$ 或 $1$，結果確定）熵為 0。</figcaption></figure>
+
+<h3>F.3 交叉熵：用「錯的分布」描述「真實分布」的成本</h3>
+<p>若真實分布是 $p$，但你<strong>以為</strong>是 $q$，用 $q$ 去描述 $p$ 的資料，平均成本就是<strong>交叉熵</strong>：</p>
+<p>$$H(p,q) = -\sum_x p(x)\log q(x)$$</p>
+<ul>
+<li>直覺：<strong>用錯誤的信念 $q$ 去描述真實 $p$，要多付代價</strong>。$q$ 越接近 $p$，交叉熵越小；$q=p$ 時最小（＝熵 $H(p)$）。</li>
+<li><strong>在 ML</strong>：$p$ ＝ 真實標籤（one-hot，如「貓」＝ $[1,0,0]$），$q$ ＝ 模型預測機率（如 $[0.7,0.2,0.1]$）。交叉熵損失 $L=-\sum_k y_k\log\hat y_k = -\log\hat y_{\text{真類}}$——因 $y$ 是 one-hot，只剩「<strong>真類機率的負對數</strong>」。<strong>最小化交叉熵 ＝ 把真類的預測機率推高</strong>（<a href="01-math-foundations.html#3.2">§3.2</a>、<a href="01-math-foundations.html#3.3">§3.3</a>）。</li>
+<li>例：真實 $[1,0,0]$、預測 $[0.7,0.2,0.1]$ → $L=-\ln 0.7\approx0.357$ nat；預測更準 $[0.99,\dots]$ → $L\approx0.01$。</li>
+</ul>
+
+<h3>F.4 KL 散度：交叉熵 − 熵 ＝ 兩分布的差距</h3>
+<p>$$D_{\mathrm{KL}}(p\,\|\,q)=H(p,q)-H(p)=\sum_x p(x)\log\frac{p(x)}{q(x)}\ \ge 0$$</p>
+<ul>
+<li><strong>交叉熵 ＝ 熵 ＋ KL 散度</strong>。KL 散度 ＝「用 $q$ 近似 $p$ 多付的成本」＝ 兩分布的<strong>不對稱距離</strong>（$\ge0$，$p=q$ 時為 0）。</li>
+<li><strong>分類時 $p$ 是 one-hot → $H(p)=0$</strong>，所以<strong>最小化交叉熵 ＝ 最小化 KL 散度 ＝ 讓預測 $q$ 逼近真實 $p$</strong>。</li>
+</ul>
+
+<h3>F.5 為什麼分類用交叉熵當損失（用途）</h3>
+<ul>
+<li><strong>＝ 最大似然</strong>：$-\log\hat y_{\text{真類}}$ 就是<strong>負對數似然</strong>（<a href="01-math-foundations.html#2.3">§2.3</a>）。最小化交叉熵 ＝ 最大化「模型給正確答案的機率」——和 MSE＝高斯 MLE（<a href="#d1">附錄 D</a>）是同一套「損失來自最大似然」的邏輯，只是分類假設<strong>類別分布</strong>、迴歸假設高斯。</li>
+<li><strong>梯度漂亮</strong>：softmax + 交叉熵的梯度化簡成 $\hat y - y$（<a href="02-training-neural-networks.html#9">§9</a> 的 $\boldsymbol\delta^{(L)}$），數值穩定又好算。</li>
+<li><strong>比 MSE 適合分類</strong>：交叉熵對「<strong>很有信心卻答錯</strong>」懲罰極重（$\hat y_{\text{真類}}\to0$ 時 $-\log\to\infty$），逼模型快速修正；MSE 配 sigmoid 會在飽和區<strong>梯度消失</strong>、學很慢。</li>
+<li><strong>兩種形式</strong>：二元用<strong>二元交叉熵 BCE</strong>（<a href="01-math-foundations.html#3.2">§3.2</a>），多類用<strong>交叉熵</strong>（<a href="01-math-foundations.html#3.3">§3.3</a>）。</li>
+</ul>
+
+<h3>F.6 一句話</h3>
+<ul>
+<li><strong>熵</strong> ＝ 一個分布的平均不確定性（自己對自己的交叉熵）；</li>
+<li><strong>交叉熵</strong> ＝ 用預測分布 $q$ 描述真實分布 $p$ 的平均成本，$=H(p)+D_{\mathrm{KL}}(p\|q)$；</li>
+<li><strong>分類最小化交叉熵</strong> ＝ 讓預測機率逼近真實標籤 ＝ 負對數似然的最大似然（<a href="01-math-foundations.html#3.2">§3.2</a> / <a href="01-math-foundations.html#3.3">§3.3</a>、<a href="01-math-foundations.html#2.3">§2.3</a>）。</li>
+</ul>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="g1">附錄 G — 高斯分布密度函數的證明（歸一化常數）</h2>
+<p><a href="01-math-foundations.html#2.1">§2.1</a> 的常態分布、<a href="#d1">附錄 D</a> 的 MSE＝高斯 MLE，都用到高斯機率密度函數 (PDF)：</p>
+<p>$$p(x)=\frac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</p>
+<p>指數項 $e^{-(x-\mu)^2/2\sigma^2}$ 是「<strong>鐘形</strong>」的來源（離中心 $\mu$ 越遠、機率照平方指數衰減）；前面的 $\dfrac{1}{\sigma\sqrt{2\pi}}$ 是<strong>歸一化常數</strong>，作用是讓<strong>全機率 $\int_{-\infty}^{\infty}p(x)\,dx=1$</strong>。本附錄證明這個常數<strong>為什麼是 $\dfrac{1}{\sigma\sqrt{2\pi}}$</strong>——關鍵是<strong>高斯積分</strong>。</p>
+
+<h3>G.1 核心：高斯積分 $\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz=\sqrt{2\pi}$</h3>
+<p>令 $I=\displaystyle\int_{-\infty}^{\infty} e^{-z^2/2}\,dz$。這個積分<strong>沒有初等原函數</strong>，但用「<strong>平方後轉極座標</strong>」的技巧就解得開：</p>
+<p><strong>第 1 步——平方成二重積分。</strong> 把 $I$ 乘自己（換啞變數 $y$），合成平面上的二重積分：</p>
+<p>$$I^2=\left(\int_{-\infty}^{\infty}e^{-x^2/2}dx\right)\!\left(\int_{-\infty}^{\infty}e^{-y^2/2}dy\right)=\iint_{\mathbb{R}^2} e^{-\frac{x^2+y^2}{2}}\,dx\,dy$$</p>
+<p><strong>第 2 步——轉極座標。</strong> 令 $x=r\cos\theta,\ y=r\sin\theta$，則 $x^2+y^2=r^2$、面積元 $dx\,dy=r\,dr\,d\theta$：</p>
+<p>$$I^2=\int_{0}^{2\pi}\!\!\int_{0}^{\infty} e^{-r^2/2}\,r\,dr\,d\theta$$</p>
+<p><strong>第 3 步——算積分。</strong> 內層對 $r$ 換元 $u=r^2/2$（$du=r\,dr$）：$\int_0^\infty e^{-u}\,du=1$；外層 $\int_0^{2\pi}d\theta=2\pi$。所以</p>
+<p>$$I^2=2\pi\times 1=2\pi\quad\Rightarrow\quad \boxed{\,I=\sqrt{2\pi}\,}$$</p>
+<p>（$r\,dr$ 這個多出來的 $r$ 是關鍵——它正好讓 $e^{-r^2/2}r$ 有初等原函數，這就是「轉極座標」奏效的原因。）</p>
+
+<h3>G.2 代回一般 $\mu,\sigma$，解出歸一化常數</h3>
+<p>設常數 $C$ 使 $\int_{-\infty}^{\infty} C\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=1$。換元 $z=\dfrac{x-\mu}{\sigma}$（$dx=\sigma\,dz$）：</p>
+<p>$$\int_{-\infty}^{\infty} e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\sigma\int_{-\infty}^{\infty} e^{-z^2/2}\,dz\overset{\text{G.1}}{=}\sigma\sqrt{2\pi}$$</p>
+<p>所以 $C\cdot\sigma\sqrt{2\pi}=1\Rightarrow C=\dfrac{1}{\sigma\sqrt{2\pi}}$。代回即得</p>
+<p>$$\boxed{\;p(x)=\frac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{(x-\mu)^2}{2\sigma^2}}\;}$$</p>
+<p>歸一化常數證畢——它就是<strong>為了把鐘形曲線的面積調成 1</strong>（合法機率密度的條件）。</p>
+
+<h3>G.3 順帶：$\mu,\sigma$ 的意義</h3>
+<p>代定義可驗證（$\mu,\sigma^2$ 正是這個分布的期望與變異數）：$\ \mathbb{E}[x]=\int x\,p(x)\,dx=\mu$、$\ \mathrm{Var}(x)=\int (x-\mu)^2 p(x)\,dx=\sigma^2$。所以 <strong>$\mu$＝鐘形的中心、$\sigma$＝胖瘦</strong>（<a href="01-math-foundations.html#2.1">§2.1</a>）。</p>
+<blockquote><p><strong>注意：這裡證的是「歸一化」，不是「為什麼是鐘形」。</strong> 指數裡「負的平方」這個<strong>形狀</strong>本身是另一回事——它可由<strong>最大熵</strong>（固定均值/變異數下最不確定的分布）或<strong>中央極限定理</strong>（大量獨立小效應之和趨近高斯）導出，屬更進階主題。本附錄只證：一旦採用這個形狀，前面的常數必為 $\frac{1}{\sigma\sqrt{2\pi}}$ 才會是合法機率密度。</p></blockquote>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+</main>
+<section class="next-step"><p><strong>下一步閱讀：</strong>回到<a href="index.html">教材首頁</a>，依學習路線選下一個主題。</p></section>
+<nav class="volnav"><a href="08-classical-ml-and-feature-engineering.html">← 08 傳統 ML 與特徵工程</a><a href="index.html">教材首頁</a><span class="off"></span></nav>
+<p class="totop"><a href="#top">↑ 回頁首</a></p>
+</div>
+</body>
+</html>

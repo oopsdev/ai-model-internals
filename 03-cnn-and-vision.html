@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 CNN 與影像模型 — AI 模型原理與數學</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/ai-model-internals.css">
+<script src="assets/ai-model-internals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body class="mathjax_ignore">
+<div class="wrap">
+<header class="doc" id="top">
+<p class="kicker"><a href="index.html">AI 模型原理與數學 — 工程師深入教材</a></p>
+<h1>03. CNN 與影像模型</h1>
+<div class="meta"><span>2026-11-11</span><span>v0.3.0</span><span>NikeChen</span></div>
+</header>
+<nav class="volnav"><a href="02-training-neural-networks.html">← 02 模型訓練與神經網路</a><a href="index.html">教材首頁</a><a href="04-text-representations.html">04 文字表示與序列模型 →</a></nav>
+<section class="vol-intro mathjax_process"><p><strong>本冊回答：</strong>卷積為什麼適合影像？每層的維度與參數量怎麼算？</p><p><strong>內容：</strong>卷積、filter 與特徵圖、stride / padding、im2col、維度與參數量、完整 CNN 範例</p><p><strong>先備：</strong>02 的 <a href="02-training-neural-networks.html#7">§7 前向傳播</a> 與 <a href="02-training-neural-networks.html#9">§9 反向傳播</a>；<a href="01-math-foundations.html#1.3">§1.3 矩陣乘法</a>。</p></section>
+<nav id="vol-toc" class="vol-toc mathjax_process"><p><strong>本冊目錄</strong></p>
+<ul>
+<li><a href="#11">11. CNN 卷積</a>
+<ul>
+<li><a href="#11.1">11.1 卷積在做什麼（定義）</a></li>
+<li><a href="#11.2">11.2 幾何意義：filter 是「樣板」、特徵圖是「對齊強度圖」</a></li>
+<li><a href="#11.3">11.3 三個關鍵性質（為什麼卷積適合影像）</a></li>
+<li><a href="#11.4">11.4 stride、padding 與輸出尺寸</a></li>
+<li><a href="#11.5">11.5 整張卷積 = 一次矩陣乘法（im2col）</a></li>
+<li><a href="#11.6">11.6 各種「維度」誰決定（對照 embedding 的向量維度）</a></li>
+<li><a href="#11.7">11.7 哪些應用適合用 CNN（為什麼）</a></li>
+<li><a href="#11.8">11.8 完整範例：深度-5 CNN（超參數 + 維度追蹤 + 參數量）</a></li>
+</ul></li>
+</ul></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
+  <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+  <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+</defs></svg>
+<main class="content mathjax_process">
+<h2 id="11">11. CNN 卷積</h2>
+<p>影像若用「全連接」硬做：一張 224×224×3 的圖攤平就是 15 萬維，第一層每個神經元就要 15 萬個權重——參數爆炸，還把「相鄰像素才相關」「同物件換位置仍是同物件」這些影像特性全丟了。<strong>卷積 (convolution)</strong> 就是為影像量身打造的解法。</p>
+
+<h3 id="11.1">11.1 卷積在做什麼（定義）</h3>
+<p>一個<strong>卷積核 (filter / kernel)</strong> 是一個小方陣（如 3×3）的權重。它<strong>滑過</strong>整張影像，在每個位置把 filter 蓋在對齊的小塊上，做<strong>逐元素相乘再加總（＝一次內積，<a href="01-math-foundations.html#1.1">§1.1</a>）</strong>得到<strong>一個數</strong>；所有位置的數排起來就是一張<strong>特徵圖 (feature map)</strong>。</p>
+<p>以符號寫（輸入影像 $I$、卷積核 $K$ 大小 $F\times F$、偏置 $b$、輸出特徵圖 $O$）：</p>
+<p>$$O(i,j)=\underbrace{\sum_{u=0}^{F-1}\sum_{v=0}^{F-1} K(u,v)\,I(i{+}u,\,j{+}v)}_{\text{filter 與小塊逐元素相乘加總}}\;+\;b$$</p>
+<p>這正是卷積核 $K$ 與該位置小塊 $P_{ij}$（$I$ 在 $(i,j)$ 的 $F\times F$ 區域）的 <strong>Frobenius 內積</strong>（＝把兩者攤平做內積，<a href="01-math-foundations.html#1.1">§1.1</a>）：</p>
+<p>$$O(i,j)=\langle K,\,P_{ij}\rangle + b=\sum_{u,v}K_{uv}\,(P_{ij})_{uv}+b$$</p>
+<p>多通道（輸入有 $C$ 個通道，如 RGB $C=3$）時，再對通道加總：</p>
+<p>$$O(i,j)=\sum_{c=1}^{C}\sum_{u=0}^{F-1}\sum_{v=0}^{F-1} K_c(u,v)\,I_c(i{+}u,\,j{+}v)+b$$</p>
+<p><strong>注意：一步卷積 = 內積（一個數），不是矩陣×矩陣</strong>（後者結果是矩陣）。</p>
+<blockquote><p><strong>小註（名詞精確性）。</strong> 嚴格數學的「卷積」會把核翻轉；深度學習慣稱的「卷積」其實是<strong>不翻轉</strong>的<strong>互相關 (cross-correlation)</strong>（上式即是）。因為核是學出來的、翻不翻轉學到的權重會自動吸收，效果等價，所以沿用「卷積」這個名字。</p></blockquote>
+<figure><svg viewBox="0 0 600 185" role="img" aria-label="卷積運算：filter 與影像小塊做內積得一個數放入特徵圖">
+  <rect x="25" y="25" width="120" height="120" fill="none" stroke="#475569" stroke-width="1"/>
+  <rect x="25" y="25" width="72" height="72" fill="#38bdf8" fill-opacity="0.22"/>
+  <g stroke="#475569" stroke-width="0.8"><line x1="49" y1="25" x2="49" y2="145"/><line x1="73" y1="25" x2="73" y2="145"/><line x1="97" y1="25" x2="97" y2="145"/><line x1="121" y1="25" x2="121" y2="145"/><line x1="25" y1="49" x2="145" y2="49"/><line x1="25" y1="73" x2="145" y2="73"/><line x1="25" y1="97" x2="145" y2="97"/><line x1="25" y1="121" x2="145" y2="121"/></g>
+  <text x="85" y="162" fill="#94a3b8" font-size="10" text-anchor="middle">輸入影像 (5×5)</text>
+  <line x1="150" y1="61" x2="200" y2="61" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <text x="175" y="55" fill="#94a3b8" font-size="9" text-anchor="middle">取小塊</text>
+  <rect x="205" y="37" width="72" height="72" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-width="1"/>
+  <g stroke="#34d399" stroke-width="0.6" stroke-opacity="0.6"><line x1="229" y1="37" x2="229" y2="109"/><line x1="253" y1="37" x2="253" y2="109"/><line x1="205" y1="61" x2="277" y2="61"/><line x1="205" y1="85" x2="277" y2="85"/></g>
+  <text x="241" y="126" fill="#94a3b8" font-size="10" text-anchor="middle">filter (3×3)</text>
+  <line x1="285" y1="73" x2="455" y2="73" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <text x="370" y="66" fill="#fcd34d" font-size="9.5" text-anchor="middle">逐元素相乘加總 = 內積 (1 個數)</text>
+  <rect x="460" y="37" width="72" height="72" fill="none" stroke="#fbbf24" stroke-width="1"/>
+  <rect x="460" y="37" width="24" height="24" fill="#fbbf24" fill-opacity="0.5"/>
+  <g stroke="#fbbf24" stroke-width="0.6" stroke-opacity="0.5"><line x1="484" y1="37" x2="484" y2="109"/><line x1="508" y1="37" x2="508" y2="109"/><line x1="460" y1="61" x2="532" y2="61"/><line x1="460" y1="85" x2="532" y2="85"/></g>
+  <text x="496" y="126" fill="#94a3b8" font-size="10" text-anchor="middle">特徵圖 (3×3)</text>
+</svg><figcaption>卷積一步：filter 蓋在影像的一個小塊上，逐元素相乘再加總（＝內積）得一個數，放進特徵圖對應位置；filter 滑過全圖就得到整張特徵圖。</figcaption></figure>
+<p><strong>用數字算一次（3×3 卷積 = 9 維向量的內積）。</strong> 把 filter 與小塊各<strong>攤平成 9 維向量</strong>，做 $(1\times9)\cdot(9\times1)$ 的內積：</p>
+<figure><svg viewBox="0 0 600 165" role="img" aria-label="3x3 卷積數字範例：filter 與小塊逐格相乘再加總得 25">
+  <rect x="20" y="22" width="102" height="102" fill="#38bdf8" fill-opacity="0.08" stroke="#38bdf8" stroke-width="1.2"/>
+  <g stroke="#38bdf8" stroke-width="0.6" stroke-opacity="0.5"><line x1="54" y1="22" x2="54" y2="124"/><line x1="88" y1="22" x2="88" y2="124"/><line x1="20" y1="56" x2="122" y2="56"/><line x1="20" y1="90" x2="122" y2="90"/></g>
+  <g fill="#e5e7eb" font-size="14" text-anchor="middle"><text x="37" y="44">1</text><text x="71" y="44">2</text><text x="105" y="44">3</text><text x="37" y="78">4</text><text x="71" y="78">5</text><text x="105" y="78">6</text><text x="37" y="112">7</text><text x="71" y="112">8</text><text x="105" y="112">9</text></g>
+  <text x="71" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">卷積核 K</text>
+  <text x="148" y="83" fill="#cbd5e1" font-size="18" text-anchor="middle">⊙</text>
+  <rect x="175" y="22" width="102" height="102" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.2"/>
+  <g stroke="#34d399" stroke-width="0.6" stroke-opacity="0.5"><line x1="209" y1="22" x2="209" y2="124"/><line x1="243" y1="22" x2="243" y2="124"/><line x1="175" y1="56" x2="277" y2="56"/><line x1="175" y1="90" x2="277" y2="90"/></g>
+  <g fill="#e5e7eb" font-size="14" text-anchor="middle"><text x="192" y="44">1</text><text x="226" y="44">0</text><text x="260" y="44">1</text><text x="192" y="78">0</text><text x="226" y="78">1</text><text x="260" y="78">0</text><text x="192" y="112">1</text><text x="226" y="112">0</text><text x="260" y="112">1</text></g>
+  <text x="226" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">影像小塊 P</text>
+  <text x="308" y="83" fill="#cbd5e1" font-size="18" text-anchor="middle">=</text>
+  <rect x="340" y="22" width="102" height="102" fill="#fbbf24" fill-opacity="0.08" stroke="#fbbf24" stroke-width="1.2"/>
+  <g stroke="#fbbf24" stroke-width="0.6" stroke-opacity="0.5"><line x1="374" y1="22" x2="374" y2="124"/><line x1="408" y1="22" x2="408" y2="124"/><line x1="340" y1="56" x2="442" y2="56"/><line x1="340" y1="90" x2="442" y2="90"/></g>
+  <g fill="#e5e7eb" font-size="14" text-anchor="middle"><text x="357" y="44">1</text><text x="391" y="44">0</text><text x="425" y="44">3</text><text x="357" y="78">0</text><text x="391" y="78">5</text><text x="425" y="78">0</text><text x="357" y="112">7</text><text x="391" y="112">0</text><text x="425" y="112">9</text></g>
+  <text x="391" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">逐格相乘</text>
+  <text x="470" y="76" fill="#94a3b8" font-size="13" text-anchor="middle">Σ →</text>
+  <text x="525" y="82" fill="#fcd34d" font-size="20" font-weight="700" text-anchor="middle">25</text>
+  <text x="525" y="142" fill="#94a3b8" font-size="10" text-anchor="middle">全部加總</text>
+</svg><figcaption>3×3 卷積一步：filter K 與小塊 P <strong>對應位置相乘</strong>（中間格）、再<strong>全部加起來</strong> = 25（一個數）。</figcaption></figure>
+<p>攤平來看：$K=(1,2,3,4,5,6,7,8,9)$、$P=(1,0,1,0,1,0,1,0,1)$，內積 $=1{\cdot}1+2{\cdot}0+3{\cdot}1+4{\cdot}0+5{\cdot}1+6{\cdot}0+7{\cdot}1+8{\cdot}0+9{\cdot}1=1+3+5+7+9=25$——和上圖一模一樣。所以 <strong>3×3 卷積一步 = 9 維向量的內積 = 一個數</strong>。</p>
+
+<h3 id="11.2">11.2 幾何意義：filter 是「樣板」、特徵圖是「對齊強度圖」</h3>
+<p>接回 <a href="01-math-foundations.html#1.1">§1.1</a>（內積＝對齊程度）與 <a href="01-math-foundations.html#1.2">§1.2</a>（神經元＝特徵偵測器）：</p>
+<ul>
+<li><strong>filter 就是一個「局部樣板」</strong>（小塊空間裡的一個方向向量）。</li>
+<li>每個位置的卷積＝量「<strong>這一小塊有多像這個樣板</strong>」（對齊程度 / 投影）——越像、數值越大（激活越強），不像則接近 0 或負。</li>
+<li>所以<strong>整張特徵圖 = 「這個樣板在影像各處出現的強度分佈圖」</strong>（像一張 heat map）。</li>
+</ul>
+<p><strong>用神經元的語言說</strong>：filter = 神經元的<strong>權重 $\mathbf{w}$</strong>；特徵圖上<strong>每一格</strong> = 卷積在該位置的輸出（<strong>內積 + 偏置</strong> $z=\text{filter}\cdot\text{小塊}+b$；過激活如 ReLU 後才是 $a=\sigma(z)$）；<strong>整張特徵圖 = 同一個神經元（共用同一組權重）掃過全圖的輸出圖</strong>（過激活後即 activation map）——這就是 CNN 的<strong>權重共享 (weight sharing)</strong>（全連接是每個神經元各有獨立權重；CNN 是「一個神經元掃全圖」）。<strong>多個 filter → 多張特徵圖</strong> = 多個不同「特徵偵測神經元」各自的響應圖。</p>
+<p><strong>特徵圖維度 ≠ 獨立神經元數（別套用全連接的直覺）</strong>：特徵圖 $7\times7$ 是「該 filter 掃過的<strong>位置數 / 輸出數</strong>」（49 個），但這 49 個位置<strong>共享同一組權重（filter）</strong>——不是 49 組獨立權重。對比：<strong>全連接</strong>一層的輸出維度 = 神經元數 = <strong>獨立權重組數</strong>（每神經元一組），所以「維度 = 神經元數」在全連接成立、在 <strong>CNN 不成立</strong>——CNN 真正「獨立」的是 <strong>filter 數</strong>（每個 filter 一組獨立權重）。若這層有 $C_{out}$ 個 filter → 輸出 $7\times7\times C_{out}$，其中<strong>獨立權重組數 = $C_{out}$</strong>、總輸出單元 = $49\times C_{out}$。</p>
+<p>例：一個「垂直邊樣板」filter 掃過影像後，特徵圖會<strong>在有垂直邊的地方變亮</strong>、平坦處接近 0——等於幫你標出「圖裡哪裡有垂直邊」。這就是卷積的幾何本質：<strong>一個到處掃描的特徵偵測器</strong>。</p>
+<figure><svg viewBox="0 0 560 190" role="img" aria-label="卷積幾何意義：垂直邊 filter 讓特徵圖在邊處變亮">
+  <rect x="20" y="25" width="60" height="120" fill="#334155"/>
+  <rect x="80" y="25" width="60" height="120" fill="#cbd5e1" fill-opacity="0.55"/>
+  <rect x="20" y="25" width="120" height="120" fill="none" stroke="#475569" stroke-width="1"/>
+  <text x="80" y="162" fill="#94a3b8" font-size="9.5" text-anchor="middle">輸入（左暗右亮 → 中間一條垂直邊）</text>
+  <line x1="148" y1="85" x2="200" y2="85" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <rect x="208" y="52" width="72" height="66" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-width="1"/>
+  <g fill="#cbd5e1" font-size="11" text-anchor="middle"><text x="220" y="72">-1</text><text x="244" y="72">0</text><text x="268" y="72">+1</text><text x="220" y="92">-1</text><text x="244" y="92">0</text><text x="268" y="92">+1</text><text x="220" y="112">-1</text><text x="244" y="112">0</text><text x="268" y="112">+1</text></g>
+  <text x="244" y="135" fill="#94a3b8" font-size="9.5" text-anchor="middle">filter：垂直邊樣板</text>
+  <line x1="288" y1="85" x2="392" y2="85" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)"/>
+  <text x="340" y="78" fill="#94a3b8" font-size="9" text-anchor="middle">卷積（掃全圖）</text>
+  <rect x="400" y="25" width="120" height="120" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <rect x="448" y="25" width="24" height="120" fill="#fbbf24" fill-opacity="0.7"/>
+  <text x="460" y="162" fill="#94a3b8" font-size="9.5" text-anchor="middle">特徵圖：只有邊處變亮</text>
+</svg><figcaption>卷積的幾何意義：filter 是「垂直邊樣板」；特徵圖只在有垂直邊的位置變亮（＝該樣板出現的地方），其餘接近 0。所以特徵圖是「樣板在影像各處的對齊強度圖」。</figcaption></figure>
+<p>淺層 filter 學到邊緣 / 角 / 紋理等<strong>低階樣板</strong>，多層堆疊後組合成部件、物件等<strong>高階樣板</strong>——就是「在越來越抽象的樣板空間裡量對齊」（呼應 <a href="01-math-foundations.html#1.3">§1.3.1</a> 逐層換座標）。</p>
+<blockquote><p><strong>filter 是「學出來」的，不是人設計的。</strong> filter 的數值就是<strong>權重</strong>：一開始隨機初始化，再用梯度下降＋反向傳播訓練（<a href="01-math-foundations.html#1.2">§1.2</a>、<a href="01-math-foundations.html#4">§4</a>）。資料與損失會自動逼它長成有用的樣板——淺層自己學成邊緣/角、深層組合成部件/物件，沒有人手動設定「去學邊緣」。（本節與 <a href="#11.1">§11.1</a> 示意圖的 filter 數字是<strong>為講解手填</strong>的；只有傳統影像處理才用人工設計的固定 filter，如 Sobel、高斯模糊。）</p></blockquote>
+
+<p><strong>filter 的初始值怎麼來（從零訓練）。</strong> 每一層、每個 filter、每個輸入通道的權重都<strong>各自獨立隨機抽樣</strong>——這樣才能<strong>打破對稱 (symmetry breaking)</strong>：若同層 filter 初值都一樣，會收到相同梯度、學到一模一樣的東西，多幾個 filter 也是白費。配 ReLU 常用 <strong>He 初始化</strong>：從變異數 $2/\text{fan\_in}$ 的分布抽，其中一個 filter 的 $\text{fan\_in}=F\times F\times C_{in}$（它的參數數，故<strong>不同層的隨機尺度不同</strong>）；偏置 $b$ 一律設 0（初始化細節見 <a href="02-training-neural-networks.html#10.1">§10.1</a>）。<strong>例外</strong>：用<strong>預訓練 / 遷移學習</strong>時，部分或全部 filter 是從別的模型（如在 ImageNet 訓練好的）<strong>複製</strong>來當初始值、再微調（<a href="05-transformers-and-generation.html#17">§17</a>），只有新加的層才隨機——此時就不是全部隨機。</p>
+
+<h3 id="11.3">11.3 三個關鍵性質（為什麼卷積適合影像）</h3>
+<ul>
+<li><strong>局部連接（感受野）</strong>：每個輸出只看一小塊，符合「相鄰像素才相關」。</li>
+<li><strong>參數共享</strong>：<strong>同一個 filter 掃全圖</strong>——不管物件在哪都用同一組權重 → 參數量大減（3×3 filter 只有 9 個權重，卻掃遍全圖）。</li>
+<li><strong>平移等變 → 近似平移不變</strong>：卷積本身是<strong>等變</strong>（特徵跟著位置一起移），再靠 <strong>pooling / global pooling</strong> 把它變成對位置<strong>近似不變</strong>——所以同一 filter 移到別處仍抓得到、認得出「換位置的同一物件」（嚴格的完整不變需 global pooling）。</li>
+<li><strong>多通道</strong>：輸入 RGB 有 3 通道、filter 也有對應深度；用<strong>多個 filter</strong> 就得<strong>多張特徵圖</strong>（每張抓一種樣式）。</li>
+</ul>
+<p><strong>輸入通道 vs 輸出通道。</strong> 「通道 (channel)」是影像／特徵圖的<strong>深度層數</strong>（同一位置疊了幾張圖）：</p>
+<ul>
+<li><strong>輸入通道 $C_{in}$</strong>：這一層拿到幾張圖疊著。原始 RGB 影像 = 3、灰階 = 1；中間層則 = <strong>上一層輸出的特徵圖張數</strong>。</li>
+<li><strong>輸出通道 $C_{out}$</strong>：這一層<strong>有幾個 filter 就輸出幾張特徵圖</strong>（一個 filter → 一張），故 $C_{out}$ = filter 數。</li>
+<li>每個 filter 的<strong>深度 = 輸入通道數</strong>：filter 其實是 $F\times F\times C_{in}$，會<strong>跨所有輸入通道一起做內積、加總成一張</strong>特徵圖。</li>
+</ul>
+<p>例：輸入 RGB（$C_{in}=3$）、這層 64 個 filter（每個 $3\times3\times3$）→ 輸出 64 張特徵圖（$C_{out}=64$）；<strong>下一層的輸入通道就變成 64</strong>。層層相接：<strong>上一層的輸出通道 = 下一層的輸入通道</strong>。</p>
+<p><strong>通道數怎麼決定？</strong></p>
+<ul>
+<li><strong>輸入通道</strong>：被決定的——第一層由<strong>資料</strong>定（RGB=3、灰階=1），中間層 = <strong>上一層的輸出通道</strong>。</li>
+<li><strong>輸出通道（= 這層 filter 數）</strong>：由你<strong>設計</strong>，是<strong>超參數</strong>（常見 32/64/128/256/512，越深通常越多）。</li>
+<li>關鍵區分：<strong>filter 的「數值」是訓練學出來的（參數）；filter 的「數量（通道數）」是人設定的（超參數）</strong>（接 <a href="02-training-neural-networks.html#6">§6</a> 參數 vs 超參數）。</li>
+<li>慣例：<strong>越深、通道越多、空間尺寸越小</strong>（池化省下的算力換更多通道）；實務多<strong>沿用經典架構</strong>（VGG、ResNet）再微調，不會每次從零猜。</li>
+</ul>
+<p><strong>filter 的三個維度（大小、深度、數量）。</strong> 設計一層卷積時，你決定 filter 的「大小」與「數量」，深度自動跟著輸入：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>維度</th><th>是什麼</th><th>誰決定</th></tr></thead>
+<tbody>
+<tr><td><strong>大小 $F\times F$</strong></td><td>每個 filter 蓋多大一塊（感受野）</td><td>你選（超參數）：3×3、5×5…</td></tr>
+<tr><td><strong>深度 $C_{in}$</strong></td><td>每個 filter 的厚度</td><td>被決定 = 輸入通道數</td></tr>
+<tr><td><strong>數量 $C_{out}$</strong></td><td>這層有幾個 filter</td><td>你選（超參數）= 輸出通道數</td></tr>
+</tbody>
+</table></div>
+<p>每個 filter 其實是 $F\times F\times C_{in}$ 的<strong>立體塊</strong>（只有輸入單通道時才剛好是一片 2D 方陣）。</p>
+<p>例：輸入 RGB（$C_{in}=3$），設計「這層放 <strong>64 個 5×5 filter</strong>」：每個 filter = $5\times5\times3$、共 64 個 → 輸出 64 張特徵圖（$C_{out}=64$）；參數量 $=(5\times5\times3+1)\times64=(75+1)\times64=76\times64=4864$。</p>
+<blockquote><p><strong>訓練後留下什麼。</strong> CNN 訓練的淨結果 = <strong>所有卷積 filter（＋偏置）＋ 全連接分類頭的權重（＋偏置）</strong>（可能還有 BatchNorm 參數）——這一整包就是<strong>模型參數</strong>（幾 B 參數的那個參數），存進模型檔、推論時固定使用。前半是「特徵抽取器」、後半是「分類頭」。</p></blockquote>
+<p id="params"><strong>各架構的參數組成（本質相同、種類不同）。</strong> 「模型參數」的本質一致——凡是<strong>訓練時被梯度下降更新的數字</strong>都算；但<strong>組成因架構而異</strong>，CNN 的 filter 只是其中一種形式：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>架構</th><th>主要參數</th></tr></thead>
+<tbody>
+<tr><td>MLP / 全連接</td><td>每層權重 $\mathbf{W}$ + 偏置 $\mathbf{b}$</td></tr>
+<tr><td>CNN</td><td>卷積 filter + 偏置、FC 頭權重 + 偏置、BatchNorm $\gamma,\beta$</td></tr>
+<tr><td>RNN / LSTM</td><td>輸入權重 $\mathbf{W}_x$、隱藏權重 $\mathbf{W}_h$、偏置；LSTM 各閘門的 $\mathbf{W},\mathbf{b}$</td></tr>
+<tr><td>Transformer / LLM</td><td>Embedding 表、注意力 $\mathbf{W}_Q/\mathbf{W}_K/\mathbf{W}_V/\mathbf{W}_O$、FFN 兩層、LayerNorm $\gamma,\beta$、輸出頭</td></tr>
+</tbody></table></div>
+<p><strong>不算參數的</strong>：<strong>超參數</strong>（層數、維度、學習率——人設，不存權重檔，<a href="02-training-neural-networks.html#6">§6</a>）、<strong>無參數的層</strong>（ReLU、pooling、dropout；少數如 PReLU 例外）、<strong>優化器狀態</strong>（Adam 的動量 $m,v$——訓練時要，但非模型本身，<a href="02-training-neural-networks.html#5">§5</a>）。<strong>一句話：任何模型的參數都是「所有可學的權重＋偏置（＋少數可學係數如 $\gamma,\beta$、embedding 表）」的集合</strong>，由訓練學出、存檔、推論固定使用。</p>
+
+<h3 id="11.4">11.4 stride、padding 與輸出尺寸</h3>
+<ul>
+<li><strong>stride（步幅）</strong>：filter 每次滑幾格（越大、輸出越小）。</li>
+<li><strong>padding（補邊）</strong>：在影像邊緣補 0，用來保住尺寸或照顧邊界像素。</li>
+<li>輸出邊長 $=\dfrac{W-F+2P}{S}+1$（$W$ 輸入邊長、$F$ filter 邊長、$P$ padding、$S$ stride）。</li>
+</ul>
+<p><strong>例（stride 的影響）</strong> 輸入 5×5、filter 3×3、$P=0$：</p>
+<ul>
+<li>$S=1$：$\frac{5-3+0}{1}+1=3$ → 輸出 <strong>3×3</strong>（每格都掃、重疊最多）。</li>
+<li>$S=2$：$\frac{5-3}{2}+1=2$ → 輸出 <strong>2×2</strong>（跳著掃、尺寸砍半 ＝ 下採樣；常用來取代池化）。</li>
+</ul>
+<p><strong>例（padding 的影響）</strong> 輸入 5×5、filter 3×3、$S=1$：</p>
+<ul>
+<li>$P=0$（valid，不補）：$\frac{5-3}{1}+1=3$ → 輸出 <strong>3×3</strong>（每層縮小、邊界像素被掃到少）。</li>
+<li>$P=1$（same，四周各補一圈 0 → 變 7×7）：$\frac{5-3+2}{1}+1=5$ → 輸出 <strong>5×5</strong>（<strong>保持原尺寸</strong>、邊界也能當中心被掃到）。</li>
+</ul>
+<p>直覺：<strong>stride</strong> 控「掃多快」（越大輸出越小、下採樣）；<strong>padding</strong> 主要用來<strong>保持尺寸</strong>（same padding 取 $P=\frac{F-1}{2}$）並照顧邊界像素。</p>
+<figure><svg viewBox="0 0 580 230" role="img" aria-label="padding 與 stride 的數字矩陣圖例">
+  <text x="100" y="22" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">padding=1（3×3 → 5×5）</text>
+  <rect x="25" y="38" width="150" height="150" fill="none" stroke="#475569" stroke-width="1"/>
+  <rect x="25" y="38" width="150" height="30" fill="#0f172a"/><rect x="25" y="158" width="150" height="30" fill="#0f172a"/><rect x="25" y="68" width="30" height="90" fill="#0f172a"/><rect x="145" y="68" width="30" height="90" fill="#0f172a"/>
+  <rect x="55" y="68" width="90" height="90" fill="#38bdf8" fill-opacity="0.10"/>
+  <g stroke="#475569" stroke-width="0.7"><line x1="55" y1="38" x2="55" y2="188"/><line x1="85" y1="38" x2="85" y2="188"/><line x1="115" y1="38" x2="115" y2="188"/><line x1="145" y1="38" x2="145" y2="188"/><line x1="25" y1="68" x2="175" y2="68"/><line x1="25" y1="98" x2="175" y2="98"/><line x1="25" y1="128" x2="175" y2="128"/><line x1="25" y1="158" x2="175" y2="158"/></g>
+  <g fill="#475569" font-size="12" text-anchor="middle"><text x="40" y="62">0</text><text x="70" y="62">0</text><text x="100" y="62">0</text><text x="130" y="62">0</text><text x="160" y="62">0</text><text x="40" y="182">0</text><text x="70" y="182">0</text><text x="100" y="182">0</text><text x="130" y="182">0</text><text x="160" y="182">0</text><text x="40" y="92">0</text><text x="40" y="122">0</text><text x="40" y="152">0</text><text x="160" y="92">0</text><text x="160" y="122">0</text><text x="160" y="152">0</text></g>
+  <g fill="#e5e7eb" font-size="12" text-anchor="middle"><text x="70" y="92">1</text><text x="100" y="92">2</text><text x="130" y="92">3</text><text x="70" y="122">4</text><text x="100" y="122">5</text><text x="130" y="122">6</text><text x="70" y="152">7</text><text x="100" y="152">8</text><text x="130" y="152">9</text></g>
+  <text x="100" y="206" fill="#94a3b8" font-size="9.5" text-anchor="middle">亮=原 3×3 圖、暗 0=補的邊</text>
+  <text x="435" y="22" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">stride=2（3×3 窗跳 2 格）</text>
+  <rect x="360" y="38" width="150" height="150" fill="none" stroke="#475569" stroke-width="1"/>
+  <g stroke="#475569" stroke-width="0.7"><line x1="390" y1="38" x2="390" y2="188"/><line x1="420" y1="38" x2="420" y2="188"/><line x1="450" y1="38" x2="450" y2="188"/><line x1="480" y1="38" x2="480" y2="188"/><line x1="360" y1="68" x2="510" y2="68"/><line x1="360" y1="98" x2="510" y2="98"/><line x1="360" y1="128" x2="510" y2="128"/><line x1="360" y1="158" x2="510" y2="158"/></g>
+  <g fill="#cbd5e1" font-size="11" text-anchor="middle"><text x="375" y="62">1</text><text x="405" y="62">2</text><text x="435" y="62">3</text><text x="465" y="62">4</text><text x="495" y="62">5</text><text x="375" y="92">6</text><text x="405" y="92">7</text><text x="435" y="92">8</text><text x="465" y="92">9</text><text x="495" y="92">10</text><text x="375" y="122">11</text><text x="405" y="122">12</text><text x="435" y="122">13</text><text x="465" y="122">14</text><text x="495" y="122">15</text><text x="375" y="152">16</text><text x="405" y="152">17</text><text x="435" y="152">18</text><text x="465" y="152">19</text><text x="495" y="152">20</text><text x="375" y="182">21</text><text x="405" y="182">22</text><text x="435" y="182">23</text><text x="465" y="182">24</text><text x="495" y="182">25</text></g>
+  <rect x="360" y="38" width="90" height="90" fill="#fbbf24" fill-opacity="0.14" stroke="#fbbf24" stroke-width="2"/>
+  <rect x="420" y="38" width="90" height="90" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="435" y="206" fill="#94a3b8" font-size="9.5" text-anchor="middle">窗1(黃)→跳2格→窗2(綠虛)；橫2窗×直2窗 → 輸出 2×2</text>
+</svg><figcaption>左：<strong>padding=1</strong> 把原 3×3 圖（亮）四周補一圈 0（暗）→ 變 5×5（用來保尺寸）。右：<strong>stride=2</strong>，3×3 窗每次橫跳 2 格（黃→綠虛線）；5×5 只放得下 2×2 個窗 → 輸出 2×2。</figcaption></figure>
+
+<h3 id="11.5">11.5 整張卷積 = 一次矩陣乘法（im2col）</h3>
+<p>雖然一步是內積，<strong>整張卷積可重排成一次大矩陣乘法</strong>：把每個小塊攤平成一列、堆成大矩陣 $\mathbf{X}_{\text{patches}}$，filter 攤平成 $\mathbf{W}$，一次 $\mathbf{X}_{\text{patches}}\mathbf{W}^\top$（GEMM）就算出整張特徵圖。這叫 <strong>im2col</strong>，也是 <strong>GPU/NPU 加速卷積的方法</strong>（<a href="07-hardware-and-deployment.html#20">§20</a>）——所以「卷積本質是矩陣乘法」指的是這個整體，不是那兩個小方陣直接相乘。</p>
+<blockquote><p><strong>工程意涵。</strong> 卷積不只用在影像：<strong>1D 卷積</strong>掃封包大小/方向序列，可抓「加密流量的局部指紋」（網路 AI 常用、輕量、適合邊緣 NPU）。多數邊緣 NPU 本來就為 CNN 卷積最佳化，所以 1D/2D-CNN 在邊緣跑很划算。</p></blockquote>
+
+<h3 id="11.6">11.6 各種「維度」誰決定（對照 embedding 的向量維度）</h3>
+<p>CNN 沒有 embedding 那種單一「向量維度 $d$」，而是<strong>多種尺寸並存、來源不同</strong>：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>維度 / 尺寸</th><th>是什麼</th><th>誰決定</th></tr></thead>
+<tbody>
+<tr><td>輸入 $H\times W\times C$</td><td>影像 高×寬×通道（RGB=3）</td><td><strong>資料</strong>（常 resize 到固定值＝預處理，人設）</td></tr>
+<tr><td>filter 大小 $F\times F$</td><td>卷積核尺寸（3×3…）</td><td><strong>人為</strong>（超參數）</td></tr>
+<tr><td>filter 數量 ＝ 輸出通道 $C_{out}$</td><td>這層學幾種特徵</td><td><strong>人為</strong>（超參數）</td></tr>
+<tr><td>stride / padding</td><td>滑動步長 / 補邊</td><td><strong>人為</strong>（超參數）</td></tr>
+<tr><td>輸出特徵圖 $H'\times W'$</td><td>每張特徵圖尺寸</td><td><strong>計算推導</strong>（<a href="#11.4">§11.4</a> 公式）</td></tr>
+<tr><td>filter 裡的權重值</td><td>每個核的數字</td><td><strong>訓練學</strong>（參數）</td></tr>
+<tr><td>flatten 後向量長度</td><td>進全連接層的維度</td><td><strong>計算推導</strong>（$H'\times W'\times C'$）</td></tr>
+<tr><td>FC 輸出 ＝ 類別數</td><td>最後輸出幾類</td><td><strong>任務決定</strong></td></tr>
+</tbody></table></div>
+<p><strong>最類比 embedding「向量維度 $d$」的是「通道數 $C$」</strong>：CNN 中<strong>每個空間位置 $(h,w)$ 跨所有通道，就是一個長度 = 通道數的向量</strong>（那個位置的「特徵向量」）。這個通道數（＝上一層 filter 數 $C_{out}$）跟 embedding 的 $d$ 一樣，是<strong>訓練前定好、固定的超參數</strong>（<a href="04-text-representations.html#13">§13</a>、<a href="02-training-neural-networks.html#6">§6</a>）。差別：CNN 還多了<strong>空間尺寸 $H'\times W'$</strong> 這種<strong>由公式算出來</strong>的維度（embedding 沒有）；訓練學的一樣只是<strong>值</strong>（filter 權重），不是維度。</p>
+
+<h3 id="11.7">11.7 哪些應用適合用 CNN（為什麼）</h3>
+<p>CNN 適不適合，取決於<strong>資料與問題是否符合它的「內建假設」（inductive bias）</strong>。符合 → 事半功倍、參數少又準；不符合 → 換別的架構更好。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>CNN 的內建假設</th><th>適合的資料 / 問題特徵</th><th>為什麼</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><strong>局部性</strong>（filter 只看小窗）</td><td>有意義的特徵是<strong>局部</strong>的</td><td>filter 專抓局部樣式（<a href="#11.2">§11.2</a>）</td><td>影像的邊/紋理；封包序列的局部指紋</td></tr>
+<tr><td><strong>平移不變</strong>（同 filter 到處滑）</td><td>特徵<strong>可能出現在任何位置、意義相同</strong></td><td>權重共享 → 位置無關偵測</td><td>貓在畫面任何角落都認得</td></tr>
+<tr><td><strong>權重共享</strong>（參數少）</td><td>輸入<strong>維度高</strong>、需省算力/抗過擬合</td><td>一個小 filter 重複用遍全圖</td><td>百萬像素影像</td></tr>
+<tr><td><strong>階層組合</strong>（堆疊）</td><td>資料有<strong>由小組大</strong>的組合結構</td><td>低階特徵疊成高階</td><td>像素→邊→形狀→物件</td></tr>
+<tr><td><strong>網格結構</strong></td><td>資料在<strong>規則網格</strong>上、<strong>鄰近相關</strong></td><td>卷積定義在網格鄰域</td><td>1D 序列、2D 影像、3D 影音</td></tr>
+</tbody></table></div>
+<p><strong>適合的應用</strong>：影像分類 / 物件偵測 / 分割、瑕疵檢測、OCR、音訊（轉頻譜圖當影像）、醫療影像；<strong>1D-CNN</strong> 掃時序 / 封包序列（抓局部指紋）。</p>
+<blockquote><p><strong>關於「長度不定」的序列（如封包流）。</strong> 要先分清兩種「不定」：① 封包<strong>大小</strong>（bytes 數）當特徵值 → 只是輸入數字不同，CNN 本來就吃任意值，無妨；② 封包<strong>數量（序列長度）不定</strong> → 才是重點，而 CNN <strong>有解</strong>：卷積本身<strong>不限長度</strong>（同 filter 滑過任意長度、輸出跟著變），只有最後接全連接分類頭才需固定大小 → 用 <strong>global pooling（全域池化，對整條時間軸取 max/avg）</strong> 把不定長特徵圖壓成<strong>固定向量</strong>，或取<strong>固定窗口</strong>（前 N 個 / 滑動窗）即可。<strong>原生吃不定長是 RNN 的先天優勢（<a href="04-text-representations.html#14">§14</a>）</strong>；1D-CNN 則靠 global pooling / 固定窗達成。實務常<strong>串接</strong>：CNN 抽局部特徵 → pooling 或 RNN 聚合。</p></blockquote>
+<p><strong>不適合的情況（對照）</strong>：</p>
+<ul>
+<li><strong>表格資料</strong>（欄位無空間鄰近、順序可任意打亂）→ 局部性/平移不變假設失效，用<strong>樹模型（GBDT，見 <a href="08-classical-ml-and-feature-engineering.html#c1">附錄 C</a>）或 MLP</strong> 更好。</li>
+<li><strong>長距離、任意位置的關聯</strong>（語言長依賴）→ CNN 感受野有限，用 <strong>Transformer / 注意力</strong>（<a href="05-transformers-and-generation.html#15">§15</a>）。</li>
+<li><strong>非規則圖結構</strong>（社群網路、分子）→ 沒有網格，用 <strong>GNN</strong>。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 判別式 ML 的<strong>邊緣部署</strong>很吃 CNN 的特性：<strong>1D-CNN</strong> 掃封包大小 / 方向序列抓「加密流量局部指紋」、<strong>2D-CNN</strong> 做影像瑕疵 / 監控——都因<strong>參數少、平移不變、邊緣 NPU 為卷積最佳化</strong>而輕量好落地。反之，需長依賴或無網格結構的任務要換架構。</p></blockquote>
+
+<h3 id="11.8">11.8 完整範例：深度-5 CNN（超參數 + 維度追蹤 + 參數量）</h3>
+<p>把 <a href="#11.4">§11.4</a>（尺寸公式）、<a href="#11.6">§11.6</a>（誰決定）、<a href="02-training-neural-networks.html#7">§7</a>（參數量）串成一個具體例子。任務：32×32 RGB 影像分 10 類。<strong>深度 5 = 5 個有權重的層</strong>（池化 / ReLU / dropout 無權重，不算深度）：3 卷積 + 2 全連接。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>類型</th><th>超參數（人設）</th><th>輸出維度（公式算）</th></tr></thead>
+<tbody>
+<tr><td>—</td><td>輸入</td><td>（資料）32×32×3</td><td>32×32×3</td></tr>
+<tr><td>L1</td><td>Conv</td><td>3×3、$C_{out}$=32（<strong>32 個 filter</strong>，每個 3×3×3）、s=1、p=1 → ReLU → MaxPool 2×2</td><td>32×32×32 → 16×16×32</td></tr>
+<tr><td>L2</td><td>Conv</td><td>3×3、$C_{out}$=64（<strong>64 個 filter</strong>，每個 3×3×32）、s=1、p=1 → ReLU → MaxPool 2×2</td><td>16×16×64 → 8×8×64</td></tr>
+<tr><td>L3</td><td>Conv</td><td>3×3、$C_{out}$=128（<strong>128 個 filter</strong>，每個 3×3×64）、s=1、p=1 → ReLU → MaxPool 2×2</td><td>8×8×128 → 4×4×128</td></tr>
+<tr><td>—</td><td>Flatten</td><td>—</td><td>2048（=4·4·128）</td></tr>
+<tr><td>L4</td><td>全連接</td><td>神經元 256 + Dropout 0.5</td><td>256</td></tr>
+<tr><td>L5</td><td>全連接（輸出）</td><td>神經元 = 類別數 10 → softmax</td><td>10</td></tr>
+</tbody>
+</table></div>
+<p>（尺寸用 $(W-F+2P)/S+1$：如 L1 $(32-3+2)/1+1=32$。）<strong>全域超參數</strong>：$\eta$=0.001、batch=64、epoch 上限=50（+早停）、Adam、weight decay $\lambda$=1e-4、dropout=0.5、MaxPool 2×2。</p>
+<p><strong>三類數字</strong>（呼應 <a href="#11.6">§11.6</a>）：</p>
+<ul>
+<li><strong>超參數（人設、可自由調）</strong>：filter 大小、每層 $C_{out}$（32/64/128）、stride、padding、FC 寬度 256、<strong>深度=5</strong>、$\eta$ / batch / epoch / dropout / $\lambda$ / pool 大小。</li>
+<li><strong>計算決定（公式算出、不能亂填）</strong>：特徵圖尺寸 32→16→8→4、flatten 長度 2048。</li>
+<li><strong>資料 / 任務決定</strong>：輸入 32×32×3（資料）、輸出 10（類別數）。</li>
+</ul>
+<p><strong>參數量 ≈ 62 萬</strong>（Conv 每層 $(F^2C_{in}+1)C_{out}$、FC $(\text{輸入}+1)\times\text{輸出}$）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>計算</th><th>參數</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>$(3^2{\cdot}3+1){\cdot}32$</td><td>896</td></tr>
+<tr><td>L2</td><td>$(3^2{\cdot}32+1){\cdot}64$</td><td>18,496</td></tr>
+<tr><td>L3</td><td>$(3^2{\cdot}64+1){\cdot}128$</td><td>73,856</td></tr>
+<tr><td>L4</td><td>$(2048+1){\cdot}256$</td><td>524,544</td></tr>
+<tr><td>L5</td><td>$(256+1){\cdot}10$</td><td>2,570</td></tr>
+<tr><td><strong>合計</strong></td><td></td><td><strong>≈ 620,362</strong></td></tr>
+</tbody>
+</table></div>
+<p><strong>FC 層（L4）吃掉大半參數</strong>——這也是現代 CNN 愛用 global pooling 取代大 FC 的原因（呼應 <a href="#11.7">§11.7</a> 變長序列的 global pooling）。</p>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+</main>
+<section class="next-step"><p><strong>下一步閱讀：</strong><a href="04-text-representations.html">04 文字表示與序列模型</a>：文字如何變成 token、向量與序列狀態？</p></section>
+<nav class="volnav"><a href="02-training-neural-networks.html">← 02 模型訓練與神經網路</a><a href="index.html">教材首頁</a><a href="04-text-representations.html">04 文字表示與序列模型 →</a></nav>
+<p class="totop"><a href="#top">↑ 回頁首</a></p>
+</div>
+</body>
+</html>

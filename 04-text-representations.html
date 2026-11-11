@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 文字表示與序列模型 — AI 模型原理與數學</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/ai-model-internals.css">
+<script src="assets/ai-model-internals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body class="mathjax_ignore">
+<div class="wrap">
+<header class="doc" id="top">
+<p class="kicker"><a href="index.html">AI 模型原理與數學 — 工程師深入教材</a></p>
+<h1>04. 文字表示與序列模型</h1>
+<div class="meta"><span>2026-11-11</span><span>v0.3.0</span><span>NikeChen</span></div>
+</header>
+<nav class="volnav"><a href="03-cnn-and-vision.html">← 03 CNN 與影像模型</a><a href="index.html">教材首頁</a><a href="05-transformers-and-generation.html">05 Transformer 與生成 →</a></nav>
+<section class="vol-intro mathjax_process"><p><strong>本冊回答：</strong>文字如何變成 token、向量與序列狀態？</p><p><strong>內容：</strong>Tokenization、四種 Embedding、RNN / LSTM</p><p><strong>先備：</strong><a href="01-math-foundations.html#1.4">§1.4 範數與相似度</a>；02 的 <a href="02-training-neural-networks.html#7">§7 前向傳播</a>。</p></section>
+<nav id="vol-toc" class="vol-toc mathjax_process"><p><strong>本冊目錄</strong></p>
+<ul>
+<li><a href="#12">12. Tokenization — 把文字變成 token</a>
+</li>
+<li><a href="#13">13. Embedding 與向量表示</a>
+<ul>
+<li><a href="#13.1">13.1 Lookup embedding：token id 查表</a></li>
+<li><a href="#13.2">13.2 Contextual representation：同一 token、不同上下文</a></li>
+<li><a href="#13.3">13.3 Sequence embedding：把整句壓成一個向量</a></li>
+<li><a href="#13.4">13.4 Retrieval embedding：為檢索而訓練（RAG 的核心）</a></li>
+</ul></li>
+<li><a href="#14">14. RNN / LSTM — 序列建模</a>
+<ul>
+<li><a href="#14.1">14.1 哪些應用適合用 RNN（為什麼）</a></li>
+</ul></li>
+</ul></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
+  <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+  <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+</defs></svg>
+<main class="content mathjax_process">
+<h2 id="12">12. Tokenization — 把文字變成 token</h2>
+<p>模型吃的是數字、不是字。<strong>Tokenization</strong> 把文字切成 <strong>token</strong>、每個 token 對應一個 <strong>id</strong>，再查 embedding（<a href="#13">§13</a>）：</p>
+<p>$$\text{文字}\to\text{tokens}\to\text{ids}\to\text{embeddings}\to\text{模型}$$</p>
+<blockquote><p><strong>切分結果依 tokenizer 而定。</strong> 本節所有切分都只作<strong>示意</strong>：實際 token 取決於所用的 tokenizer、vocabulary、文字前後空白及訓練語料。同一段文字換一個模型，切法與 token 數都可能不同。</p></blockquote>
+<p><strong>四種基本切分單位</strong>：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>單位</th><th>基本元素</th><th>特性</th></tr></thead>
+<tbody>
+<tr><td><strong>character（字元）</strong></td><td>Unicode 字元</td><td>詞表小、序列長；詞表沒收錄的字元仍可能變成 <code>[UNK]</code></td></tr>
+<tr><td><strong>byte（位元組）</strong></td><td>UTF-8 編碼後的 byte（共 256 種）</td><td>任何字串都能表示、不會有未知字元；序列最長</td></tr>
+<tr><td><strong>subword（子詞）</strong></td><td>以 BPE、WordPiece、Unigram 等方法學出的片段</td><td>常見詞整塊、罕見詞拆片段，折衷詞表大小與序列長度</td></tr>
+<tr><td><strong>byte-level BPE</strong></td><td>從 byte 出發做 BPE 合併</td><td>兼有子詞的效率與 byte 的完整覆蓋；<strong>不等同</strong>從 Unicode 字元出發的 BPE</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>為什麼多數 LLM 用子詞</strong>：整詞當單位 → 詞表爆炸又處理不了新詞；單字元或 byte → 序列太長、運算成本高。<strong>子詞</strong>折衷：常見詞當一個 token、罕見詞拆成片段。</li>
+</ul>
+<p><strong>英文 token（子詞）例子（示意）。</strong> 在常見的英文子詞 tokenizer 中，常見「詞」常是 1 個 token；長詞 / 罕見詞才拆成子詞：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>英文</th><th>切成 token（示意）</th><th>個數</th><th>為什麼</th></tr></thead>
+<tbody>
+<tr><td><code>cat</code>、<code>the</code></td><td><code>cat</code>／<code>the</code></td><td>1</td><td>常見詞 → 整塊</td></tr>
+<tr><td><code>tokenization</code></td><td><code>token</code> + <code>ization</code></td><td>2</td><td>拆詞根 + 詞綴</td></tr>
+<tr><td><code>unhappiness</code></td><td><code>un</code> + <code>happi</code> + <code>ness</code></td><td>3</td><td>前綴 + 詞根 + 後綴</td></tr>
+<tr><td><code>lowest</code></td><td><code>low</code> + <code>est</code></td><td>2</td><td>共用詞綴 <code>est</code></td></tr>
+<tr><td><code>ChatGPT</code></td><td><code>Chat</code> + <code>G</code> + <code>PT</code>（另一詞表可能是 <code>Chat</code> + <code>GPT</code>）</td><td>2~3</td><td>新詞 / 專有名詞依詞表拆成不同片段</td></tr>
+</tbody></table></div>
+<p><strong>中文 token 例子（示意）。</strong> 中文沒有空白斷詞；常見字 / 詞在詞表中可能是 1 個 token。詞表沒收錄的字，在 byte-level tokenizer 中會退回成多個 UTF-8 byte 片段（常用中文字在 UTF-8 中佔 3 bytes）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>中文</th><th>切成 token（示意）</th><th>個數</th><th>為什麼</th></tr></thead>
+<tbody>
+<tr><td><code>的</code>、<code>我</code></td><td><code>的</code>／<code>我</code></td><td>1</td><td>高頻字 → 1 token</td></tr>
+<tr><td><code>我們</code></td><td><code>我們</code>（或 <code>我</code>+<code>們</code>）</td><td>1~2</td><td>常見詞可能整塊</td></tr>
+<tr><td><code>深度學習</code></td><td><code>深度</code> + <code>學習</code>（或逐字）</td><td>2~4</td><td>詞 / 字混合</td></tr>
+<tr><td><code>龘</code>（生僻字）</td><td>多個 byte 片段</td><td>2~3</td><td>詞表未收錄 → 退回 byte</td></tr>
+</tbody></table></div>
+<p><strong>語言間的 token 效率依 tokenizer 而異。</strong> 若詞表對中文的覆蓋較少，同樣語意的中文可能比英文用更多 token；針對中文擴充詞表的 tokenizer，則可能相近甚至更少。因此<strong>不能只用字數推估成本或 context 用量</strong>，要用目標模型的 tokenizer 實際計數。</p>
+<p><strong>BPE（Byte Pair Encoding）怎麼切。</strong> BPE 原是資料壓縮演算法，用在 tokenizer 時：從<strong>基本單位</strong>出發，反覆把「<strong>出現頻率最高的相鄰配對</strong>」合併成新單位，直到詞表達到設定大小。基本單位有兩種——<strong>character-level BPE</strong> 從 Unicode 字元開始，<strong>byte-level BPE</strong> 從 UTF-8 byte 開始。以下用 character-level 示意，語料 <code>low, lower, lowest, newest, widest…</code>：① 最常見對 <code>e</code>+<code>s</code> → <code>es</code>；② <code>es</code>+<code>t</code> → <code>est</code>；③ <code>l</code>+<code>o</code> → <code>lo</code>、<code>lo</code>+<code>w</code> → <code>low</code>。學出的子詞 <code>low</code>、<code>est</code>、<code>new</code>… 於是 <code>lowest</code>=<code>low</code>+<code>est</code>。<strong>好處</strong>：常見詞 → 短序列、罕見 / 新詞 → 可組合的片段。<strong>是否還會出現未知詞 (OOV)</strong> 要看 tokenizer：byte-level BPE 或具 byte fallback 的 tokenizer 能把任何字串退回 byte 表示，因此不會 OOV；只用字元或子詞詞表、又沒有 fallback 的 tokenizer，遇到未收錄字元仍會產生 <code>[UNK]</code>。</p>
+<blockquote><p><strong>工程意涵。</strong> <strong>token 數 = 成本單位</strong>——LLM API 計費、context 長度限制都以 token 計。每個字或詞耗用幾個 token 依 tokenizer 與語言而異；估算成本時，用目標模型的 tokenizer 對實際文本計數。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="13">13. Embedding 與向量表示</h2>
+<p><strong>Embedding = 把離散符號（token / 詞 / 類別 / 物件）或輸入片段映成連續向量。</strong> 承接 <a href="#12">§12</a>：token 拿到 id 後，靠 embedding 查表變成向量餵進模型；<strong>訓練、推論、生成三階段都用到</strong>（不是只有生成才需要）。</p>
+<p>不只文字：<strong>類別特徵</strong>（如城市、裝置型號）與<strong>位置資訊</strong>也常用 embedding。影像本身已是連續數值、不必查表，但 Vision Transformer 會把影像切成 patch，再<strong>線性投影</strong>成 patch embedding。</p>
+<p><strong>名稱（中譯）。</strong> Embedding 中譯為<strong>嵌入</strong>（完整常說<strong>詞嵌入 word embedding</strong>、<strong>嵌入向量</strong>），也意譯為<strong>向量表示</strong>。取 embed（鑲嵌、把東西放進某結構）之意——把離散符號<strong>嵌入</strong>一個連續的向量空間：原本像「貓」「狗」這種符號彼此無法算距離，嵌入後各變成空間中的一個點（向量），就能量距離、比相似度。這也呼應數學上的<strong>嵌入映射</strong>（把一個空間嵌進另一個、並保留原有關係）。</p>
+<p><strong>「embedding」一詞常指四種不同的表示，要分開看：</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>類型</th><th>輸入 → 輸出</th><th>怎麼得到</th><th>典型用途</th></tr></thead>
+<tbody>
+<tr><td><strong>Lookup embedding</strong>（<a href="#13.1">§13.1</a>）</td><td>token id → 一個向量</td><td>查表矩陣 $E$ 的一列；訓練學出</td><td>模型第一層的輸入</td></tr>
+<tr><td><strong>Contextual representation</strong>（<a href="#13.2">§13.2</a>）</td><td>某句中的一個 token → 一個向量</td><td>Transformer 中間層的 hidden state，隨上下文而變</td><td>模型內部運算、下游微調</td></tr>
+<tr><td><strong>Sequence embedding</strong>（<a href="#13.3">§13.3</a>）</td><td>整句 / 整段 → 一個向量</td><td>對 hidden states 做 pooling（平均、取特殊 token 等）</td><td>分類、分群、句子相似度</td></tr>
+<tr><td><strong>Retrieval embedding</strong>（<a href="#13.4">§13.4</a>）</td><td>query / 文件 → 一個向量</td><td>以檢索目標（如對比學習）專門訓練的 sequence embedding</td><td>RAG、語意搜尋</td></tr>
+</tbody></table></div>
+
+<h3 id="13.1">13.1 Lookup embedding：token id 查表</h3>
+<ul>
+<li><strong>怎麼來</strong>：一張<strong>可學的查表</strong>（embedding 矩陣 $E$，大小 $V\times d$，$V$ 詞表大小、$d$ 維度）；token 的 id 就是「取第 id 列」。同一個 id 永遠查到同一個向量，與上下文無關。</li>
+<li><strong>幾何意義</strong>：向量活在一個空間裡，可用<strong>餘弦相似度</strong>比較方向（<a href="01-math-foundations.html#1.4">§1.4</a>）。訓練後，常出現在相似語境的 token 向量往往較接近——這是訓練目標造成的<strong>傾向</strong>，不是查表本身保證的性質。</li>
+</ul>
+<figure><svg viewBox="0 0 380 200" role="img" aria-label="Embedding 語意空間示意：訓練後常在相似語境出現的詞向量傾向靠在一起">
+  <ellipse cx="110" cy="72" rx="72" ry="46" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-dasharray="4 3"/>
+  <ellipse cx="285" cy="140" rx="72" ry="42" fill="#38bdf8" fill-opacity="0.08" stroke="#38bdf8" stroke-dasharray="4 3"/>
+  <g fill="#34d399"><circle cx="90" cy="60" r="4"/><circle cx="128" cy="82" r="4"/><circle cx="102" cy="98" r="4"/></g>
+  <g fill="#38bdf8"><circle cx="270" cy="150" r="4"/><circle cx="302" cy="130" r="4"/><circle cx="288" cy="162" r="4"/></g>
+  <g font-size="11" fill="#e5e7eb"><text x="98" y="56">cat</text><text x="136" y="86">dog</text><text x="66" y="101">rabbit</text><text x="278" y="150">car</text><text x="310" y="128">bus</text><text x="252" y="174">truck</text></g>
+  <text x="110" y="130" fill="#34d399" font-size="10" text-anchor="middle">動物</text>
+  <text x="285" y="192" fill="#38bdf8" font-size="10" text-anchor="middle">車輛</text>
+</svg><figcaption>語意空間示意：訓練後，常在相似語境出現的詞（動物 cat/dog/rabbit）向量傾向靠在一起、不同類（車輛）離得較遠。比相似度用餘弦（<a href="01-math-foundations.html#1.4">§1.4</a>）。專為檢索訓練、讓「意思相近 → 向量相近」成為訓練目標的是 retrieval embedding（<a href="#13.4">§13.4</a>）。</figcaption></figure>
+<p><strong>具體例子（示意向量）。</strong> 真實 embedding 多為數百~數千維，這裡用每維都代表一個特徵的小向量示意。假設三個維度（特徵）代表「是動物 / 是交通工具 / 會移動」：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>詞</th><th>示意向量 (是動物, 是交通工具, 會移動)</th></tr></thead>
+<tbody>
+<tr><td><code>cat</code></td><td>(0.9, 0.0, 0.6)</td></tr>
+<tr><td><code>dog</code></td><td>(0.9, 0.0, 0.7)</td></tr>
+<tr><td><code>car</code></td><td>(0.0, 0.9, 0.8)</td></tr>
+<tr><td><code>bus</code></td><td>(0.0, 0.9, 0.7)</td></tr>
+</tbody></table></div>
+<p>比「像不像」用<strong>餘弦相似度</strong>（<a href="01-math-foundations.html#1.4">§1.4</a>）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>詞對</th><th>餘弦相似度</th><th>解讀</th></tr></thead>
+<tbody>
+<tr><td>cat vs dog</td><td>≈ 0.997</td><td>都是動物 → 幾乎同向</td></tr>
+<tr><td>car vs bus</td><td>≈ 0.998</td><td>都是車 → 幾乎同向</td></tr>
+<tr><td>cat vs car</td><td>≈ 0.37</td><td>不同類 → 夾角大、相似度低</td></tr>
+</tbody></table></div>
+<p><strong>語意向量加減（靜態詞向量的經典例）。</strong> 在 Word2vec、GloVe 等<strong>靜態詞向量</strong>中，曾觀察到如下類比（維度取「皇室程度, 女性程度」示意）：</p>
+<p>$$\underbrace{(0.9,\,0)}_{\text{king}}-\underbrace{(0.1,\,0)}_{\text{man}}+\underbrace{(0.1,\,1)}_{\text{woman}}=(0.9,\,1)\approx\underbrace{(0.9,\,1)}_{\text{queen}}$$</p>
+<p>把「man → woman」的方向（＝加上「女性」）平移到 king 上，結果就落在 queen 附近。這是歷史上展示「語意關係可被編碼成方向」的經典例子；<strong>不代表所有現代 embedding</strong>（尤其 contextual 或 retrieval embedding）都呈現同樣的線性類比。</p>
+<p><strong>這些向量的值怎麼來（怎麼算出來的）？</strong> 不是用公式算的，而是<strong>訓練學出來的參數</strong>：</p>
+<ul>
+<li><strong>一張查表矩陣</strong> $E$（大小 $V\times d$）；這 $V\times d$ 個數字全是參數。</li>
+<li><strong>隨機初始化 → 梯度下降更新</strong>：一開始是小亂數；之後跟模型其他權重一樣，前向「token → 查 $E$ → 進模型 → 算損失」，反向把 $\partial L/\partial E$ 回傳、往降低損失的方向調每個值（<a href="02-training-neural-networks.html#9">§9</a> 反向傳播、<a href="02-training-neural-networks.html#5">§5</a> 梯度下降）。大量更新後收斂成有用的向量。</li>
+<li><strong>學習信號來自任務</strong>：Word2vec 用「預測上下文詞」、LLM 用「預測下一個 token」。常出現在相似語境的詞（貓 / 狗），為了預測得準，向量常被學得相近——這是訓練的副產品，不是人為設定。</li>
+<li><strong>重要澄清</strong>：前面「是動物 / 是交通工具」只是<strong>示意</strong>。真實 embedding 每一維<strong>沒有人為指定意義</strong>，是訓練中自己長出來的抽象方向；單看一維通常無法解讀，是<strong>整個向量的方向與組合</strong>承載資訊。</li>
+</ul>
+<p><strong>維度 $d$（向量有幾格）怎麼定？是超參數，訓練前就固定。</strong> 訓練學的是向量裡的<strong>值</strong>（$V\times d$ 個數字），但<strong>維度 $d$ 本身固定不變</strong>，不是訓練中長出來、也不是最後才決定的。這是「參數 vs 超參數」的區別：</p>
+<ul>
+<li><strong>參數 (parameters)</strong>：訓練時<strong>自動學</strong>的（embedding 的值、各層權重）。</li>
+<li><strong>超參數 (hyperparameters)</strong>：訓練<strong>前人為設定</strong>的（維度 $d$、學習率 $\eta$、層數、batch size…）。</li>
+<li><strong>$d$ 怎麼挑</strong>：靠經驗 + 實驗（調參）。常見 Word2vec / 小模型 100~300、BERT 768、大型 LLM 上千~上萬（GPT-3 達 12288）。太小 → 裝不下資訊、表達力不足；太大 → 參數暴增、算力 / 記憶體貴、易過擬合、邊際效益遞減。實務是試幾個值、看<strong>驗證集</strong>（<a href="02-training-neural-networks.html#6">§6</a>）選 CP 值最好的——屬<strong>外層調超參數的實驗迴圈</strong>（訓練好幾次比較），不是單次訓練內學出來的。</li>
+</ul>
+
+<h3 id="13.2">13.2 Contextual representation：同一 token、不同上下文</h3>
+<ul>
+<li>Lookup embedding 對同一個 token id 永遠給同一個向量；進入 Transformer 後，每一層的注意力會混入上下文（<a href="05-transformers-and-generation.html#15">§15</a>），輸出的 <strong>hidden state</strong> 因此隨句子而變。</li>
+<li>例：「蘋果很好吃」與「蘋果發表新手機」中的「蘋果」，lookup 向量相同，但中後層的 hidden state 不同——前者較接近水果的用法、後者較接近公司的用法。</li>
+<li>這些 hidden state 是模型內部的中間表示；LLM 最後一層的 hidden state 再經 LM head 轉成 vocabulary logits（<a href="05-transformers-and-generation.html#15">§15</a>、<a href="05-transformers-and-generation.html#16">§16</a>）。</li>
+</ul>
+
+<h3 id="13.3">13.3 Sequence embedding：把整句壓成一個向量</h3>
+<ul>
+<li>要比較兩句話，需要一句一個向量。常見做法：對所有 token 的 hidden state 取<strong>平均 (mean pooling)</strong>，或取特殊 token（如 BERT 的 <code>[CLS]</code>）的 hidden state。</li>
+<li>直接拿未經專門訓練的語言模型做 pooling，句子相似度的品質常不理想；實務多用專門訓練過的句向量模型。</li>
+</ul>
+
+<h3 id="13.4">13.4 Retrieval embedding：為檢索而訓練（RAG 的核心）</h3>
+<ul>
+<li>以<strong>檢索目標</strong>訓練：常用<strong>對比學習 (contrastive learning)</strong>，讓「query 與相關文件」的向量接近、與不相關文件的向量拉遠。有的模型對 query 與文件使用不同的前綴指令或編碼器。</li>
+<li><strong>RAG 流程</strong>：把文件段落與查詢都 embed 成向量，用餘弦相似度（或內積）找最相關段落 → 餵給 LLM 生成答案。也用於語意搜尋、推薦、去重。</li>
+<li><strong>「意思相近 → 向量相近」在這裡是明確的訓練目標</strong>；對 lookup embedding 而言只是訓練後的傾向（<a href="#13.1">§13.1</a>）。</li>
+<li>query 與文件必須用<strong>同一套 embedding 系統</strong>編碼（同一個模型，或成對訓練的 query / 文件編碼器），並依該模型規定的前綴或前處理，向量才能互相比較。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> RAG 靠 retrieval embedding 檢索；實務用<strong>向量資料庫</strong>存百萬級向量、做快速最近鄰搜尋。<strong>檢索品質很大程度取決於 embedding 模型是否符合你的語言、領域與查詢型態</strong>，應以自己的資料評估（如 recall@k，<a href="06-evaluation-and-validation.html#18.3">§18.3</a>）。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="14">14. RNN / LSTM — 序列建模</h2>
+<p>有了 token 的向量序列（<a href="#12">§12</a>、<a href="#13">§13</a>），接著要有能處理<strong>序列</strong>的模型。序列資料（文字、時序、封包大小序列）有<strong>順序</strong>、長度<strong>不定</strong>，FC/CNN 不擅長。<strong>RNN（循環神經網路）</strong>用一個<strong>隱藏狀態 $\mathbf{h}$ 當「記憶」</strong>，逐步吃輸入、更新記憶：</p>
+<p>$$\mathbf{h}_t=\sigma(\mathbf{W}_h\mathbf{h}_{t-1}+\mathbf{W}_x\mathbf{x}_t+\mathbf{b})$$</p>
+<p>每一步把「上一刻的記憶 $\mathbf{h}_{t-1}$」和「這一刻輸入 $\mathbf{x}_t$」混合成新記憶，可再輸出。</p>
+<ul>
+<li><strong>問題：長距依賴</strong>。序列一長，沿時間展開就像很深的網路 → <strong>梯度消失/爆炸</strong>，記不住遠處資訊。</li>
+<li><strong>LSTM / GRU</strong>：加<strong>閘門 (gate)</strong> 控制「記住 / 遺忘 / 輸出」多少 → 能記更久，是長序列的主力（Transformer 出現前）。</li>
+</ul>
+<h3 id="14.1">14.1 哪些應用適合用 RNN（為什麼）</h3>
+<p>跟 CNN 一樣，RNN 適不適合取決於<strong>資料是否符合它的內建假設</strong>——RNN 假設資料是<strong>有順序的序列</strong>，且<strong>當下輸出依賴歷史</strong>。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>RNN 的內建假設</th><th>適合的資料 / 問題特徵</th><th>為什麼</th><th>例子</th></tr></thead>
+<tbody>
+<tr><td><strong>順序性</strong>（逐步吃輸入）</td><td>資料<strong>有時間 / 先後順序</strong>，順序有意義</td><td>隱藏狀態沿時間傳遞</td><td>時序、文字、語音、封包序列</td></tr>
+<tr><td><strong>可變長度</strong>（同參數跑到底）</td><td>輸入<strong>長度不定</strong></td><td>每步共用同一組權重</td><td>長短不一的句子、連線 session</td></tr>
+<tr><td><strong>時間上參數共享</strong></td><td>同一種規律<strong>不分位置都成立</strong></td><td>每個時刻用同一 $\mathbf{W}$</td><td>週期性訊號、重複語法</td></tr>
+<tr><td><strong>狀態 / 記憶</strong></td><td>當下輸出<strong>依賴前文脈絡</strong></td><td>$\mathbf{h}$ 累積歷史資訊</td><td>依上下文預測下一字 / 值</td></tr>
+<tr><td><strong>因果 / 串流</strong></td><td>資料<strong>逐步到達、要邊來邊反應</strong></td><td>由左到右一步步算</td><td>即時語音、線上異常偵測</td></tr>
+</tbody></table></div>
+<p><strong>適合的應用</strong>：時序預測（感測器、網路流量 metrics、股價）、語音辨識、手寫辨識、log / 封包序列異常偵測、<strong>串流 / 即時</strong>逐步處理；文字生成（早期，現多被 Transformer 取代）。</p>
+<p><strong>不適合 / 侷限（對照）</strong>：</p>
+<ul>
+<li><strong>很長的序列、需長距依賴</strong> → 梯度消失（即使 LSTM 也有極限）、記不住遠處 → 用 <strong>Transformer / 注意力</strong>（<a href="05-transformers-and-generation.html#15">§15</a>）。</li>
+<li><strong>需大量平行訓練</strong> → RNN <strong>逐步串行、難平行</strong>、訓練慢 → Transformer 可整段平行。</li>
+<li><strong>無順序關係的資料</strong>（表格、影像空間結構）→ 順序假設失效 → 用 <strong>MLP / 樹模型 / CNN</strong>。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 網路 AI 的序列任務（封包序列、時序 metrics）用 <strong>1D-CNN / LSTM</strong> 就夠、輕量、又<strong>天生串流友好</strong>，適合<strong>邊緣即時</strong>；但一旦需要長距依賴或大規模平行，語言與長序列已被 <strong>Transformer</strong> 取代（留中央）。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+</main>
+<section class="next-step"><p><strong>下一步閱讀：</strong><a href="05-transformers-and-generation.html">05 Transformer 與生成</a>：LLM 如何從 token ids 算出下一個 token，又如何被訓練與微調？</p></section>
+<nav class="volnav"><a href="03-cnn-and-vision.html">← 03 CNN 與影像模型</a><a href="index.html">教材首頁</a><a href="05-transformers-and-generation.html">05 Transformer 與生成 →</a></nav>
+<p class="totop"><a href="#top">↑ 回頁首</a></p>
+</div>
+</body>
+</html>

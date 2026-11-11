@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 評估與統計驗證 — AI 模型原理與數學</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/ai-model-internals.css">
+<script src="assets/ai-model-internals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body class="mathjax_ignore">
+<div class="wrap">
+<header class="doc" id="top">
+<p class="kicker"><a href="index.html">AI 模型原理與數學 — 工程師深入教材</a></p>
+<h1>06. 評估與統計驗證</h1>
+<div class="meta"><span>2026-11-11</span><span>v0.3.0</span><span>NikeChen</span></div>
+</header>
+<nav class="volnav"><a href="05-transformers-and-generation.html">← 05 Transformer 與生成</a><a href="index.html">教材首頁</a><a href="07-hardware-and-deployment.html">07 硬體、數值格式與部署 →</a></nav>
+<section class="vol-intro mathjax_process"><p><strong>本冊回答：</strong>怎麼判斷模型可用，並確定差異不是抽樣雜訊？</p><p><strong>內容：</strong>分類 / 迴歸 / 生成指標、校準與門檻、交叉驗證、資料洩漏、bootstrap 與檢定</p><p><strong>先備：</strong><a href="01-math-foundations.html#3">§3 迴歸、分類與損失</a>；<a href="02-training-neural-networks.html#6">§6 正則化與過擬合</a>。</p></section>
+<nav id="vol-toc" class="vol-toc mathjax_process"><p><strong>本冊目錄</strong></p>
+<ul>
+<li><a href="#18">18. 評估指標數學</a>
+<ul>
+<li><a href="#18.1">18.1 分類</a></li>
+<li><a href="#18.2">18.2 迴歸</a></li>
+<li><a href="#18.3">18.3 生成 / 檢索</a></li>
+<li><a href="#18.4">18.4 機率品質與門檻選擇</a></li>
+</ul></li>
+<li><a href="#19">19. 模型驗證與統計嚴謹性</a>
+<ul>
+<li><a href="#19.1">19.1 為什麼「隨機切分 + 看準確率」會騙人</a></li>
+<li><a href="#19.2">19.2 交叉驗證 (Cross-Validation)</a></li>
+<li><a href="#19.3">19.3 資料洩漏的種類 (Data Leakage)</a></li>
+<li><a href="#19.4">19.4 統計推論:別把「一個數字」當結論</a></li>
+<li><a href="#19.5">19.5 混淆變數與可重現性（防自欺）</a></li>
+<li><a href="#19.6">19.6 把驗證語義變成可強制的「契約」（ML 契約 vs API 設計）</a></li>
+<li><a href="#19.7">19.7 一句話</a></li>
+</ul></li>
+</ul></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
+  <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+  <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+</defs></svg>
+<main class="content mathjax_process">
+<h2 id="18">18. 評估指標數學</h2>
+<p>「準確率高」不一定好——挑對指標比挑模型更關鍵。</p>
+<p><strong>先回答一個常見問題：有沒有「一個值」代表模型訓練的好壞？</strong> 有，但要分清是哪個值、在哪份資料上算：</p>
+<ul>
+<li><strong>損失 (loss)</strong>：訓練時<strong>直接最小化</strong>的目標值（<a href="01-math-foundations.html#3">§3</a>），越低代表越貼合資料。<strong>但只看「訓練集損失」會被過擬合騙</strong>（訓練集很低、真實表現卻差）。</li>
+<li><strong>評估指標 (metric)</strong>：把「好壞」翻成人看得懂的分數，依任務不同（見下 <a href="#18.1">§18.1</a>–<a href="#18.3">§18.3</a>）——分類看 accuracy / F1 / AUC、迴歸看 MSE / R²、LLM 看 perplexity、檢索看 Recall@k。</li>
+<li><strong>關鍵：要在「沒看過的資料」上算才算數。</strong> 真正代表模型好壞的，是<strong>驗證 / 測試集</strong>（<a href="02-training-neural-networks.html#6">§6</a>）上的損失或主要指標；實務會同時看「訓練 vs 驗證」兩條損失曲線來判斷過擬合（<a href="02-training-neural-networks.html#6">§6</a>）。</li>
+</ul>
+<p><strong>一句話：訓練過程看「損失」、評模型好壞看「驗證 / 測試集上的主要指標」；沒有放諸四海皆準的單一值，要依任務挑對指標。</strong></p>
+<h3 id="18.1">18.1 分類</h3>
+<figure><svg viewBox="0 0 360 210" role="img" aria-label="混淆矩陣：TP FN FP TN 四格">
+  <text x="200" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">預測</text>
+  <text x="140" y="42" fill="#94a3b8" font-size="11" text-anchor="middle">正（惡意）</text>
+  <text x="270" y="42" fill="#94a3b8" font-size="11" text-anchor="middle">負（正常）</text>
+  <text x="18" y="90" fill="#94a3b8" font-size="11" text-anchor="middle" transform="rotate(-90 18 120)">實際</text>
+  <text x="55" y="90" fill="#94a3b8" font-size="10" text-anchor="middle">正</text>
+  <text x="55" y="160" fill="#94a3b8" font-size="10" text-anchor="middle">負</text>
+  <rect x="80" y="50" width="120" height="65" fill="#34d399" fill-opacity="0.18" stroke="#475569"/><text x="140" y="80" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">TP</text><text x="140" y="98" fill="#94a3b8" font-size="9" text-anchor="middle">抓對的惡意</text>
+  <rect x="200" y="50" width="120" height="65" fill="#f87171" fill-opacity="0.16" stroke="#475569"/><text x="260" y="80" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">FN</text><text x="260" y="98" fill="#94a3b8" font-size="9" text-anchor="middle">漏抓（放走）</text>
+  <rect x="80" y="115" width="120" height="65" fill="#f87171" fill-opacity="0.16" stroke="#475569"/><text x="140" y="145" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">FP</text><text x="140" y="163" fill="#94a3b8" font-size="9" text-anchor="middle">誤報（冤枉）</text>
+  <rect x="200" y="115" width="120" height="65" fill="#34d399" fill-opacity="0.18" stroke="#475569"/><text x="260" y="145" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">TN</text><text x="260" y="163" fill="#94a3b8" font-size="9" text-anchor="middle">判對的正常</text>
+  <text x="200" y="200" fill="#94a3b8" font-size="9.5" text-anchor="middle">Precision=TP/(TP+FP)　Recall=TP/(TP+FN)</text>
+</svg><figcaption>混淆矩陣：綠=判對（TP/TN）、紅=判錯（FP 誤報、FN 漏抓）。Precision 少誤報、Recall 少漏抓，是一切分類指標的基礎。</figcaption></figure>
+<p><strong>先定「正類 (positive)」＝ 你要偵測的目標類</strong>（本節以<strong>惡意 / 攻擊</strong>為例，其餘為<strong>負類</strong>＝正常）；四格由「實際 × 預測」交叉：<strong>TP</strong> 實際正、也判正（抓對惡意）；<strong>FP</strong> 實際負、卻判正（正常被誤判＝<strong>誤報</strong>）；<strong>FN</strong> 實際正、卻判負（惡意被放走＝<strong>漏抓</strong>）；<strong>TN</strong> 實際負、也判負（判對正常）。一切指標都由這四格算出。</p>
+<p><strong>命名規則（別看錯）</strong>：<strong>第 2 字母＝模型「預測」的類</strong>（P 正 / N 負）、<strong>第 1 字母＝那個預測「對不對」</strong>（T 對 / F 錯）——<strong>與「實際是哪一類 / 在哪一列」無關</strong>。所以<strong>對角線 TP、TN 都是猜對 (T)、反對角線 FP、FN 都是猜錯 (F)</strong>。例：右上格 FN ＝「模型<strong>預測負 (N)</strong>、但<strong>猜錯 (F)</strong>」＝ 實際正卻判負 ＝ <strong>漏抓</strong>（不是 TN——因為它猜錯了）。</p>
+<ul>
+<li><strong>Accuracy（正確率）</strong> $=\frac{TP+TN}{\text{全部}}$：全部猜對的比例；<strong>不平衡時會騙人</strong>（99.9% 正常，全猜正常也 99.9%）。（注意別和下面的<strong>精確率 precision</strong> 混——兩者不同。）</li>
+<li><strong>Precision（精確率）</strong> $=\frac{TP}{TP+FP}$：「<strong>判為正類的裡面，真的是正類的比例</strong>」（此處：說是惡意的，有多少真的是）——<strong>誤報 (FP) 越少，Precision 越高</strong>（FP 在分母）。</li>
+<li><strong>Recall（召回率）</strong> $=\frac{TP}{TP+FN}$：「<strong>真正類裡，被抓到的比例</strong>」（此處：真惡意的，抓到多少）——<strong>漏抓 (FN) 越少，Recall 越高</strong>（FN 在分母）。</li>
+<li><strong>F1（正式名 F1 score / F1-measure）</strong> $=\frac{2PR}{P+R}$：precision 與 recall 的<strong>調和平均</strong>（是 $F_\beta$ 在 $\beta=1$ 的特例；$\beta&gt;1$ 偏重 recall、$&lt;1$ 偏重 precision）。<strong>它算的是「單一類別 / 二元」的分數</strong>——同時要求少誤報 (P) 與少漏抓 (R)，任一低則 F1 低，比 accuracy 適合不平衡。<strong>用途</strong>:二元偵測（惡意/正常）、以及多類裡的<strong>逐類</strong>評估。</li>
+<li><strong>ROC / AUC</strong>：調不同門檻畫出的曲線 / 曲線下面積，衡量整體區辨力。類別不平衡時與 PR-AUC 的差異、機率校準與門檻選擇流程見 <a href="#18.4">§18.4</a>。</li>
+<li><strong>多類別怎麼把各類 F1 合成一個?（平均方式——<code>macro-F1</code> 就是從這來的，不是 F1 的別名）</strong>：先對<strong>每類各算一個 F1</strong>，再合成成一個總分:
+  <ul>
+  <li><strong>macro-F1</strong>：各類 F1 <strong>等權平均</strong>——<strong>少數類也算數</strong>，類別不平衡時最該看；</li>
+  <li><strong>micro-F1</strong>：把<strong>所有類的 TP/FP/FN 匯總後</strong>才算一個——<strong>由多數類主導</strong>；</li>
+  <li><strong>weighted-F1</strong>：各類 F1 <strong>按樣本數加權</strong>平均。</li>
+  </ul>
+  <strong>多類情境只說「F1」會有歧義，務必指明用哪種平均</strong>（實務常用 <strong>macro-F1</strong>；<strong>用途</strong>:報一個跨類總分又不想被多數類蓋過）。<strong>搭配 per-class floor</strong>：除了 macro-F1，另看<strong>「每類 F1 的最低者」</strong>，別讓平均掩蓋弱類（分開判定）；有群組結構再考慮<strong>分組加權</strong>避免大群組主導（<a href="#19.2">§19.2</a>）。</li>
+</ul>
+<p><strong>怎麼看出「哪一類爛、哪兩類互相混」（多類診斷）。</strong> 別只看一個總分，做兩件事（以 3 類「正常 / DoS / 掃描」為例）：</p>
+<p><strong>① per-class 表 → 找最爛的類。</strong> 每類各算 precision / recall / F1：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>類別</th><th>precision</th><th>recall</th><th>F1</th><th>support</th></tr></thead>
+<tbody>
+<tr><td>正常</td><td>0.98</td><td>0.99</td><td>0.985</td><td>9000</td></tr>
+<tr><td>DoS</td><td>0.92</td><td>0.90</td><td>0.91</td><td>800</td></tr>
+<tr><td><strong>掃描</strong></td><td>0.60</td><td><strong>0.45</strong></td><td><strong>0.51</strong></td><td>200</td></tr>
+</tbody></table></div>
+<p><strong>F1 最低者 ＝ 最爛的類</strong>（掃描 0.51）；再比該類 <strong>recall vs precision 判斷「爛在哪」——recall 低 → 漏抓、precision 低 → 誤報</strong>（掃描 recall 0.45 &lt; precision 0.60 → 主要在漏抓）。注意 accuracy / micro-F1 會被大類「正常」蓋住、看不出掃描爛掉，<strong>要看 per-class 與 macro-F1 / 最低類</strong>；小 support 類本就分數低又不穩（補資料 / class weight / 調門檻）。</p>
+<p><strong>② 混淆矩陣 → 找最常混的一對</strong>（列＝實際、欄＝預測；非對角線格 $(i,j)$ ＝「實際 $i$ 被判成 $j$」的數量）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>預測正常</th><th>預測 DoS</th><th>預測掃描</th></tr></thead>
+<tbody>
+<tr><td>實際正常</td><td>8910</td><td>40</td><td>50</td></tr>
+<tr><td>實際 DoS</td><td>60</td><td>720</td><td>20</td></tr>
+<tr><td><strong>實際掃描</strong></td><td><strong>95</strong></td><td>15</td><td>90</td></tr>
+</tbody></table></div>
+<p><strong>非對角線最大的格 ＝ 最嚴重的混淆對</strong>：此處「實際掃描 → 預測正常 ＝ 95」最大 → <strong>「掃描 ↔ 正常」最常混</strong>，方向是<strong>掃描被誤當正常放走（漏抓）</strong>。<strong>列正規化</strong>（每格 ÷ 該列 support）後掃描列：正常 47.5%、掃描 45% → 正對應 recall(掃描)=0.45。→ 該修的是「掃描 vs 正常」的<strong>決策邊界</strong>（可能特徵不足以區分低流量掃描與正常）。（實作：<code>sklearn</code> 的 <code>classification_report</code> 給 per-class P/R/F1/support；<code>confusion_matrix(..., normalize='true')</code> 給列正規化矩陣。）</p>
+<p><strong>分數要多高才算「可用」?（沒有固定門檻，要看脈絡）</strong> 沒有「F1 &gt; 0.9 就算好模型」這種普世線——同一個 0.90 在某任務是頂標、在另一任務是不及格。判斷「可用」看四件事：</p>
+<ul>
+<li><strong>先比基準 (baseline)</strong>：<strong>baseline ＝ 一個「陽春、不費力」的參照</strong>（不學習、或最簡單的模型 / 規則），當比較的<strong>起點與及格線</strong>。常見的有——<strong>多數類基準</strong>（永遠猜最常見的類；不平衡時全猜多數類的 accuracy）、<strong>隨機</strong>、<strong>簡單規則 / 邏輯迴歸 / 單棵樹</strong>、<strong>現有系統 / 前一版 / 人工</strong>的表現；<strong>迴歸的 baseline 是「永遠猜平均值」</strong>（對應 <strong>R²＝0</strong>，<a href="#18.2">§18.2</a>）。模型的價值 ＝ <strong>它比 baseline 高多少（lift ＝ 模型 − baseline）</strong>，不是它的絕對分數；至少要<strong>明顯贏過基準</strong>才有意義（99.9% 正常時，99.9% accuracy 等於沒做事）。</li>
+<li><strong>錯誤成本 → 決定看哪個指標、門檻訂多少</strong>：漏報 (FN) 與誤報 (FP) 代價常不對等。資安 / 醫療<strong>漏報代價高 → 要求 recall 高</strong>（如 recall ≥ 0.95）；誤報擾民 → 要求 precision 高。門檻應<strong>由業務 / 營運需求反推</strong>（例：「recall ≥ 0.95 且 precision ≥ 0.8」），不是拍腦袋定 0.9。</li>
+<li><strong>不平衡下別看 accuracy</strong>：改看 <strong>per-class recall / precision、PR-AUC、macro-F1、每類 F1 的最低者</strong>（見上、<a href="#19.2">§19.2</a>）。</li>
+<li><strong>分數是「樣本估計」、要看信賴區間與顯著性</strong>：$F1=0.91$ 只是這批測試資料的估計，換一批會變；要問「贏過基準 / 對手是真的，還是抽樣雜訊?」——用 bootstrap CI、配對檢定（<a href="#19">§19</a>）。且<strong>分類門檻 (threshold) 要在 validation set 選</strong>，不能拿 test set 挑（否則高估）；完整流程見 <a href="#18.4">§18.4</a>。</li>
+</ul>
+<p>一句話：<strong>「可用」不是看某個絕對分數，而是「明顯贏過合理基準 ＋ 滿足由錯誤成本反推的業務門檻 ＋ 統計上站得住腳」三者兼具。</strong></p>
+<h3 id="18.2">18.2 迴歸</h3>
+<p><strong>MSE / MAE</strong>：均方 / 平均絕對誤差（<a href="01-math-foundations.html#3">§3</a>、<a href="01-math-foundations.html#1.4">§1.4</a>）；<strong>R²</strong>：模型解釋了多少變異。</p>
+<h3 id="18.3">18.3 生成 / 檢索</h3>
+<ul>
+<li><strong>Perplexity（困惑度）</strong>：語言模型「對下一字有多不確定」，越低越好（＝負對數似然的指數，<a href="01-math-foundations.html#2">§2</a>、<a href="05-transformers-and-generation.html#16">§16</a>）。</li>
+<li><strong>BLEU / ROUGE</strong>：比生成文字與參考答案的重疊。</li>
+<li><strong>Recall@k</strong>：檢索前 $k$ 個有沒有命中正確段落（RAG 檢索品質）。</li>
+</ul>
+<h3 id="18.4">18.4 機率品質與門檻選擇</h3>
+<p>分類器多半先輸出<strong>分數或機率</strong>，再用門檻轉成類別。評估要分兩層：<strong>排序好不好</strong>（AUC），以及<strong>機率準不準</strong>（校準）；門檻則是最後依成本決定的一步。</p>
+<p><strong>ROC-AUC vs PR-AUC（類別不平衡時）。</strong></p>
+<ul>
+<li><strong>ROC 曲線</strong>橫軸是 FPR $=\frac{FP}{FP+TN}$。負類極多時 TN 很大，即使誤報 (FP) 的絕對數量不少，FPR 仍很小，ROC-AUC 容易看起來偏樂觀。</li>
+<li><strong>PR 曲線</strong>看 precision 與 recall，只關心正類；<strong>隨機模型的 PR-AUC 約等於正類比例</strong>（例如正類占 1% 時約 0.01），而不是 0.5。</li>
+<li>不平衡任務建議兩者都報，並註明<strong>正類比例</strong>，PR-AUC 才有比較基準。</li>
+</ul>
+<p><strong>機率校準 (calibration)：「說 0.8 的，實際約八成是正類嗎？」</strong></p>
+<ul>
+<li>模型可能排序很好（AUC 高），但機率系統性偏高或偏低。類別加權、過採樣、強正則化等訓練設定都可能讓輸出機率偏離實際頻率。</li>
+<li><strong>Brier score</strong> $=\frac1N\sum_i (p_i-y_i)^2$：預測機率與 0/1 結果的平方差，越低越好；同時反映區辨力與校準。</li>
+<li><strong>ECE（Expected Calibration Error）</strong>：把預測機率分成 $M$ 個區間，比較每個區間的平均預測機率 $\bar p_b$ 與實際正類比例 $o_b$：$\text{ECE}=\sum_{b=1}^{M}\frac{n_b}{N}\,|o_b-\bar p_b|$。數值會受分箱數與分箱方式影響，報告時要註明。</li>
+<li><strong>Reliability diagram（可靠度圖）</strong>：橫軸為各區間的平均預測機率、縱軸為實際正類比例；點落在對角線上表示校準良好；落在對角線下方表示預測機率高於實際比例（高估）。過度自信的模型通常在高機率區落在下方、低機率區落在上方。</li>
+<li><strong>校準方法</strong>：Platt scaling（擬合一個 sigmoid）、isotonic regression、temperature scaling（NN 常用）。校準器要在 <strong>validation set</strong> 上擬合，不可用 test set。</li>
+</ul>
+<figure><svg viewBox="0 0 450 280" style="max-width:100%" role="img" aria-label="Reliability diagram：對角線為完美校準，過度自信的模型在高機率區落在對角線下方">
+  <defs><marker id="relax" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#94a3b8"/></marker></defs>
+  <line x1="50" y1="230" x2="262" y2="230" stroke="#94a3b8" marker-end="url(#relax)"/><line x1="50" y1="230" x2="50" y2="20" stroke="#94a3b8" marker-end="url(#relax)"/>
+  <g fill="#94a3b8" font-size="10" text-anchor="middle"><text x="50" y="244">0</text><text x="150" y="244">0.5</text><text x="250" y="244">1</text></g>
+  <g fill="#94a3b8" font-size="10" text-anchor="end"><text x="44" y="233">0</text><text x="44" y="133">0.5</text><text x="44" y="33">1</text></g>
+  <text x="150" y="264" fill="#94a3b8" font-size="10.5" text-anchor="middle">平均預測機率 p̄（每個區間）</text>
+  <text x="16" y="130" fill="#94a3b8" font-size="10.5" text-anchor="middle" transform="rotate(-90 16 130)">實際正類比例 o</text>
+  <line x1="50" y1="230" x2="250" y2="30" stroke="#34d399" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="190" y1="114" x2="190" y2="90" stroke="#f87171" stroke-width="2"/>
+  <line x1="230" y1="90" x2="230" y2="50" stroke="#f87171" stroke-width="2"/>
+  <polyline points="70,200 110,170 150,140 190,114 230,90" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <g fill="#fbbf24"><circle cx="70" cy="200" r="4"/><circle cx="110" cy="170" r="4"/><circle cx="150" cy="140" r="4"/><circle cx="190" cy="114" r="4"/><circle cx="230" cy="90" r="4"/></g>
+  <text x="278" y="60" fill="#34d399" font-size="10.5">對角線 = 完美校準</text>
+  <text x="278" y="100" fill="#fbbf24" font-size="10.5">模型：高信心區落在</text>
+  <text x="278" y="114" fill="#fbbf24" font-size="10.5">對角線下方 = 過度自信</text>
+  <text x="278" y="150" fill="#f87171" font-size="10.5">紅線 = 該區間的落差</text>
+  <text x="278" y="164" fill="#f87171" font-size="10.5">|o − p̄|（ECE 的加權來源）</text>
+  <text x="278" y="200" fill="#cbd5e1" font-size="10.5">例：預測 0.9 的那一群，</text>
+  <text x="278" y="214" fill="#cbd5e1" font-size="10.5">實際只有 0.7 是正類</text>
+</svg><figcaption>Reliability diagram（幾何意義）：每個點是一個預測機率區間。點在對角線上 = 說幾成就真的是幾成；點在對角線下方 = 預測機率高於實際比例（高估）。此例高機率區落在下方、低機率區（0.1）略在上方，是典型的過度自信形狀。各區間到對角線的垂直距離依樣本數加權平均，就是 ECE。</figcaption></figure>
+<p><strong>門檻選擇的完整流程：</strong></p>
+<ol>
+<li>在 training set 訓練模型（必要時在 validation set 上校準）。</li>
+<li>在 validation set 上取得分數，依需求選門檻：
+  <ul>
+  <li><strong>成本最小化</strong>：最小化 $c_{FP}\cdot FP + c_{FN}\cdot FN$（兩種錯誤的代價由業務決定）；</li>
+  <li><strong>recall floor</strong>：在 recall ≥ 目標值（如 0.95）的門檻中，取 precision 最高者；</li>
+  <li><strong>precision floor</strong>：在 precision ≥ 目標值的門檻中，取 recall 最高者。</li>
+  </ul></li>
+<li><strong>凍結門檻</strong>（連同模型與前處理）。</li>
+<li>在 test set 上<strong>只做一次</strong>最終評估，報告該門檻下的指標與信賴區間（<a href="#19.4">§19.4</a>）。看過 test 結果再回頭調門檻，原結果就不再是無偏估計。</li>
+</ol>
+<p><strong>多類別與多標籤的差異：</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>任務</th><th>AUC 怎麼算</th><th>門檻怎麼定</th></tr></thead>
+<tbody>
+<tr><td><strong>多類別</strong>（每筆恰屬一類，softmax，<a href="01-math-foundations.html#3.3">§3.3</a>）</td><td>one-vs-rest（每類對其餘）或 one-vs-one 各算 AUC，再 macro / weighted 平均；需註明用哪種</td><td>通常取機率最大的類（argmax）；成本不對等時可用成本矩陣或調整各類權重</td></tr>
+<tr><td><strong>多標籤</strong>（每筆可同時屬多類，各自 sigmoid，<a href="01-math-foundations.html#3.2">§3.2</a>）</td><td>每個標籤各算一個 AUC，再 macro / micro 平均</td><td><strong>每個標籤各自選門檻</strong>，各自依成本或 floor 決定</td></tr>
+</tbody></table></div>
+<blockquote><p><strong>工程意涵。</strong> <strong>資安場景高度不平衡</strong>——別看 accuracy，要看 <strong>recall（抓到多少真威脅）與誤報率</strong>；門檻可用機率分數調（見 <a href="01-math-foundations.html#2">§2</a> 工程意涵）。RAG 檢索品質看 <strong>Recall@k</strong>。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="19">19. 模型驗證與統計嚴謹性</h2>
+<p>前面各章教「模型<strong>如何學</strong>」；這章教「<strong>如何嚴謹評估、並敢相信</strong>一個模型」——這是從實驗室到上線最容易出錯、也最能自欺的一環。核心原則:<strong>先定義「失敗長什麼樣」、把檢查寫成可執行、凍結協定，再看資料</strong>。</p>
+
+<h3 id="19.1">19.1 為什麼「隨機切分 + 看準確率」會騙人</h3>
+<p>過擬合（<a href="02-training-neural-networks.html#6">§6</a>）只是冰山一角；更隱蔽的是<strong>離線分數漂亮、上線卻垮</strong>。三大自欺來源:<strong>資料洩漏</strong>（19.3）、<strong>混淆變數</strong>（19.5）、<strong>資料窺探</strong>（19.5）。嚴謹評估就是逐一把它們鎖死——否則 F1 再高也不可信、且事後補不回來。</p>
+
+<h3 id="19.2">19.2 交叉驗證 (Cross-Validation)</h3>
+<ul>
+<li><strong>k-fold CV</strong>:把資料切 $k$ 折，輪流拿一折當驗證、其餘訓練，平均 $k$ 次 → <strong>比單一驗證集更穩、更省資料</strong>。</li>
+<li><strong>分組交叉驗證 (Grouped CV)</strong> — 最關鍵:資料有<strong>群組結構</strong>（同使用者/同 session/同來源/相鄰時窗高度相關）時，<strong>重採樣單位必須是「群組」而非「單筆」</strong>。否則同群組同時落在 train 與 test，模型是「認得這群組」而非學到規律 → 分數虛高。<strong>要選「最上層的獨立生成事件」當重採樣最小單位</strong>（同一原始檔切出的 N 片只算 1 個獨立樣本）。</li>
+<li><strong>nested CV（巢狀）</strong>:<strong>內層</strong> CV 調超參數、<strong>外層</strong> CV 估效能，避免「同一份資料又選模型又報成績」的樂觀偏差。</li>
+<li><strong>held-out 泛化評估</strong>:刻意把<strong>某來源/裝置/時間段</strong>完全排除在訓練外，測<strong>分布外泛化</strong>（domain / temporal generalization）——比同分布 CV 嚴格、更接近上線。</li>
+</ul>
+<blockquote><p><strong>兩個「gap」別混淆。</strong> <strong>泛化落差 (generalization gap)</strong> ＝ 訓練集 − 測試集（<strong>同分布</strong>），量的是<strong>過擬合</strong>（<a href="02-training-neural-networks.html#6">§6</a>）；<strong>遷移落差 (transfer gap)</strong> ＝ 來源域 − 目標域（<strong>不同來源/裝置/時間</strong>），量的是<strong>跨分布泛化</strong>——held-out 評估量的就是它。上線環境幾乎不同分布，所以<strong>真正決定好壞的常是 transfer gap，而非同分布的漂亮分數</strong>（分布漂移見 <a href="08-classical-ml-and-feature-engineering.html#h1">附錄 H</a>）。</p></blockquote>
+
+<h3 id="19.3">19.3 資料洩漏的種類 (Data Leakage)</h3>
+<p>洩漏 = 訓練時偷看到「上線拿不到」或「等於答案」的資訊，使離線分數虛高。三種常見:</p>
+<ul>
+<li><strong>目標洩漏 (target leakage)</strong>:特徵直接或間接<strong>含了答案</strong>，或用了<strong>推論當下拿不到</strong>的資訊。</li>
+<li><strong>群組洩漏 (group leakage)</strong>:同群組跨 train/test（見 19.2）——最常被忽略。</li>
+<li><strong>時間洩漏 (temporal leakage)</strong>:用<strong>未來</strong>資料預測過去；時間序列必須<strong>按時間切</strong>。</li>
+<li>防治口訣:對每個特徵問「<strong>上線當下拿得到嗎?會不會等於答案?</strong>」；切分<strong>按群組 / 按時間</strong>。</li>
+</ul>
+
+<h3 id="19.4">19.4 統計推論:別把「一個數字」當結論</h3>
+<p>測試集有限，$F1=0.91$（定義見 <a href="#18.1">§18.1</a>）只是<strong>樣本估計</strong>——換一批資料會變。要問「這差異是真的，還是抽樣雜訊?」</p>
+<ul>
+<li><strong>信賴區間 (Confidence Interval, CI)</strong>:給估計一個<strong>範圍</strong>（如 95% CI），而非單點；CI 很寬 → 別下結論。</li>
+<li><strong>Bootstrap（自助法）</strong>:對測試資料<strong>有放回重抽樣</strong>很多次、每次重算指標 → 得到指標分布 → 估 CI。它<strong>不需假設特定的參數分布</strong>（如常態），但<strong>仍有前提</strong>:樣本要能代表母體，且<strong>重抽單位必須是彼此獨立的單位</strong>。有群組結構時用 <strong>cluster bootstrap</strong>（以群組為重抽單位）；有時間相依時用 <strong>block bootstrap</strong>（重抽連續區塊）。樣本很少或指標接近 0 / 1 時，CI 也可能不準。</li>
+<li><strong>兩個不同的問題，用不同的檢定</strong>:
+<div class="tablewrap"><table>
+<thead><tr><th>要回答的問題</th><th>方法</th></tr></thead>
+<tbody>
+<tr><td><strong>資料中是否存在可學的訊號？</strong>（模型是否勝過「標籤與特徵無關」的情況）</td><td><strong>標籤置換檢定 (label permutation test)</strong>:把標籤隨機打亂、重新訓練並評估多次，得到「沒有訊號」時的 null 分布；真實分數若明顯落在 null 之外 → 有訊號</td></tr>
+<tr><td><strong>在同一測試集上，模型 A 是否優於模型 B？</strong></td><td><strong>配對方法</strong>:<strong>paired bootstrap</strong>（每次重抽同一批樣本，算 A − B 的差，取其 CI）；<strong>McNemar test</strong>（只看兩模型「一對一錯」的樣本數，適用分類正確率）；<strong>配對 permutation test</strong>（逐樣本隨機交換 A、B 的預測，得到差異的 null 分布）。依指標選擇相應的配對設計</td></tr>
+</tbody></table></div>
+標籤置換檢定只能說明「有沒有訊號」，<strong>不能</strong>用來判斷兩個模型誰比較好。</li>
+<li><strong>假設檢定 / p-value</strong>:<strong>在虛無假設與檢定前提都成立時，觀察到與目前統計量至少同樣極端的結果的機率</strong>。它<strong>不是</strong>「虛無假設為真的機率」，也不是「結果只是運氣的機率」；p 值小只表示資料與虛無假設不太相容，<strong>不代表效果大</strong>（要看效果量與 CI）。多次比較時還要校正（如 Bonferroni、Holm）。</li>
+<li><strong>效果量 + 三態判定</strong>:不只看「是否顯著」，更要看<strong>效果多大</strong>；樣本小、<strong>CI 跨過門檻</strong>時應判 <strong>INCONCLUSIVE（無法斷定）</strong>，不硬 pass/fail。</li>
+<li><strong>非劣化檢定 (non-inferiority)</strong>:有時目標不是「證明更好」，而是「證明<strong>不比舊的差超過某 margin</strong>」（CI 下界 ≥ −margin）。</li>
+</ul>
+
+<h3 id="19.5">19.5 混淆變數與可重現性（防自欺）</h3>
+<ul>
+<li><strong>混淆變數 (confounder / nuisance variable)</strong>:與類別<strong>意外相關</strong>的「操作者可自由選的參數」（擷取視窗長度、來源主機、批次時間、韌體版本…）。若模型其實靠混淆變數而非真訊號分類 → 換環境就垮。<strong>防治</strong>:固定 / 隨機化（記種子）/ 多樣化 + held-out；並用<strong>「只有混淆變數」的對照模型</strong>檢查——若它也能分得不錯，代表有混淆。
+  <ul><li><strong>陷阱:「不適用 (N/A) 本身就是訊號」</strong> — 某特徵剛好「對某類不適用」（如「播放時長 = N/A」≈ 非影音），模型學到的是這個<strong>捷徑</strong>而非行為。跨類比較時要排除或分層檢查。</li></ul></li>
+<li><strong>資料窺探 / p-hacking（研究者的自由度）</strong>:反覆看測試結果、回頭調特徵/門檻/模型直到分數好看 → <strong>過度樂觀、不可重現</strong>。<strong>防治</strong>:<strong>看資料前先凍結協定</strong>（seed / fold / 指標 / 門檻）；<strong>測試集只用一次</strong>；<strong>看過結果再改 → 原結果失效，得用沒參與調整的新資料重跑</strong>（預先註冊 pre-registration 的精神）。</li>
+</ul>
+<p>這正是本章開頭那句:<strong>先定義失敗、寫成可執行檢查、凍結，再採樣</strong>。</p>
+
+<h3 id="19.6">19.6 把驗證語義變成可強制的「契約」（ML 契約 vs API 設計）</h3>
+<p>19.1–19.5 講「什麼才算<strong>正確的驗證</strong>」；但<strong>文件寫了 ≠ 會被遵守</strong>。散文式規格可以<em>描述</em>語義，卻<strong>擋不下違反</strong>（散文不是機器可檢的條件）。<strong>ML 契約</strong>就是把這些語義變成<strong>機器可檢、違反即擋 (fail-closed)、且經簽核凍結</strong>的規則——它和一般 <strong>API 設計</strong>是<strong>不同層次</strong>的東西：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>面向</th><th>一般 API 設計</th><th>ML 契約</th></tr></thead>
+<tbody>
+<tr><td>管什麼</td><td>介面:怎麼呼叫、欄位、型別、錯誤碼</td><td>什麼資料 / 標籤 / 證據<strong>才有資格被相信、進訓練</strong></td></tr>
+<tr><td>「正確」＝</td><td>欄位合法、型別對、存取成功（<strong>語法層</strong>）</td><td>內容可信:label 語義對、樣本有效、分母對、無洩漏（<strong>語義層</strong>）</td></tr>
+<tr><td>最危險的失敗</td><td>型別錯、欄位缺（呼叫端立刻看得到）</td><td><strong>型別全對、也存進去了，但語義是錯的</strong>（表面成功、結論錯）</td></tr>
+<tr><td>怎麼把關</td><td>schema validation / API gateway</td><td><strong>enforcement</strong>:違反語義條件 → <strong>BLOCK</strong>（fail-closed）</td></tr>
+<tr><td>變更控制</td><td>版本化</td><td><strong>freeze</strong>:owner 簽核 + 綁定 digest，語義變更要<strong>重簽</strong></td></tr>
+</tbody></table></div>
+<p><strong>關鍵一句:欄位合法 ≠ 內容可信。</strong> API 保證「格式對、傳輸成功」，但保證不了「這筆資料的<strong>意義</strong>是對的」。</p>
+<p><strong>實例（流量分類收資料）。</strong> schema / API 要求每筆 capture 有 <code>{duration: float, packets: int, avg_size: int, label: str}</code>。某筆進來：<code>duration=42.0</code>、<code>packets=3200</code>、<code>label="VOD"</code>——<strong>型別全合法、成功寫入資料庫，API 契約完全滿足</strong>。但語義是錯的：這 42 秒其實<strong>整段是影片前的前置廣告</strong>，不是真正的 VOD 內容；這個 <code>label="VOD"</code> 是假的，拿去訓練會讓模型學到「廣告流量 ＝ VOD」。<strong>API validation 抓不到</strong>（欄位、型別全對）。ML 契約要多兩件 API 沒有的東西：</p>
+<ul>
+<li><strong>可執行的語義驗收條件</strong>：capture 必須<strong>排除純廣告內容</strong>；<code>capture_window_seconds</code> 必須 ＝ <strong>60</strong>（固定）；label 必須來自<strong>真實使用行為</strong>，不能只憑 DPI 認出應用程式就標記（例:認出 Teams 就標「通話」，但使用者並未通話）。<strong>任一不符 → BLOCK</strong>（在進資料集<strong>之前</strong>擋下，不是事後才發現）。</li>
+<li><strong>凍結「可自由選的參數」清單</strong>：把擷取視窗、來源主機、批次時間、韌體版本等<strong>混淆變數</strong>（<a href="#19.5">§19.5</a>）列成 <strong>exact keys 並固定值</strong>；<strong>出現清單外的 key → BLOCK</strong>（防止有人偷偷多調一個變數把分數拉高、卻沒人知道）。</li>
+</ul>
+<p><strong>要不要用契約?一句話判準：</strong> 若兩個團隊都照<strong>同一份軟體規格 + API 文件</strong>實作，<strong>卻仍可能產出不同的 label、分母、PASS/BLOCK 或 training set</strong>，就代表設計文件不夠——<strong>必須先訂契約</strong>把語義釘死。ML 系統幾乎都符合這條件（語義分歧空間大），所以「評估要可信」光有 API 設計不夠。</p>
+<p><strong>契約不取代規格書 / API 文件</strong>，而是疊在其上，固定「<strong>什麼結果才正確、誰有權決定、證據不足時何時必須停</strong>」；衝突時的權威順序通常是 <strong>已簽核契約 ＞ 程式碼 ＞ 實作計畫 ＞ 舊報告 / 聊天</strong>。這正是把 19.1–19.5 的驗證嚴謹性，從「文件建議」升級成「<strong>上線前擋得下來的停止條件</strong>」。</p>
+<p><strong>契約給誰看?兩層、兩讀者——但都不是給模型看。</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>層</th><th>給誰看</th><th>內容</th><th>權威</th></tr></thead>
+<tbody>
+<tr><td><strong>語義層</strong>（<code>.md</code>）</td><td><strong>人</strong></td><td>什麼才算正確、為什麼、裁示、誰決定、何時停</td><td>owner <strong>簽核 + 綁 digest</strong>（變更要重簽）</td></tr>
+<tr><td><strong>規則層</strong>（<code>rules.yaml</code> / schema）</td><td><strong>validator 程式</strong></td><td>exact keys、值域、門檻、<code>BLOCK</code> 條件</td><td>由語義層<strong>衍生</strong>，供機器自動強制</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>關鍵:讀契約的是「人」與「validator（一段確定性程式碼）」，不是 ML 模型。</strong> 模型<strong>不讀契約</strong>，只拿到被契約守住的乾淨、可信、已簽核的資料——<strong>契約治理的是「資料與流程」，不是模型內部</strong>。所以「給 AI 看」是常見誤會:它不餵進神經網路 / LLM，執行它的是普通驗證程式。</li>
+<li><strong>為什麼要分兩層</strong>:「正確的定義」是<strong>人的領域判斷、無法自動推導</strong>（label 該怎麼標、哪些混淆變數要固定、門檻訂多少），所以<strong>語義層要人審、人簽、人負責</strong>；規則層再把它翻成機器可檢的條件，才能<strong>一致、大規模、違反即擋</strong>。業界兩傳統——<strong>YAML 為權威</strong>（機器檔權威、人看 <code>description</code> 欄）vs <strong>散文 <code>.md</code> 為權威 + 另生機器規則</strong>；後者讓「為什麼算正確」由人扛、「有沒有做到」交機器查。</li>
+</ul>
+
+<h3 id="19.7">19.7 一句話</h3>
+<p><strong>評估的可信度 = 驗證設計（分組 / held-out / nested CV，19.2）× 統計推論（CI / bootstrap / permutation，19.4）× 防自欺（控混淆、凍結協定、測試只用一次，19.5）。</strong> 模型分數高 ≠ 模型好；能通過這三關，才敢相信、才撐得起上線。<strong>要讓這三關真的擋得住，還得把它們寫成可強制、經簽核凍結的契約（<a href="#19.6">§19.6</a>）——否則只是文件建議。</strong>（資料面的來源可信度、採樣、漂移見 <a href="08-classical-ml-and-feature-engineering.html#h1">附錄 H</a>；特徵選擇的穩定度見 <a href="08-classical-ml-and-feature-engineering.html#i1">附錄 I</a>。）</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+</main>
+<section class="next-step"><p><strong>下一步閱讀：</strong><a href="07-hardware-and-deployment.html">07 硬體、數值格式與部署</a>：模型要用多少算力與記憶體？怎麼壓縮、部署到中央或邊緣？</p></section>
+<nav class="volnav"><a href="05-transformers-and-generation.html">← 05 Transformer 與生成</a><a href="index.html">教材首頁</a><a href="07-hardware-and-deployment.html">07 硬體、數值格式與部署 →</a></nav>
+<p class="totop"><a href="#top">↑ 回頁首</a></p>
+</div>
+</body>
+</html>

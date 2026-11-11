@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 硬體、數值格式與部署 — AI 模型原理與數學</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/ai-model-internals.css">
+<script src="assets/ai-model-internals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body class="mathjax_ignore">
+<div class="wrap">
+<header class="doc" id="top">
+<p class="kicker"><a href="index.html">AI 模型原理與數學 — 工程師深入教材</a></p>
+<h1>07. 硬體、數值格式與部署</h1>
+<div class="meta"><span>2026-11-11</span><span>v0.3.0</span><span>NikeChen</span></div>
+</header>
+<nav class="volnav"><a href="06-evaluation-and-validation.html">← 06 評估與統計驗證</a><a href="index.html">教材首頁</a><a href="08-classical-ml-and-feature-engineering.html">08 傳統 ML 與特徵工程 →</a></nav>
+<section class="vol-intro mathjax_process"><p><strong>本冊回答：</strong>模型要用多少算力與記憶體？怎麼壓縮、部署到中央或邊緣？</p><p><strong>內容：</strong>GPU / NPU 加速原理、浮點與混合精度、量化</p><p><strong>先備：</strong>02 的 <a href="02-training-neural-networks.html#9">§9 反向傳播</a>（訓練 vs 推論的計算量）；05 的 <a href="05-transformers-and-generation.html#15.4">§15.4 KV cache</a>。</p></section>
+<nav id="vol-toc" class="vol-toc mathjax_process"><p><strong>本冊目錄</strong></p>
+<ul>
+<li><a href="#20">20. 浮點、量化與硬體加速</a>
+<ul>
+<li><a href="#20.1">20.1 GPU/NPU 為什麼能加速 AI 計算</a></li>
+<li><a href="#20.2">20.2 浮點與數值格式</a></li>
+<li><a href="#20.3">20.3 量化 (Quantization)</a></li>
+</ul></li>
+</ul></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
+  <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+  <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+</defs></svg>
+<main class="content mathjax_process">
+<h2 id="20">20. 浮點、量化與硬體加速</h2>
+<p class="note" style="border:0;margin:0 0 1em">本節談硬體如何加速（<a href="#20.1">§20.1</a>）、數字用什麼格式存（<a href="#20.2">§20.2</a>）、以及如何用量化壓縮模型（<a href="#20.3">§20.3</a>）。</p>
+<h3 id="20.1">20.1 GPU/NPU 為什麼能加速 AI 計算</h3>
+<p>核心一句話：神經網路的<strong>前向</strong>與<strong>反向（微積分）</strong>幾乎全部化約成<strong>矩陣乘法 (matmul) + 逐元素運算</strong>，這兩種運算「大量、獨立、可同時做」——GPU/NPU 就是為此而生。</p>
+<p><strong>為什麼矩陣運算天生可平行。</strong> 矩陣乘法 $\mathbf{C}=\mathbf{A}\mathbf{B}$，每個輸出 $C_{ij}=$（A 第 $i$ 列）$\cdot$（B 第 $j$ 欄）是一個獨立內積，彼此不相干 → 可同時算。CPU 少數強核心偏序列；GPU 有<strong>數千個小核心</strong>，一次做數千個「乘加 (MAC)」，把大量獨立內積塞滿。</p>
+<p><strong>GPU 的加速手段：</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>手段</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td>數千個 ALU</td><td>同時做數千個乘加</td></tr>
+<tr><td>Tensor Cores</td><td>專用硬體，一個時脈算完一小塊矩陣乘</td></tr>
+<tr><td>高頻寬記憶體 HBM</td><td>TB/s 級頻寬餵大量矩陣資料</td></tr>
+<tr><td>分塊 (tiling) + 片上 SRAM</td><td>切小塊放快取重複用，少去慢速主記憶體</td></tr>
+<tr><td>低精度 FP16/BF16/INT8</td><td>每時脈算更多、頻寬省 → 吞吐倍增</td></tr>
+</tbody>
+</table></div>
+<p><strong>NPU/TPU 更專精、更省電：</strong></p>
+<ul>
+<li><strong>脈動陣列 (systolic array)</strong>：一整片 MAC 單元排成網格，資料像水流過、每個單元邊流邊乘加 → 一次吞一大塊矩陣乘，能效比 GPU 更高。</li>
+<li>晶片面積大量用於乘加器，並常針對<strong>低精度</strong>運算最佳化 → 低功耗高吞吐，<strong>適合邊緣設備</strong>（代價是通用性低）。支援的數值格式<strong>依硬體而異</strong>：常見 INT8、INT4，也有 FP16、BF16 或混合精度。</li>
+</ul>
+<p><strong>反向傳播的「微積分」也是矩陣乘法。</strong> 以一層 $\mathbf{z}=\mathbf{W}\mathbf{x}$ 為例（鏈鎖律，<a href="01-math-foundations.html#4.3">§4.3</a>）：</p>
+<p>$$\text{前向：}\ \mathbf{z}=\mathbf{W}\mathbf{x}\qquad \text{反向：}\ \frac{\partial L}{\partial \mathbf{x}}=\mathbf{W}^\top\frac{\partial L}{\partial \mathbf{z}},\quad \frac{\partial L}{\partial \mathbf{W}}=\frac{\partial L}{\partial \mathbf{z}}\,\mathbf{x}^\top$$</p>
+<p>反向兩式<strong>又都是 matmul</strong>；激活函數的導數是逐元素運算。所以「訓練 = 前向 matmul + 反向 matmul + 逐元素」，全是 GPU/NPU 的強項；<strong>自動微分 (autodiff)</strong> 就是把微分自動拆成這串可平行運算。</p>
+<blockquote><p><strong>工程意涵。</strong> ① <strong>訓練 vs 推論</strong>：就同一個模型、同一批樣本或 token 而言，一次訓練步驟（前向＋反向＋更新）遠貴於一次推論，且訓練要重複多輪 → 對應「邊緣做推論、再訓練放中央」；但上線後的<strong>總推論量</strong>可能遠高於一次訓練。② <strong>參數量只能粗估計算量</strong>：dense Transformer 推論每個 token 約 $2\times$ 參數量 FLOPs，可當直覺；實際成本還受序列長度、activation、稀疏性（如 MoE 每次只啟用部分參數）、batch、架構與記憶體頻寬影響。③ <strong>量化</strong>（依硬體支援的格式，如 INT8 / INT4）可提高吞吐、降低記憶體 → 邊緣落地的關鍵之一。</p></blockquote>
+
+<h3 id="20.2">20.2 浮點與數值格式</h3>
+<p>數字在電腦裡用固定位元存。常見格式（每參數位元組）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>格式</th><th>位元</th><th>每參數</th><th>特點</th></tr></thead>
+<tbody>
+<tr><td><strong>FP32</strong></td><td>32</td><td>4 B</td><td>全精度（1/8/23：sign/exp/fraction）；混合精度訓練中常用於主權重副本、優化器狀態與部分累加</td></tr>
+<tr><td><strong>FP16</strong></td><td>16</td><td>2 B</td><td>半精度（1/5/10），範圍小、易溢位；混合精度訓練需搭配 loss scaling</td></tr>
+<tr><td><strong>BF16</strong></td><td>16</td><td>2 B</td><td>腦浮點（1/8/7），範圍同 FP32、精度較低 → 現代加速器混合精度訓練常用</td></tr>
+<tr><td><strong>INT8</strong></td><td>8</td><td>1 B</td><td>整數，推論量化常用</td></tr>
+<tr><td><strong>INT4</strong></td><td>4</td><td>0.5 B</td><td>更激進，多用於權重量化（邊緣 / 本地部署）</td></tr>
+</tbody>
+</table></div>
+<p><strong>訓練用什麼格式？</strong> FP32 不是現代訓練的普遍預設：在支援的加速器上，常用 <strong>BF16 / FP16 混合精度 (mixed precision)</strong>——矩陣乘法以 16 位元計算，同時保留 FP32 的主權重副本、優化器狀態或部分累加，以兼顧速度與數值穩定。實際配置依框架與硬體而定。</p>
+<p>浮點數 = <strong>sign（正負）＋ exponent（範圍）＋ mantissa（精度）</strong>。BF16 給更多 exponent（大範圍不溢位）、較少 fraction；FP16 相反（範圍小但精度略高）。註：正規化浮點有一個<strong>隱含的 leading 1</strong>，故<strong>有效尾數精度 ＝ fraction bits + 1</strong>（FP16 為 10+1、BF16 為 7+1）：</p>
+<figure><svg viewBox="0 0 460 130" role="img" aria-label="FP16 與 BF16 的位元組成比較">
+  <text x="30" y="42" fill="#94a3b8" font-size="12">FP16</text>
+  <rect x="80" y="28" width="24" height="24" fill="#f87171" fill-opacity="0.4" stroke="#475569"/><text x="92" y="45" fill="#e5e7eb" font-size="10" text-anchor="middle">S</text>
+  <rect x="104" y="28" width="90" height="24" fill="#38bdf8" fill-opacity="0.3" stroke="#475569"/><text x="149" y="45" fill="#e5e7eb" font-size="10" text-anchor="middle">exp ×5</text>
+  <rect x="194" y="28" width="180" height="24" fill="#34d399" fill-opacity="0.3" stroke="#475569"/><text x="284" y="45" fill="#e5e7eb" font-size="10" text-anchor="middle">mantissa ×10</text>
+  <text x="30" y="98" fill="#94a3b8" font-size="12">BF16</text>
+  <rect x="80" y="84" width="24" height="24" fill="#f87171" fill-opacity="0.4" stroke="#475569"/><text x="92" y="101" fill="#e5e7eb" font-size="10" text-anchor="middle">S</text>
+  <rect x="104" y="84" width="144" height="24" fill="#38bdf8" fill-opacity="0.3" stroke="#475569"/><text x="176" y="101" fill="#e5e7eb" font-size="10" text-anchor="middle">exp ×8（範圍大）</text>
+  <rect x="248" y="84" width="126" height="24" fill="#34d399" fill-opacity="0.3" stroke="#475569"/><text x="311" y="101" fill="#e5e7eb" font-size="10" text-anchor="middle">mantissa ×7</text>
+</svg><figcaption>同樣 16 位元：FP16 用 5 位 exponent + 10 位 mantissa（精度高、範圍小）；BF16 用 8 位 exponent（範圍同 FP32、不易溢位）+ 7 位 mantissa（精度較低）。訓練偏好 BF16。</figcaption></figure>
+<h3 id="20.3">20.3 量化 (Quantization)</h3>
+<p>把權重/激活從 FP16 降到 <strong>INT8/INT4</strong> 表示：</p>
+<ul>
+<li><strong>好處</strong>：權重儲存量相對 FP16 約 ÷2（INT8）～÷4（INT4）、頻寬省；硬體支援時整數運算更快。</li>
+<li><strong>方法</strong>：<strong>PTQ</strong>（訓練後量化，快、免重訓）、<strong>QAT</strong>（量化感知訓練，較準但要重訓）。</li>
+<li><strong>取捨</strong>：位元越低越省，但<strong>精度誤差</strong>越大，需權衡。</li>
+</ul>
+<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>之一。<strong>7B 權重若由 FP16 理論上降為 4-bit，純權重儲存量約由 14 GB 降至 3.5 GB；實際執行所需記憶體通常更高</strong>——還要加上 scale / zero-point 等量化 metadata（常以群組為單位存放）、KV cache（<a href="05-transformers-and-generation.html#15.4">§15.4</a>）、activation、runtime buffer 與框架 overhead，且部分層（如 embedding、LM head）可能保留較高精度（換算見 ai-background-knowledge <strong>§3.1</strong>）。邊緣 NPU 常提供 INT8 / INT4 等低精度加速，但支援格式依硬體而異，部署前要確認目標硬體支援哪些格式。</p></blockquote>
+
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+</main>
+<section class="next-step"><p><strong>下一步閱讀：</strong><a href="08-classical-ml-and-feature-engineering.html">08 傳統 ML 與特徵工程</a>：表格資料怎麼建模？資料與特徵如何影響結果？</p></section>
+<nav class="volnav"><a href="06-evaluation-and-validation.html">← 06 評估與統計驗證</a><a href="index.html">教材首頁</a><a href="08-classical-ml-and-feature-engineering.html">08 傳統 ML 與特徵工程 →</a></nav>
+<p class="totop"><a href="#top">↑ 回頁首</a></p>
+</div>
+</body>
+</html>

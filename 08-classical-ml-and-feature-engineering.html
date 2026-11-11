@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 傳統 ML 與特徵工程 — AI 模型原理與數學</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="assets/ai-model-internals.css">
+<script src="assets/ai-model-internals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body class="mathjax_ignore">
+<div class="wrap">
+<header class="doc" id="top">
+<p class="kicker"><a href="index.html">AI 模型原理與數學 — 工程師深入教材</a></p>
+<h1>08. 傳統 ML 與特徵工程</h1>
+<div class="meta"><span>2026-11-11</span><span>v0.3.0</span><span>NikeChen</span></div>
+</header>
+<nav class="volnav"><a href="07-hardware-and-deployment.html">← 07 硬體、數值格式與部署</a><a href="index.html">教材首頁</a><a href="09-math-appendices.html">09 數學推導附錄 →</a></nav>
+<section class="vol-intro mathjax_process"><p><strong>本冊回答：</strong>表格資料怎麼建模？資料與特徵如何影響結果？</p><p><strong>內容：</strong>GBDT / LightGBM 對照 NN、迴歸分析、資料來源與可信度、特徵工程</p><p><strong>先備：</strong><a href="01-math-foundations.html#3">§3 迴歸、分類與損失</a>；06 的 <a href="06-evaluation-and-validation.html#18">§18 評估指標</a>。</p></section>
+<nav id="vol-toc" class="vol-toc mathjax_process"><p><strong>本冊目錄</strong></p>
+<ul>
+<li><a href="#c1">附錄 C — 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</a>
+<ul>
+<li><a href="#c.6.1">C.6.1 加法模型 ≠ 對特徵線性</a></li>
+</ul></li>
+<li><a href="#e1">附錄 E — 迴歸分析基礎</a>
+</li>
+<li><a href="#h1">附錄 H — 資料來源、採樣與資料可信度</a>
+</li>
+<li><a href="#i1">附錄 I — 特徵工程 (Feature Engineering)</a>
+</li>
+</ul></nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
+  <marker id="ar-g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker>
+  <marker id="ar-a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+  <marker id="ar-s" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+  <marker id="ar-p" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+</defs></svg>
+<main class="content mathjax_process">
+<h2 id="c1">附錄 C — 判別式 ML：梯度提升樹 (GBDT / LightGBM)，對照 NN</h2>
+<p>本教材主體講神經網路，但<strong>判別式 ML 的另一大主力是「梯度提升決策樹 (GBDT)」</strong>——在<strong>表格 / 結構化資料</strong>上常是很強的 baseline，訓練與推論成本也常低於 NN（實際優劣仍需在目標資料上比較）。<a href="03-cnn-and-vision.html#11.7">§11.7</a> 提過「表格資料 → 樹模型 (GBDT)」，本附錄補上它並與 NN 對照。<strong>先建立適用範圍（C.1）、補齊先備知識（決策樹、集成，C.2），再用手算走完「一棵樹 → 多棵樹 → 分類梯度」（C.3–C.7），並說明 GBDT 為何是「加法模型、但對特徵非線性」（<a href="#c.6.1">C.6.1</a>）；Autoencoder 於 C.11 case study 就地說明。</strong></p>
+
+<h3>C.1 GBDT 解決什麼問題（適用範圍）</h3>
+<ul>
+<li><strong>輸入</strong>：通常是一列列<strong>結構化 / 表格特徵</strong>（每列一筆樣本、每欄一個特徵）。</li>
+<li><strong>輸出</strong>：連續數值（迴歸）、二元或多類別（分類）皆可。</li>
+<li><strong>不直接吃</strong>影像、文字、原始封包——這些要<strong>先抽成表格特徵</strong>才能餵樹（呼應 <a href="03-cnn-and-vision.html#11.7">§11.7</a>、<a href="#i1">附錄 I</a>）。</li>
+<li><strong>和 NN 學的是同一件事</strong>（輸入→輸出的函數），只是<strong>表示方式不同</strong>：<strong>NN</strong> 是一組<strong>連續權重</strong>、用梯度下降<strong>反覆微調同一組參數</strong>（<a href="01-math-foundations.html#4">§4</a>、<a href="02-training-neural-networks.html#5">§5</a>）；<strong>GBDT</strong> 是一疊<strong>離散的樹</strong>、<strong>逐輪增加新樹</strong>來逼近目標。</li>
+</ul>
+<p>流量分類的表格長相（IDS 例）：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>flow_duration</th><th>packet_count</th><th>avg_packet_size</th><th>dst_port</th><th>label</th></tr></thead>
+<tbody>
+<tr><td>0.12 秒</td><td>80</td><td>64 bytes</td><td>443</td><td>正常</td></tr>
+<tr><td>8.40 秒</td><td>3,200</td><td>1,420 bytes</td><td>22</td><td>攻擊</td></tr>
+</tbody></table></div>
+
+<h3>C.2 先備：一棵決策樹怎麼預測（＋集成）</h3>
+<p><strong>節點術語。</strong> 一棵決策樹由<strong>根節點 (root)</strong> 出發，每個<strong>內部節點</strong>問一個「某特徵 vs 門檻」的 yes/no 問題（＝一條 <code>if-else</code>），依答案走<strong>左 / 右分支</strong>，最後落到<strong>葉節點 (leaf)</strong> 讀出預測。</p>
+<pre><code>packet_count &gt; 1000?
+├─ 否 → 正常機率 0.08
+└─ 是 → avg_packet_size &gt; 900?
+        ├─ 否 → 正常機率 0.35
+        └─ 是 → 攻擊機率 0.91</code></pre>
+<p><strong>追一筆資料</strong>（<code>packet_count=3200, avg_packet_size=1420</code>）：根節點「&gt;1000?」→ 是 → 「avg_packet_size&gt;900?」→ 是 → 葉「攻擊機率 0.91」。<strong>一次預測 ＝ 從根走到某個葉。</strong></p>
+<ul>
+<li><strong>葉節點存什麼</strong>：分類存<strong>類別機率 / 多數類</strong>；迴歸存<strong>葉內樣本的平均值</strong>。</li>
+<li><strong>樹深 (depth) / 葉數 (leaves) 越大 → 模型越複雜</strong>（能切更細，但更易過擬合，C.4）。</li>
+</ul>
+<p><strong>集成 (Ensemble)：很多弱樹合成強模型。</strong> 兩大流派：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>方法</th><th>樹之間</th><th>目的</th></tr></thead>
+<tbody>
+<tr><td><strong>決策樹 (Decision Tree)</strong></td><td>一棵</td><td>簡單、好解釋</td></tr>
+<tr><td><strong>隨機森林 (Random Forest)</strong></td><td>多棵<strong>並行</strong>、投票 / 平均</td><td><strong>降變異</strong>（Bagging）</td></tr>
+<tr><td><strong>GBDT / XGBoost / LightGBM</strong></td><td>多棵<strong>串行</strong>、每棵修前面的錯</td><td><strong>降偏差</strong>（Boosting，本附錄主角）</td></tr>
+</tbody></table></div>
+
+<h3>C.3 一棵樹怎麼選分裂點（直覺 → 手算 → 公式）</h3>
+<p><strong>直覺</strong>：切一刀，讓左右兩群<strong>比切之前更「純」</strong>（同一群盡量同類）。<strong>手算（6 筆）</strong>，以 <code>packet_count</code> 分「正常 / 攻擊」：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>packet_count</th><th>10</th><th>20</th><th>30</th><th>80</th><th>90</th><th>100</th></tr></thead>
+<tbody><tr><td>label</td><td>正常</td><td>正常</td><td>正常</td><td>攻擊</td><td>攻擊</td><td>攻擊</td></tr></tbody>
+</table></div>
+<p>用 <strong>Gini 不純度</strong> $\text{Gini}=1-\sum_c p_c^2$（越小越純）。<strong>切之前</strong>：3 正常 3 攻擊 → $1-(0.5^2+0.5^2)=0.5$。比較兩個候選門檻：</p>
+<ul>
+<li><strong><code>packet_count ≤ 25</code></strong>：左 {10,20}＝2 正常（Gini 0）；右 {30,80,90,100}＝1 正常 3 攻擊 → $1-\big((\tfrac14)^2+(\tfrac34)^2\big)=0.375$。加權 $\tfrac{2}{6}\cdot0+\tfrac{4}{6}\cdot0.375=0.25$ → <strong>下降 $0.5-0.25=0.25$</strong>。</li>
+<li><strong><code>packet_count ≤ 55</code></strong>：左 {10,20,30}＝全正常（Gini 0）；右 {80,90,100}＝全攻擊（Gini 0）→ 加權 <strong>0</strong> → <strong>下降 $0.5$</strong>（一刀切乾淨）。</li>
+</ul>
+<p>→ 樹選<strong>下降最多</strong>的 <code>≤55</code>。<strong>一般準則</strong>：分類用 <strong>Gini / 熵 (entropy)</strong> 下降、迴歸用<strong>變異數（平方誤差）下降</strong>、LightGBM 則用<strong>梯度 + Hessian</strong> 算增益（C.8、C.9）。</p>
+
+<h3>C.4 為什麼單棵樹不夠 → 要集成</h3>
+<ul>
+<li><strong>深樹會「背答案」</strong>：切夠深可完美記住訓練資料 → 過擬合、對新資料差。</li>
+<li><strong>不穩</strong>：資料稍變，樹結構可能大變（高變異）。</li>
+<li><strong>淺樹偏差高、深樹變異高</strong>，單棵難兩全 → 需<strong>集成</strong>（C.2 表）。GBDT 走 <strong>Boosting</strong>：不是並行投票，而是<strong>一棵接一棵修正殘餘的錯</strong>（C.5）。與 NN 的根本差異：<strong>NN 調同一組連續權重、GBDT 逐輪加離散的樹</strong>（兩者都用到「梯度」概念，<a href="01-math-foundations.html#4">§4</a>）。</li>
+</ul>
+
+<h3>C.5 GBDT 如何逐輪修正錯誤（兩輪手算）★本章核心</h3>
+<p>核心一句：<strong>第一棵抓大方向，之後每一棵專門補「目前還差多少」</strong>。GBDT 的迴圈：</p>
+<figure><div style="overflow-x:auto"><svg viewBox="0 0 880 210" style="max-width:100%;min-width:860px" role="img" aria-label="GBDT 梯度提升內部逐步運作：初始→算殘差→訓練樹→更新→重複→加總">
+  <defs><marker id="arg" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#94a3b8"/></marker>
+  <marker id="arg2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#fbbf24"/></marker></defs>
+  <rect x="10" y="30" width="96" height="54" rx="7" fill="#243449" stroke="#475569"/><text x="58" y="52" fill="#e2e8f0" font-size="11" text-anchor="middle">輸入特徵 x</text><text x="58" y="68" fill="#94a3b8" font-size="10" text-anchor="middle">真值 y</text>
+  <line x1="106" y1="57" x2="116" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="118" y="30" width="104" height="54" rx="7" fill="#243449" stroke="#475569"/><text x="170" y="52" fill="#e2e8f0" font-size="11" text-anchor="middle">F₀ 初始預測</text><text x="170" y="68" fill="#94a3b8" font-size="10" text-anchor="middle">(如均值)</text>
+  <line x1="222" y1="57" x2="232" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="234" y="30" width="146" height="54" rx="7" fill="rgba(251,191,36,0.14)" stroke="#fbbf24"/><text x="307" y="52" fill="#fff" font-size="11" text-anchor="middle">算負梯度(殘差)</text><text x="307" y="68" fill="#fcd34d" font-size="10.5" text-anchor="middle">rᵢ = yᵢ − F(xᵢ)</text>
+  <line x1="380" y1="57" x2="390" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="392" y="30" width="134" height="54" rx="7" fill="rgba(52,211,153,0.14)" stroke="#34d399"/><text x="459" y="52" fill="#fff" font-size="11" text-anchor="middle">訓練第 m 棵樹 hₘ</text><text x="459" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">擬合 rᵢ</text>
+  <line x1="526" y1="57" x2="536" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="538" y="30" width="150" height="54" rx="7" fill="#243449" stroke="#475569"/><text x="613" y="52" fill="#e2e8f0" font-size="11" text-anchor="middle">更新 Fₘ =</text><text x="613" y="68" fill="#cbd5e1" font-size="10.5" text-anchor="middle">Fₘ₋₁ + η·hₘ</text>
+  <line x1="688" y1="57" x2="700" y2="57" stroke="#94a3b8" marker-end="url(#arg)"/>
+  <rect x="702" y="30" width="168" height="54" rx="7" fill="rgba(248,113,113,0.13)" stroke="#f87171"/><text x="786" y="52" fill="#fff" font-size="11" text-anchor="middle">最終 F = F₀ + η·Σhₘ</text><text x="786" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">→ 預測（分類再過 sigmoid/softmax）</text>
+  <path d="M613,84 L613,150 L307,150 L307,84" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arg2)"/>
+  <text x="460" y="170" fill="#fbbf24" font-size="10.5" text-anchor="middle">↻ 重複 M 棵樹（每棵擬合前面的殘差）</text>
+</svg></div><figcaption>GBDT 內部：F₀ 起始 → 算殘差(負梯度) → 訓練一棵樹擬合殘差 → 加進來(乘學習率 η) → 重複 M 次 → 所有樹加總為最終預測。</figcaption></figure>
+<p>用三筆迴歸資料走兩輪（學習率 $\eta=0.1$）。真值 $y$：A=10、B=20、C=30；<strong>起始預測</strong>取平均 $F_0=20$。<strong>第 1 輪</strong>——先看差多少（<strong>殘差</strong> $r=y-F$），再長一棵小樹擬合殘差：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>樣本</th><th>$y$</th><th>$F_0$</th><th>殘差 $r$</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>10</td><td>20</td><td>−10</td></tr>
+<tr><td>B</td><td>20</td><td>20</td><td>0</td></tr>
+<tr><td>C</td><td>30</td><td>20</td><td>+10</td></tr>
+</tbody></table></div>
+<p>假設這棵 depth-1 小樹切成 <strong>{A}</strong> 與 <strong>{B,C}</strong> 兩葉，葉值＝該葉殘差平均：$h_1(\text{A})=-10$、$h_1(\text{B})=h_1(\text{C})=\tfrac{0+10}{2}=5$。更新 $F_1=F_0+\eta\,h_1$：$F_1(\text{A})=20+0.1(-10)=19$、$F_1(\text{B})=F_1(\text{C})=20.5$。</p>
+<p><strong>第 2 輪</strong>——用<strong>新的</strong>殘差 $r_2=y-F_1$ 再長一棵：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>樣本</th><th>$y$</th><th>$F_1$</th><th>殘差 $r_2$</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>10</td><td>19</td><td>−9</td></tr>
+<tr><td>B</td><td>20</td><td>20.5</td><td>−0.5</td></tr>
+<tr><td>C</td><td>30</td><td>20.5</td><td>+9.5</td></tr>
+</tbody></table></div>
+<p>小樹切 {A} 與 {B,C}：$h_2(\text{A})=-9$、$h_2(\text{B})=h_2(\text{C})=\tfrac{-0.5+9.5}{2}=4.5$。更新得 $F_2(\text{A})=18.1$、$F_2(\text{B})=20.95$、$F_2(\text{C})=20.95$。</p>
+<p><strong>損失（殘差平方和 SSE）逐輪下降</strong>：$F_0$：$10^2+0+10^2=200$ → $F_1$：$9^2+0.5^2+9.5^2=171.5$ → $F_2$：$8.1^2+0.95^2+9.05^2\approx148.4$。A、C 的預測正<strong>緩緩爬向</strong> 10、30。<strong>這就是 boosting「boost」的東西：一輪一輪把剩下的誤差往下壓</strong>；$\eta$ 越小 → 每步越保守、要越多棵，但通常更穩（調參時的權衡）。</p>
+
+<h3>C.6 從殘差推廣到「負梯度」</h3>
+<p>上面「擬合殘差」只是<strong>平方損失下的特例</strong>。一般而言，每一輪的新樹擬合的是<strong>負梯度</strong>：</p>
+$$r_{im}=-\left[\frac{\partial L\big(y_i,F(x_i)\big)}{\partial F(x_i)}\right]_{F=F_{m-1}}$$
+<p><strong>白話</strong>：對某筆資料問「<strong>把它目前的分數調高一點，損失會不會下降？</strong>」——會 → 這輪新樹對它輸出<strong>正修正</strong>；反之輸出<strong>負修正</strong>。「Gradient Boosting」的名字就來自<strong>在函數空間裡沿負梯度方向、一棵一棵加樹</strong>。</p>
+<ul>
+<li><strong>平方損失</strong> $L=\tfrac12(y-F)^2$：$-\partial L/\partial F=y-F$ ＝<strong>普通殘差</strong>（所以 C.5 直接用殘差）。</li>
+<li><strong>換損失就換目標</strong>：如分類用的對數損失，負梯度<strong>不再等於</strong>普通殘差（見 C.7）——別把「殘差」與「負梯度」畫等號。</li>
+<li><strong>一階 vs 二階</strong>：上式是經典 GBM（Friedman）的基本形式——新樹擬合負梯度，再算葉值（Friedman 處理 logistic 損失時，葉值已用一步牛頓近似）。XGBoost / LightGBM 則把損失的<strong>二階泰勒近似</strong>同時用在分裂增益與葉值：用梯度 $g_i$ 與 Hessian（二階導）求得葉值 $w=-G/(H+\lambda)$（C.9），相當於在每片葉子上走一步<strong>牛頓法 (Newton step)</strong>。學習率 $\eta$ 的角色是 <strong>shrinkage（收縮係數）</strong>：把每棵樹的貢獻再打折，換取更穩的泛化。（符號提醒：C.9 的 Hessian $h_i$ 以樣本 $i$ 為下標，第 $m$ 棵樹 $h_m$ 以輪次 $m$ 為下標，兩者不同。）</li>
+<li><strong>每輪看的是全部樣本</strong>：新樹擬合的是<strong>所有樣本</strong>的梯度；誤差大的樣本梯度大，對切分與葉值的影響也大，但不是「只挑錯的樣本來學」。這和 AdaBoost「調高錯誤樣本權重」的做法不同。（LightGBM 的 GOSS 依梯度大小抽樣，是加速手段，見 C.8。）</li>
+</ul>
+
+<h3 id="c.6.1">C.6.1 加法模型 ≠ 對特徵線性</h3>
+<p>GBDT 的最終模型是各樹輸出的加總：</p>
+$$F_M(x)=F_0+\eta\sum_{m=1}^{M}h_m(x)$$
+<ul>
+<li><strong>疊加方式是線性的</strong>：每輪 $F_m=F_{m-1}+\eta\,h_m$ 只是把一個修正函數加進來，所以 GBDT 屬於<strong>加法模型 (additive model)</strong>。</li>
+<li><strong>對特徵 $x$ 是非線性的</strong>：每棵樹是<strong>分段常數函數</strong>（if-else 分支，同一葉內輸出同一個值），分段常數函數相加仍是分段常數函數。樹與切點足夠多時，能表達彎曲、非單調的關係；精細程度受資料量、分箱數（<code>max_bin</code>）、樹深與正則化限制。</li>
+<li><strong>特徵交互</strong>：深度 &gt; 1 的樹在同一條路徑上串接多個條件（例如「溫度 &gt; 78 <strong>且</strong> 負載 &gt; 90%」），因此<strong>有能力</strong>表達特徵交互；實際是否學到，取決於資料與分裂增益。深度 = 1（stump）時每棵樹只看一個特徵，模型退化為 $\sum_j g_j(x_j)$，類似 GAM（廣義加法模型），沒有交互。</li>
+<li><strong>變體</strong>：LightGBM 的 <code>linear_tree=True</code> 在葉內改放線性模型，整體成為<strong>分段線性</strong>，仍不是整體線性。</li>
+</ul>
+<p><strong>幾何意義</strong>：線性模型在特徵空間裡是一個<strong>平面</strong>（只有一個特徵時是一條直線，斜率處處相同）；GBDT 是許多<strong>階梯</strong>疊出來的曲面——每棵樹在切點處跳一階，疊加後階梯變細，逐步貼近彎曲的真實關係。</p>
+<figure><div style="overflow-x:auto"><svg viewBox="0 0 760 275" style="max-width:100%;min-width:640px" role="img" aria-label="線性模型是一條直線；GBDT 是多棵樹的階梯相加，逼近彎曲的真實關係">
+  <defs><marker id="axlin" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#94a3b8"/></marker></defs>
+  <text x="200" y="22" fill="#e2e8f0" font-size="12.5" text-anchor="middle">線性模型：一條直線，斜率處處相同</text>
+  <line x1="50" y1="205" x2="358" y2="205" stroke="#94a3b8" marker-end="url(#axlin)"/><line x1="50" y1="205" x2="50" y2="40" stroke="#94a3b8" marker-end="url(#axlin)"/>
+  <path d="M50,189 L80,188 L110,184 L140,175 L170,155 L200,125 L230,95 L260,76 L290,66 L320,62 L350,61" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="50" y1="184" x2="350" y2="66" stroke="#38bdf8" stroke-width="2.6"/>
+  <text x="200" y="225" fill="#94a3b8" font-size="10.5" text-anchor="middle">特徵 x</text><text x="44" y="38" fill="#94a3b8" font-size="10.5" text-anchor="end">預測</text>
+  <text x="200" y="245" fill="#cbd5e1" font-size="10.5" text-anchor="middle">兩端貼不上、中段太緩：直線表達不了彎曲</text>
+  <text x="570" y="22" fill="#e2e8f0" font-size="12.5" text-anchor="middle">GBDT：多棵樹的階梯相加</text>
+  <line x1="420" y1="205" x2="728" y2="205" stroke="#94a3b8" marker-end="url(#axlin)"/><line x1="420" y1="205" x2="420" y2="40" stroke="#94a3b8" marker-end="url(#axlin)"/>
+  <path d="M420,189 L450,188 L480,184 L510,175 L540,155 L570,125 L600,95 L630,76 L660,66 L690,62 L720,61" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+  <path d="M420,188 H465 V180 H510 V163 H540 V140 H570 V110 H600 V85 H630 V70 H670 V62 H720" fill="none" stroke="#34d399" stroke-width="2.6"/>
+  <text x="570" y="225" fill="#94a3b8" font-size="10.5" text-anchor="middle">特徵 x</text><text x="414" y="38" fill="#94a3b8" font-size="10.5" text-anchor="end">預測</text>
+  <text x="570" y="245" fill="#cbd5e1" font-size="10.5" text-anchor="middle">每一階 = 某棵樹在切點跳一下；疊越多越細</text>
+  <line x1="230" y1="265" x2="256" y2="265" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/><text x="262" y="269" fill="#94a3b8" font-size="10.5">真實關係</text>
+  <line x1="340" y1="265" x2="366" y2="265" stroke="#38bdf8" stroke-width="2.6"/><text x="372" y="269" fill="#94a3b8" font-size="10.5">線性模型</text>
+  <line x1="450" y1="265" x2="476" y2="265" stroke="#34d399" stroke-width="2.6"/><text x="482" y="269" fill="#94a3b8" font-size="10.5">GBDT（樹的加總）</text>
+</svg></div><figcaption>同一條彎曲的真實關係（虛線）：線性模型只能用一條直線近似；GBDT 用許多分段常數的樹相加，形成逐步貼近曲線的階梯。疊加方式是線性的（相加），但結果對 x 是非線性的。</figcaption></figure>
+<div class="tablewrap"><table>
+<thead><tr><th>面向</th><th>線性模型 / 人工加權</th><th>GBDT</th></tr></thead>
+<tbody>
+<tr><td>模型形式</td><td>$\sum_i w_i x_i+b$</td><td>$F_0+\eta\sum_m h_m(x)$</td></tr>
+<tr><td>加總的對象</td><td><strong>特徵</strong>（各乘一個固定權重）</td><td><strong>樹</strong>（每棵都是非線性函數）</td></tr>
+<tr><td>權重 / 門檻來源</td><td>人定；或由線性 / 邏輯迴歸從資料學</td><td>不設逐特徵權重；分裂與葉值由損失函數在資料上逐輪貪婪決定</td></tr>
+<tr><td>特徵從 30→40 與 80→90</td><td>對預測的影響必定相同（邏輯迴歸指 logit 尺度）</td><td>可以不同</td></tr>
+<tr><td>特徵交互</td><td>需手動加交叉項</td><td>樹深 &gt; 1 時有能力表達</td></tr>
+<tr><td>解讀方式</td><td>係數直觀；但特徵相關或尺度不同時，不能直接當重要性或因果</td><td>需事後分析：feature importance（無方向）、SHAP / partial dependence（有方向）</td></tr>
+</tbody></table></div>
+<p><strong>一句話</strong>：線性模型是把<strong>特徵</strong>線性組合；GBDT 是把<strong>非線性的樹</strong>線性組合。</p>
+
+<h3>C.7 二元分類內部怎麼運作</h3>
+<p>分類時，<strong>所有樹加總得到的 $F(x)$ 不是機率，而是 raw score（logit）</strong>；再用 <strong>sigmoid</strong> 轉成正類機率 $p=\sigma(F)=\tfrac{1}{1+e^{-F}}$（<a href="01-math-foundations.html#3.2">§3.2</a>）。對數損失 (BCE) 對 logit 的梯度很乾淨：</p>
+$$g_i=\frac{\partial L}{\partial F}=p_i-y_i\quad\Rightarrow\quad\text{負梯度}=y_i-p_i$$
+<p>所以<strong>新樹擬合的是 $y_i-p_i$</strong>（XGBoost / LightGBM 另用 Hessian $p_i(1-p_i)$ 算葉值，見 C.6）。起始值 $F_0$ 不再取平均，而常取訓練集正類比例 $\bar p$ 的 log-odds：$F_0=\log\frac{\bar p}{1-\bar p}$。直覺：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>情況</th><th>$y$</th><th>目前 $p$</th><th>負梯度 $y-p$</th><th>新樹該做</th></tr></thead>
+<tbody>
+<tr><td>正類卻信心不足</td><td>1</td><td>0.5</td><td>+0.5</td><td><strong>拉高</strong> logit</td></tr>
+<tr><td>負類卻信心太高</td><td>0</td><td>0.5</td><td>−0.5</td><td><strong>壓低</strong> logit</td></tr>
+<tr><td>已答對且很有信心</td><td>1</td><td>0.95</td><td>+0.05</td><td>幾乎不動</td></tr>
+</tbody></table></div>
+<p>（呼應 <a href="01-math-foundations.html#3.2">§3.2</a>：sigmoid + BCE 的梯度也是「預測減真值」$\hat y-y$——GBDT 與邏輯迴歸在這點同源，只是一個加樹、一個調權重。）</p>
+
+<h3>C.8 LightGBM 的四個加速關鍵（微軟的 GBDT 實作）</h3>
+<ul>
+<li><strong>Histogram（直方圖分箱）</strong>：連續值先分成有限個 bins、只看箱邊界當候選切點 → 快又省 RAM（代價：近似切點，受 <code>max_bin</code> 影響）。</li>
+<li><strong>Leaf-wise（逐葉生長）</strong>：每次分裂「當下增益最大」的葉（不像傳統 level-wise 逐層長）→ 同葉數下通常更快降損失（風險：leaf-wise 生長若缺少複雜度限制，尤其在資料較少時容易長太深而過擬合；用 <code>num_leaves</code> / <code>max_depth</code> / <code>min_data_in_leaf</code> 控制）。</li>
+<li><strong>GOSS（單邊梯度採樣）</strong>：全留誤差大的樣本、只抽樣容易的 → 算力集中在難點。</li>
+<li><strong>EFB（互斥特徵綁定）</strong>：把幾乎不同時出現的稀疏特徵綁一起 → 降有效維度。</li>
+<li><strong>效能</strong>：大資料常<strong>明顯較快、記憶體較省</strong>；但<strong>實際速度取決於資料量、稀疏性、特徵數、超參數、硬體與版本，應以目標資料 benchmark</strong>，不宜套固定倍數。與 XGBoost 等其他實作的準度高低，同樣需在目標資料上以相同驗證流程比較。</li>
+</ul>
+
+<h3>C.9 用到的數學運算（不需矩陣乘法）</h3>
+<p><strong>LightGBM 不像 NN 靠矩陣乘法 (matmul)</strong>，核心是<strong>統計累加 + 純量算術 + 比較</strong>——這是它在多數中小型情境下 CPU 就足夠的主因；GPU 能帶來多少收益需實測（見本節末）。</p>
+<div class="tablewrap"><table>
+<thead><tr><th>運算</th><th>是什麼</th><th>類型</th></tr></thead>
+<tbody>
+<tr><td>梯度 / Hessian</td><td>每樣本算損失一階 $g_i$、二階 $h_i$</td><td>逐樣本純量（2 階泰勒近似）</td></tr>
+<tr><td>直方圖建構</td><td>每特徵分箱、累加每箱 $\sum g$、$\sum h$</td><td><strong>加總（主要計算量）</strong></td></tr>
+<tr><td>分裂增益</td><td>每候選切點算增益、挑最大</td><td>純量算術</td></tr>
+<tr><td>葉值</td><td>$w=-G/(H+\lambda)$</td><td>純量除法</td></tr>
+<tr><td>更新</td><td>$F_m=F_{m-1}+\eta\,h_m$</td><td>逐樣本純量加法</td></tr>
+<tr><td>分箱 / 比較</td><td>找切點比大小</td><td>比較 / 排序</td></tr>
+</tbody>
+</table></div>
+<p>分裂增益：$\text{Gain}=\frac12\left[\dfrac{G_L^2}{H_L+\lambda}+\dfrac{G_R^2}{H_R+\lambda}-\dfrac{(G_L+G_R)^2}{H_L+H_R+\lambda}\right]-\gamma$（$G,H$＝該側樣本的梯度、Hessian 總和），全是純量加減乘除。</p>
+<p><strong>有向量、無矩陣乘法</strong>：梯度陣列、直方圖陣列是「向量 / 陣列」資料，但運算是<strong>逐元素累加 + 純量算術 + 比較</strong>，<strong>沒有 <a href="01-math-foundations.html#1.3">§1.3</a> 那種矩陣×向量 / 矩陣×矩陣乘法</strong>。→ 瓶頸偏在<strong>記憶體存取</strong>而非乘加 (FLOPs)，所以<strong>多數中小型表格情境 CPU 就夠、GPU 效益相對有限</strong>（LightGBM／XGBoost 亦有 GPU 版；<strong>GPU 能帶來多少收益，依實作、資料量、特徵數、分箱設定、CPU↔GPU 資料傳輸與硬體而異，需實測</strong>；對照 NN 的 matmul 高度受益於 GPU/NPU，<a href="07-hardware-and-deployment.html#20">§20</a>）——這也是網路 AI 邊緣 ML 常選 GBDT 的一項考量。</p>
+
+<h3>C.10 對照神經網路（何時用哪個）</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>面向</th><th>GBDT (LightGBM)</th><th>神經網路</th></tr></thead>
+<tbody>
+<tr><td>最適資料</td><td><strong>表格 / 結構化</strong></td><td><strong>影像 / 文字 / 序列</strong></td></tr>
+<tr><td>大資料速度</td><td>常較快（視資料 / 實作 / 硬體）</td><td>相對慢、且高度依賴 GPU</td></tr>
+<tr><td>記憶體 / 模型大小</td><td>通常較小（常見數 MB～數十 MB，隨樹數 / 深度變動）</td><td>通常較大</td></tr>
+<tr><td>邊緣部署</td><td><strong>很友善（CPU）</strong></td><td>需 NPU / 量化（<a href="07-hardware-and-deployment.html#20">§20</a>）</td></tr>
+<tr><td>可解釋性</td><td>較易分析（feature importance、SHAP），但沒有單一權重可直接讀</td><td>通常較難，需專門解釋方法</td></tr>
+<tr><td>不吃</td><td>原始序列 / 影像（需先抽特徵）</td><td>—</td></tr>
+</tbody>
+</table></div>
+<p><strong>選型時要確認的條件</strong>（不是「表格就一定用 GBDT」）：</p>
+<ul>
+<li><strong>資料量</strong>：樣本少時兩者都易過擬合，GBDT 需限制 <code>num_leaves</code> / <code>max_depth</code> / <code>min_data_in_leaf</code>；資料極大且有原始序列 / 影像時，NN 的表示學習較有優勢。</li>
+<li><strong>Early stopping</strong>：以 validation set 監看損失，停在不再改善的輪數（<a href="02-training-neural-networks.html#6.2">§6.2</a>），比手動固定樹數可靠。</li>
+<li><strong>類別特徵</strong>：LightGBM / CatBoost 可原生處理類別特徵；高基數類別仍要注意過擬合與目標洩漏（<a href="#h1">附錄 H</a>、<a href="#i1">附錄 I</a>）。NN 通常改用 embedding（<a href="04-text-representations.html#13">§13</a>）。</li>
+<li><strong>缺值</strong>：多數 GBDT 實作在分裂時會學缺值該走哪一側；NN 通常需先補值或加缺值指示特徵。</li>
+<li><strong>延遲與部署</strong>：推論延遲隨樹數、樹深增加，需在目標硬體實測；NN 依模型大小、量化與加速器而定（<a href="07-hardware-and-deployment.html#20">§20</a>）。</li>
+<li><strong>可解釋需求</strong>：若需逐筆說明原因，GBDT + SHAP 常較容易落地，但仍不等於因果（<a href="#i1">附錄 I</a>）。</li>
+</ul>
+
+<h3>C.11 Case study：網路入侵偵測 (IDS) / 流量分類</h3>
+<ul>
+<li><strong>問題</strong>：從流量特徵判斷「正常 vs 攻擊（哪一類）」。</li>
+<li><strong>特徵</strong>：flow 統計（封包大小、時序、上下行量…）——即 <a href="03-cnn-and-vision.html#11.7">§11.7</a> / nfstream 產出的<strong>表格特徵</strong>；資料集 NSL-KDD、UNSW-NB15、CICIDS2017。</li>
+<li><strong>實證架構</strong>：
+  <ul>
+  <li><strong>LightGBM + Autoencoder</strong>：AE 壓縮/降噪 → LightGBM 分類，在標準資料集上可達<strong>很高的準確率</strong>。（<strong>Autoencoder 自編碼器</strong>：用神經網路把輸入<strong>壓縮成精簡表示再重建</strong>，藉此學到<strong>降噪 / 低維特徵</strong>；此處當 LightGBM 的前處理特徵抽取器。屬 NN 的一種，教材主體未涵蓋。）</li>
+  <li><strong>1D-CNN + LightGBM（混合）</strong>：1D-CNN 抽特徵、LightGBM 當分類器——<strong>DL 抽特徵、GBDT 做決策</strong>，兩者互補。</li>
+  </ul>
+</li>
+<li><strong>為何選它</strong>：流量特徵本質是<strong>表格型</strong> → 樹模型擅長；訓練快、推論輕、<strong>CPU 就能跑、模型小</strong> → <strong>適合邊緣即時</strong>（呼應判別式 ML 的邊緣部署）。</li>
+</ul>
+<blockquote><p><strong>數字要謹慎看（本文只作定性示意）。</strong> 資安資料集常因<strong>類別不平衡、資料洩漏 (data leakage)、train/test 切法</strong>而<strong>容易得到異常高的 accuracy</strong>。引用任何準確率務必附<strong>資料集、train/test split、二元/多類定義、是否處理不平衡與洩漏、是否只看 accuracy（還是 precision/recall/F1）、原始論文來源</strong>——否則「漂亮的精確數字」反而降低可信度。此處只說明「GBDT 適合流量表格分類」的<strong>定性</strong>結論，不以特定數字為準。</p></blockquote>
+
+<blockquote><p><strong>常見誤解（GBDT 版）。</strong></p>
+<ul>
+<li>GBDT <strong>不是用反向傳播</strong>訓練樹——是<strong>逐輪加一棵樹擬合負梯度</strong>（C.5、C.6）。</li>
+<li><strong>殘差 ≠ 負梯度</strong>：只有<strong>平方損失</strong>下兩者才相等（C.6）。</li>
+<li><strong>新樹不是只學錯的樣本</strong>：它擬合全部樣本的梯度，誤差大的影響較大（C.6）。</li>
+<li><strong>加法模型 ≠ 線性模型</strong>：樹之間是相加，但每棵樹對特徵是非線性的（<a href="#c.6.1">C.6.1</a>）。</li>
+<li>樹加總的 $F(x)$ 是 <strong>raw score / logit、不是機率</strong>，要過 sigmoid / softmax 才是機率（C.7）。</li>
+<li><strong>特徵重要度 ≠ 因果</strong>；高度相關的特徵會互相分攤重要度。</li>
+<li>LightGBM <strong>不保證一定比 XGBoost 快</strong>（視資料 / 硬體 / 版本，C.8）。</li>
+<li>「樹不需特徵正規化」<strong>不代表</strong>可以忽略資料品質與<strong>資料洩漏</strong>（<a href="#h1">附錄 H</a>）。</li>
+</ul></blockquote>
+
+<h3>C.12 小結</h3>
+<p>NN 不是萬能：<strong>表格資料應把 GBDT（如 LightGBM）列入優先比較</strong>，影像 / 序列則多用 DL；兩者也可<strong>混合</strong>（DL 抽特徵 → GBDT 分類）。判別式邊緣部署（流量分類、異常偵測）中，LightGBM 是<strong>值得優先建立的 baseline 之一</strong>，最終選擇仍依 C.10 的條件與目標資料上的驗證結果。侷限：對特徵工程敏感；leaf-wise 生長若缺少複雜度限制，尤其在資料較少時容易過擬合（需調 <code>num_leaves</code> / <code>max_depth</code> / <code>min_data_in_leaf</code> / 正則化並搭配 early stopping）；不吃原始序列 / 影像。（本附錄後續可再擴充：傳統 GBDT / XGBoost / LightGBM 的條件式比較表、重要超參數、feature importance 與 SHAP 實作。）</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+
+<h2 id="e1">附錄 E — 迴歸分析基礎</h2>
+<p>主題 3 從「線性迴歸 + 損失」切入，直接談怎麼學參數。本附錄退一步，補上<strong>迴歸分析 (regression analysis)</strong> 的統計背景：它在做什麼、自變數與應變數的關係、原理，以及常見的迴歸形式。</p>
+
+<h3>E.1 迴歸分析在做什麼（意義）</h3>
+<p><strong>迴歸分析</strong>研究<strong>兩個或多個變數之間的關係</strong>——它們是否<strong>相關</strong>、相關的<strong>方向</strong>（正相關 / 負相關）與<strong>強度</strong>，並據此<strong>建立一個數學模型</strong>，好讓我們能<strong>觀察特定自變數、預測應變數</strong>。</p>
+<ul>
+<li><strong>核心目標</strong>：由給定的自變數，估計應變數的<strong>條件期望值</strong> $E[y\mid x]$——也就是「在 $x$ 是這個值的條件下，$y$ 平均會是多少」。迴歸函數本質上就是這條<strong>條件平均</strong>曲線。</li>
+<li>一句話：<strong>迴歸 ＝ 找出「$x\to y$ 的平均趨勢」，並用來預測。</strong></li>
+<li>注意：迴歸量的是<strong>相關與預測</strong>，<strong>不等於因果</strong>（$x,y$ 相關不代表 $x$ 造成 $y$；常見誤區）。</li>
+</ul>
+
+<h3>E.2 自變數與應變數的關係（定義）</h3>
+<ul>
+<li><strong>自變數 (independent variable，又稱預測變數 / 特徵 feature) $x$</strong>：輸入、用來解釋或預測的變數。</li>
+<li><strong>應變數 (dependent variable，又稱反應變數 / 目標 target) $y$</strong>：輸出、被預測的量；它的值「依賴」自變數。</li>
+</ul>
+<p>兩者的關係寫成：</p>
+<p>$$y = f(x) + \varepsilon$$</p>
+<p>其中 $f(x)$ 是<strong>迴歸函數</strong>（系統性、可預測的部分，$f(x)=E[y\mid x]$），$\varepsilon$ 是<strong>隨機誤差</strong>（雜訊、量不到的因素，平均為 0）。迴歸就是從資料<strong>估計出 $f$</strong>。<strong>相關的方向與強度</strong>常用兩個量描述：<strong>相關係數 $r$</strong>（$-1\sim1$，正負表方向、絕對值表線性相關強度）、<strong>決定係數 $R^2$</strong>（模型解釋了應變數多少比例的變異，<a href="06-evaluation-and-validation.html#18">§18.2</a>）。</p>
+
+<h3>E.3 迴歸分析的原理</h3>
+<p><strong>原理一句話</strong>：目的在於<strong>找出一條最能代表所有觀測資料的函數曲線</strong>——稱為<strong>迴歸估計式（迴歸方程）</strong> $\hat y=f(x)$；用這條曲線<strong>代表應變數（因變數）與自變數之間的關係</strong>，再據以預測。具體分四步：</p>
+<ol>
+<li><strong>假設關係形式</strong>：先設定 $f$ 的形態（直線、多項式、多變數線性…），留下待定的<strong>參數</strong>（如 $\mathbf{w}, b$）。</li>
+<li><strong>用資料擬合參數</strong>：調參數讓模型<strong>最貼合資料</strong>——通常最小化<strong>殘差平方和</strong>（＝最小平方 / MSE，<a href="01-math-foundations.html#3.1">§3.1</a>）。在「誤差服從高斯分布」假設下，這等價於<strong>最大似然</strong>（<a href="09-math-appendices.html#d1">附錄 D</a>）。</li>
+<li><strong>預測</strong>：把新的自變數代入擬合好的 $f$，得到 $\hat y$，即估計的 $E[y\mid x]$。</li>
+<li><strong>評估</strong>：看 $R^2$、殘差圖、參數顯著性，判斷模型好壞與是否過擬合（<a href="02-training-neural-networks.html#6">§6</a>、<a href="06-evaluation-and-validation.html#18.2">§18.2</a>）。</li>
+</ol>
+
+<h3>E.4 常用的迴歸形式</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>形式</th><th>模型</th><th>用途 / 特性</th></tr></thead>
+<tbody>
+<tr><td><strong>線性迴歸</strong>（單變數 simple linear）</td><td>$\hat y = wx + b$</td><td>一個自變數、一條直線；最基本，看單一因子與 $y$ 的線性趨勢</td></tr>
+<tr><td><strong>複迴歸 / 多元迴歸</strong>（multiple linear）</td><td>$\hat y = w_1x_1+\dots+w_nx_n+b=\mathbf{w}^\top\mathbf{x}+b$</td><td><strong>多個自變數同時</strong>影響 $y$（房價 ＝ 坪數 ＋ 地段 ＋ 屋齡…）；就是內積 ＋ 偏置，<strong>神經元的線性部分</strong>（<a href="01-math-foundations.html#1.2">§1.2</a>）</td></tr>
+<tr><td><strong>多項式迴歸</strong>（polynomial）</td><td>$\hat y = w_0+w_1x+w_2x^2+\dots+w_dx^d$</td><td>描述<strong>彎曲（非線性）趨勢</strong>；雖對 $x$ 非線性，但<strong>對參數仍是線性</strong>，可用同一套最小平方求解。次數 $d$ 太高易<strong>過擬合</strong>（<a href="02-training-neural-networks.html#6">§6</a>）</td></tr>
+</tbody></table></div>
+<figure><svg viewBox="0 0 660 210" role="img" aria-label="線性迴歸用直線、多項式迴歸用曲線擬合同一組資料">
+  <rect x="20" y="25" width="290" height="160" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="165" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">線性迴歸（直線）</text>
+  <line x1="40" y1="170" x2="300" y2="170" stroke="#475569" stroke-width="1"/>
+  <line x1="40" y1="40" x2="40" y2="170" stroke="#475569" stroke-width="1"/>
+  <line x1="50" y1="155" x2="295" y2="60" stroke="#34d399" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="70" cy="150" r="3.5"/><circle cx="110" cy="120" r="3.5"/><circle cx="150" cy="128" r="3.5"/><circle cx="190" cy="95" r="3.5"/><circle cx="230" cy="88" r="3.5"/><circle cx="270" cy="62" r="3.5"/></g>
+  <rect x="350" y="25" width="290" height="160" rx="6" fill="none" stroke="#334155" stroke-width="1.2"/>
+  <text x="495" y="18" fill="#e5e7eb" font-size="12" text-anchor="middle" font-weight="700">多項式迴歸（曲線）</text>
+  <line x1="370" y1="170" x2="630" y2="170" stroke="#475569" stroke-width="1"/>
+  <line x1="370" y1="40" x2="370" y2="170" stroke="#475569" stroke-width="1"/>
+  <path d="M380,80 Q430,175 500,150 Q570,125 625,55" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <g fill="#fbbf24"><circle cx="390" cy="90" r="3.5"/><circle cx="430" cy="150" r="3.5"/><circle cx="470" cy="158" r="3.5"/><circle cx="520" cy="145" r="3.5"/><circle cx="560" cy="120" r="3.5"/><circle cx="610" cy="70" r="3.5"/></g>
+</svg><figcaption>同一組資料：<strong>線性迴歸</strong>用一條直線抓「平均趨勢」；<strong>多項式迴歸</strong>加高次項把線彎起來、貼合曲線關係（次數太高會過擬合）。兩者都靠最小平方擬合。</figcaption></figure>
+<ul>
+<li><strong>線性迴歸</strong>：關係接近直線時最簡潔、可解釋性高。</li>
+<li><strong>複迴歸</strong>：真實問題多半多因子，這是最常用的形式；也正是本教材「$\mathbf{w}^\top\mathbf{x}+b$」的由來。</li>
+<li><strong>多項式迴歸</strong>：資料呈曲線時，用高次項把「直線」彎起來；本質是把 $x,x^2,\dots$ 當成<strong>新特徵</strong>餵給複迴歸（特徵工程的雛形）。</li>
+<li><strong>延伸</strong>：輸出改成「機率」就是<strong>邏輯迴歸</strong>（分類，<a href="01-math-foundations.html#3.2">§3.2</a>）；用「多層 ＋ 非線性 $\sigma$」達成更一般的非線性迴歸，就是<strong>神經網路</strong>（<a href="01-math-foundations.html#1.2">§1.2</a>、<a href="02-training-neural-networks.html#7">§7</a>、<a href="02-training-neural-networks.html#8">§8</a>）。</li>
+</ul>
+
+<h3>E.5 與本教材的銜接</h3>
+<p>迴歸分析是<strong>判別式監督學習</strong>的統計根基：<strong>線性 / 複迴歸</strong> → <a href="01-math-foundations.html#3">主題 3</a>、神經元的線性部分（<a href="01-math-foundations.html#1.2">§1.2</a>）；<strong>對參數最小平方 ＝ 高斯誤差下的 MLE</strong> → <a href="09-math-appendices.html#d1">附錄 D</a>、<a href="01-math-foundations.html#2.3">§2.3</a>；<strong>非線性迴歸</strong> → 神經網路用「多層堆疊 ＋ $\sigma$」逼近任意 $f$（<a href="01-math-foundations.html#layer-output">§1.3.1</a>、<a href="02-training-neural-networks.html#7">§7</a>）；<strong>評估</strong> → $R^2$／MSE 等迴歸指標（<a href="06-evaluation-and-validation.html#18">§18.2</a>）。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+<hr>
+<h2 id="h1">附錄 H — 資料來源、採樣與資料可信度</h2>
+<p>前面各章講「模型與數學」；但實務上 <strong>「garbage in, garbage out」——資料的來源、品質與採樣，往往比模型更關鍵</strong>（近年所謂 <strong>data-centric AI</strong> 的精神）。本附錄補上這塊：資料<strong>可信度分級</strong>、<strong>品質維度</strong>、<strong>採樣</strong>與<strong>常見資料陷阱</strong>。散見的 <a href="01-math-foundations.html#1.1">§1.1</a>（洩漏）、<a href="#c1">附錄 C</a>（資安資料集數字要謹慎）、<a href="02-training-neural-networks.html#6">§6</a>（驗證）在此收攏。</p>
+
+<h3>H.1 資料可信度分級（三種常見框架）</h3>
+<p><strong>(a) 標註可信度（ML 標籤層級）</strong> — 標籤怎麼來、多可信：</p>
+<div class="tablewrap"><table>
+<thead><tr><th>層級</th><th>怎麼來</th><th>可信度</th></tr></thead>
+<tbody>
+<tr><td><strong>Gold（金標）</strong></td><td>專家標註、<strong>多人標註取共識</strong>（用 Cohen's / Fleiss' <strong>kappa</strong> 量一致性）</td><td>最高，當「真實答案 ground truth」</td></tr>
+<tr><td><strong>Silver（銀標）</strong></td><td>單一標註者、或模型輔助標註再人工複核</td><td>中，有雜訊</td></tr>
+<tr><td><strong>Bronze / 弱標註</strong></td><td>程式規則、遠距監督 (distant supervision)、heuristic 自動打標</td><td>低，雜訊大但量多</td></tr>
+</tbody></table></div>
+<p><strong>(b) 資料工程分層（Medallion 架構）</strong> — 資料「加工程度」：<strong>Bronze</strong> 原始擷取（raw、as-is，未清洗）；<strong>Silver</strong> 清洗/驗證/去重/格式統一後；<strong>Gold</strong> 聚合、商業/特徵就緒（feature-ready）。</p>
+<p><strong>(c) 來源與血緣 (provenance / lineage)</strong> — 第一方 vs 第三方、權威來源 vs 衍生、感測器可靠度；<strong>資料血緣</strong>要能追溯「這欄從哪來、經過哪些轉換」（出問題才查得到、也才防得了洩漏）。</p>
+
+<h3>H.2 資料品質維度 (data quality dimensions)</h3>
+<p>實務常用這幾個面向檢核（DAMA 類）：<strong>正確性 (accuracy)</strong>、<strong>完整性 (completeness，缺值多不多)</strong>、<strong>一致性 (consistency，不同來源不打架)</strong>、<strong>時效性 (timeliness，夠不夠新)</strong>、<strong>有效性 (validity，符合格式/範圍)</strong>、<strong>唯一性 (uniqueness，不重複)</strong>、<strong>代表性 (representativeness，樣本像不像母體/上線分布)</strong>。其中<strong>代表性</strong>對 ML 最致命——訓練資料若不像上線資料，模型再準也會垮（見 H.4 分布漂移）。</p>
+
+<h3>H.3 採樣 (sampling)</h3>
+<ul>
+<li><strong>採樣方法</strong>：<strong>簡單隨機</strong>、<strong>分層 (stratified，保持類別比例)</strong>、系統、叢集。切訓練集常用分層以維持類別分布。</li>
+<li><strong>類別不平衡</strong>（如 99% 正常、1% 惡意）：<strong>過採樣</strong>（少數類複製/合成，如 SMOTE）、<strong>欠採樣</strong>（多數類抽少）、或<strong>類別權重</strong>（損失對少數類加權）。呼應 <a href="06-evaluation-and-validation.html#18">§18</a>：不平衡時 accuracy 會騙人，要看 precision/recall/F1。</li>
+<li><strong>train / val / test 切分</strong>：一般隨機切；<strong>時間序列必須「按時間切」</strong>（用過去預測未來，不能拿未來資料訓練 → 否則洩漏）；資料少用 <strong>k-fold 交叉驗證</strong>。</li>
+</ul>
+
+<h3>H.4 常見資料陷阱</h3>
+<ul>
+<li><strong>資料洩漏 (data leakage)</strong>：特徵（直接或間接）含了答案 → 準確率假高、上線垮（<a href="01-math-foundations.html#1.1">§1.1</a>、<a href="#c1">附錄 C</a>）。時間洩漏、用了推論時拿不到的欄位都算。</li>
+<li><strong>採樣偏差 (sampling bias)</strong>：<strong>選擇偏差</strong>（只收到某類樣本）、<strong>倖存者偏差 (survivorship bias)</strong>（只看到活下來的）→ 資料不代表母體。</li>
+<li><strong>分布漂移 (distribution / dataset shift)</strong>：上線資料分布和訓練時不同（covariate shift、概念漂移），模型隨時間退化 → 要監控、定期重訓。</li>
+<li><strong>標籤雜訊 (label noise)</strong>：標錯的標籤；弱標註尤其嚴重，需清洗或用抗雜訊訓練。</li>
+</ul>
+
+<h3>H.5 一句話</h3>
+<p><strong>模型只能學到資料裡有的東西</strong>：先確保<strong>來源可信（分級 gold/silver/bronze、可追溯血緣）、品質達標（尤其代表性）、採樣無偏（分層、處理不平衡、按時間切、防洩漏）</strong>，數學與模型才有意義。這也是為什麼引用任何準確率都要附「資料集、切法、是否處理不平衡與洩漏」（<a href="#c1">附錄 C</a>）。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+
+<h2 id="i1">附錄 I — 特徵工程 (Feature Engineering)</h2>
+<p><a href="01-math-foundations.html#1.1">§1.1</a> 說「好特徵要<strong>相關、有變異、不冗餘、尺度合理</strong>」，並提到<strong>傳統 ML 靠人工設計挑選特徵</strong>。本附錄補上：這些條件<strong>怎麼用數學公式量化與檢驗</strong>、以及常用的特徵建構與選擇方法。</p>
+
+<h3>I.1 特徵工程在做什麼</h3>
+<p><strong>特徵工程 ＝ 人工把原始資料轉成「對模型有用」的特徵</strong>，三件事：<strong>建構/轉換</strong>（造新特徵）、<strong>選擇</strong>（挑有用的、丟冗餘的）、<strong>縮放</strong>（調到可比較）。傳統 ML（線性/邏輯迴歸、GBDT）成敗多半在此；深度學習則把一部分自動化（I.8）。下面每個條件都給<strong>可計算的公式</strong>。</p>
+
+<h3>I.2 相關性：量「特徵與目標有多相關」</h3>
+<ul>
+<li><strong>皮爾森相關係數 (Pearson $r$)</strong> — 量<strong>線性</strong>相關的方向與強度，$r\in[-1,1]$：
+$$r_{x,y}=\frac{\mathrm{cov}(x,y)}{\sigma_x\sigma_y}=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i(x_i-\bar x)^2}\sqrt{\sum_i(y_i-\bar y)^2}}$$
+用於<strong>連續特徵 vs 連續目標</strong>。$|r|$ 越大越相關；$r\approx0$ 表<strong>線性</strong>無關（但可能有非線性關係）。</li>
+<li><strong>斯皮爾曼 (Spearman $\rho$)</strong> — 把 $x,y$ 換成<strong>排名</strong>再算 Pearson，抓<strong>單調（含非線性）</strong>關係、對離群值穩健。</li>
+<li><strong>互資訊 (Mutual Information)</strong> — 抓<strong>任意相依（含非線性）</strong>，$=0$ 才表獨立（呼應 <a href="09-math-appendices.html#f1">附錄 F</a> 的熵）：
+$$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
+<li><strong>卡方 $\chi^2$ 檢定</strong> — <strong>類別特徵 vs 類別目標</strong>的相依：$\chi^2=\sum\frac{(O-E)^2}{E}$（$O$ 觀測、$E$ 獨立假設下的期望次數）。</li>
+<li><strong>ANOVA F 值</strong> — <strong>連續特徵 vs 類別目標</strong>（比較各類別間 vs 類別內的變異）。</li>
+</ul>
+
+<h3>I.3 變異：量「特徵有沒有資訊」</h3>
+<p>$$\mathrm{Var}(x)=\frac1N\sum_i (x_i-\bar x)^2$$</p>
+<p><strong>近零變異</strong>（幾乎是常數）的特徵資訊量≈0，直接刪（variance threshold）。</p>
+
+<h3>I.4 冗餘 / 共線性：量「特徵之間重不重複」</h3>
+<ul>
+<li><strong>相關矩陣</strong>：對所有特徵兩兩算 Pearson $r$，$|r|$ 很高（如 $>0.9$）的一對 → 其中一個<strong>冗餘</strong>，可刪一個。</li>
+<li><strong>變異數膨脹因子 (VIF)</strong> — 用<strong>其他所有特徵</strong>去迴歸第 $i$ 個特徵、得 $R_i^2$：$\ \mathrm{VIF}_i=\dfrac{1}{1-R_i^2}$。$R_i^2$ 越接近 1（越能被別人線性表示）→ VIF 越大 → <strong>共線性越嚴重</strong>（VIF&gt;5\~10 常視為問題）。</li>
+<li><strong>PCA</strong>（<a href="01-math-foundations.html#1.6">§1.6</a>）：特徵分解把相關特徵轉成<strong>正交主成分</strong>、順便降維。</li>
+</ul>
+
+<h3>I.5 尺度：把特徵調到可比較（<a href="01-math-foundations.html#1.5">§1.5</a>）</h3>
+<ul>
+<li><strong>標準化 (z-score)</strong>：$x'=\dfrac{x-\mu}{\sigma}$ → 均值 0、標準差 1（最常用）。</li>
+<li><strong>Min-Max 正規化</strong>：$x'=\dfrac{x-x_{\min}}{x_{\max}-x_{\min}}$ → 壓到 $[0,1]$。</li>
+<li><strong>對數轉換</strong>：$x'=\log(x{+}1)$ — 壓縮<strong>長尾/偏態</strong>分布（金額、次數、流量），讓大值不主導。</li>
+</ul>
+
+<h3>I.6 特徵建構 / 轉換（造新特徵）</h3>
+<ul>
+<li><strong>多項式 / 交互特徵</strong>：$x_1^2,\ x_1x_2$ — 讓線性模型也能表達非線性/交互（呼應 <a href="#e1">附錄 E</a> 多項式迴歸）。</li>
+<li><strong>分箱 (binning)</strong>：連續值切成區間變類別（如年齡 → 青/中/老）。</li>
+<li><strong>類別編碼</strong>：one-hot、target encoding、或 <strong>embedding</strong>（<a href="04-text-representations.html#12">§12</a>、<a href="04-text-representations.html#13">§13</a>）。</li>
+<li><strong>時間特徵</strong>：從 timestamp 抽小時/星期；週期性用 $\sin,\cos$ 編（$23$ 點與 $0$ 點才會相鄰）。</li>
+<li><strong>聚合特徵</strong>：group-by 後的統計量（每個 IP 的封包數 mean/std/count…）。</li>
+</ul>
+
+<h3>I.7 特徵選擇（挑有用的、丟冗餘的）三大類</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>類別</th><th>怎麼做</th><th>特性</th></tr></thead>
+<tbody>
+<tr><td><strong>過濾法 Filter</strong></td><td>用 I.2\~I.4 的統計量（$r$、MI、$\chi^2$、變異、VIF）排序挑選</td><td><strong>與模型無關、快</strong>；但沒考慮特徵間組合</td></tr>
+<tr><td><strong>包裝法 Wrapper</strong></td><td>拿模型的驗證表現當標準（遞迴特徵消除 RFE、前向/後向選擇）</td><td><strong>準但貴</strong>（要反覆訓練）</td></tr>
+<tr><td><strong>嵌入法 Embedded</strong></td><td>模型訓練時<strong>內建選擇</strong>：<strong>L1 正則化 (Lasso)</strong> 把不重要特徵權重壓成 <strong>0</strong>（<a href="01-math-foundations.html#1.4">§1.4</a>、<a href="02-training-neural-networks.html#6">§6</a>）；樹模型的<strong>特徵重要度</strong>（<a href="#c1">附錄 C</a> GBDT）</td><td>兼顧效果與效率，實務常用</td></tr>
+</tbody></table></div>
+
+<h3>I.8 深度學習：自動特徵學習（表徵學習）</h3>
+<p>前面 I.1–I.7 是<strong>人工</strong>特徵工程；深度學習則用<strong>表徵學習 (representation learning)</strong> 讓模型<strong>自己從原始輸入長出特徵</strong>，減少人工。</p>
+<p><strong>機制（為什麼網路自己會長出特徵）</strong>：不是人告訴它「偵測邊緣」，而是<strong>給原始輸入 + 一個損失，梯度下降把權重推成「最能降低損失的特徵偵測器」</strong>。每層把輸入換到新座標 + 非線性摺疊（<a href="01-math-foundations.html#layer-output">§1.3.1</a>），淺層自學低階（邊緣/角）、深層組合成高階（部件/物件）——<strong>某一層的激活值就是那層抽象度的「特徵」</strong>；全由損失 + 反向傳播驅動（<a href="02-training-neural-networks.html#9">§9</a>、<a href="02-training-neural-networks.html#10">§10</a>）。<strong>取用方式</strong>：訓練完拿<strong>中間層（常是倒數第二層）的激活向量</strong>當學到的特徵，餵下游。</p>
+<p><strong>怎麼做 — 三種訓練範式：</strong></p>
+<ul>
+<li><strong>① 監督式 end-to-end（有標籤）</strong>：整個網路在標好的任務上一起訓（如影像分類）；特徵是副產品，倒數第二層激活即通用特徵向量。標籤足夠時最直接。</li>
+<li><strong>② 遷移學習：預訓練 + 微調（<a href="05-transformers-and-generation.html#17">§17</a>）— 實務最常用</strong>：拿別人在大資料上<strong>預訓練</strong>好的模型（已具通用表徵），兩種用法——<strong>當固定特徵抽取器</strong>（凍結骨幹、只訓小 head）或<strong>微調</strong>（fine-tune / LoRA）。標籤少時的首選，不從零學。</li>
+<li><strong>③ 自監督學習 (self-supervised) — 無標籤也能學表徵</strong>（現代主力）：從資料自造「假任務 (pretext task)」——
+  <ul>
+  <li><strong>重建 / 遮蔽</strong>：Autoencoder（壓成 bottleneck 再重建，瓶頸＝壓縮表徵，<a href="#c1">附錄 C</a>）、遮蔽預測（BERT 遮字、MAE 遮圖塊）、<strong>LLM 下一個 token 預測</strong>（<a href="05-transformers-and-generation.html#16">§16</a>、<a href="09-math-appendices.html#f1">附錄 F</a>）；</li>
+  <li><strong>對比學習 (contrastive)</strong>：把「同物不同視角（augmentation）」的表徵拉近、不同物推遠（SimCLR / MoCo；CLIP、word2vec 同精神）。</li>
+  </ul></li>
+<li><strong>④ 嵌入層 (embedding, <a href="04-text-representations.html#13">§13</a>)</strong>：離散輸入（token / 類別）用<strong>可學的查表</strong>映射成向量、與模型一起訓 → 學出語意表徵。</li>
+</ul>
+<p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>通常不必優先使用</strong>——<strong>不需要表徵學習的中小型表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，GBDT + 人工特徵工程在這類資料上常與 NN 相當或更好；<strong>應以 GBDT 與 NN 在目標資料上的驗證結果決定</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
+<p><strong>一句話</strong>：表徵學習 ＝ 讓「損失 + 反向傳播」自動把原始輸入逐層轉成有用特徵、再取中間層當特徵用；實作靠 <strong>監督 end-to-end / 遷移學習 / 自監督</strong> 三條路。</p>
+
+<h3>I.9 該取多少樣本、留多少特徵？</h3>
+<blockquote><p><strong>TL;DR：更多特徵 ≠ 更好。</strong> 無關 / 冗餘特徵會帶來維度災難與過擬合，特徵要<strong>有資訊、不冗餘、不洩漏</strong>，寧缺勿濫；<strong>更多樣本通常有幫助但邊際遞減</strong>，且前提是<strong>資料品質</strong>。以下講怎麼判斷「剛好」。</p></blockquote>
+<p><strong>沒有 closed-form 公式</strong>能算出「$N$ 筆樣本、$d$ 個特徵剛好」——「剛好」取決於訊號強弱、雜訊、模型容量、類別平衡與目標準確度。但有一套<strong>原則性流程</strong>，而且「夠不夠」是可以<strong>量測</strong>的。</p>
+<p><strong>經驗法則（起手粗估，非定論）。</strong></p>
+<div class="tablewrap"><table>
+<thead><tr><th>對象</th><th>rule of thumb</th><th>直覺</th></tr></thead>
+<tbody>
+<tr><td>樣本 vs 特徵</td><td>$N \ge 10\times$ 特徵數（或參數量）</td><td>每個要估的權重都得有幾筆資料撐</td></tr>
+<tr><td>邏輯迴歸</td><td>每個預測變數 $\ge$ 10~20 個<strong>少數類事件</strong>（EPV）</td><td>分類看少數類筆數、不是總筆數</td></tr>
+<tr><td>每一類別</td><td>每類至少數十~數百筆</td><td>不平衡時少數類決定成敗</td></tr>
+<tr><td>傳統模型的底線</td><td>$d \ge N$ 時<strong>傳統</strong>模型易過擬合（<strong>過參數化 + 正則化可例外</strong>，見下方 double descent）</td><td>維度災難</td></tr>
+</tbody></table></div>
+<p><strong>量「樣本夠不夠」→ 學習曲線 (learning curve)。</strong> 用 10%、20%…100% 的訓練資料各訓一次，畫<strong>驗證分數 vs 樣本數</strong>：曲線<strong>仍在上升</strong> → 加資料還有用；<strong>壓平 (plateau)</strong> → 瓶頸在特徵/模型，再多資料無益。這是<strong>最直接</strong>回答「資料夠了沒」的方法（搭配交叉驗證、外部 / held-out 驗證更穩，<a href="06-evaluation-and-validation.html#19">§19</a>）。</p>
+<p><strong>量「特徵留多少」→ 驗證曲線 (validation curve)。</strong> 以特徵數 $d$（或 PCA 維度、top-$k$ 重要特徵）為橫軸畫<strong>驗證誤差</strong>：$d$ 太小欠擬合、太大過擬合又撞維度災難，取<strong>誤差最低的 $d$</strong>（偏差-變異的甜蜜點）。兩條曲線都要包在<strong>交叉驗證</strong>裡取平均（<a href="06-evaluation-and-validation.html#19">§19</a>）。</p>
+<figure><svg viewBox="0 0 720 240" style="max-width:100%;width:100%;height:auto" role="img" aria-label="左：學習曲線，驗證分數隨樣本數上升後壓平；右：驗證曲線，驗證誤差隨特徵數呈 U 形、中間最低">
+  <text x="200" y="24" fill="#e2e8f0" font-size="12.5" font-weight="700" text-anchor="middle">① 樣本夠不夠 → 學習曲線</text>
+  <text x="542" y="24" fill="#e2e8f0" font-size="12.5" font-weight="700" text-anchor="middle">② 特徵留多少 → 驗證曲線</text>
+  <line x1="70" y1="45" x2="70" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <line x1="70" y1="195" x2="335" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <text x="74" y="42" fill="#94a3b8" font-size="10">驗證分數</text>
+  <text x="200" y="215" fill="#94a3b8" font-size="10" text-anchor="middle">樣本數 N</text>
+  <path d="M80,182 C135,150 175,108 220,90 C260,76 298,73 328,72" fill="none" stroke="#34d399" stroke-width="2.4"/>
+  <text x="120" y="140" fill="#34d399" font-size="10">↗ 還在升</text>
+  <text x="270" y="62" fill="#34d399" font-size="10" text-anchor="middle">— 壓平＝夠了</text>
+  <line x1="410" y1="45" x2="410" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <line x1="410" y1="195" x2="678" y2="195" stroke="#64748b" stroke-width="1.2"/>
+  <text x="414" y="42" fill="#94a3b8" font-size="10">驗證誤差</text>
+  <text x="544" y="215" fill="#94a3b8" font-size="10" text-anchor="middle">特徵數 d</text>
+  <path d="M420,74 C462,150 496,172 525,172 C556,172 602,150 650,80" fill="none" stroke="#fbbf24" stroke-width="2.4"/>
+  <line x1="525" y1="172" x2="525" y2="195" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="525" y="209" fill="#fbbf24" font-size="10" text-anchor="middle">最佳 d</text>
+  <text x="424" y="66" fill="#94a3b8" font-size="10">太少：欠擬合</text>
+  <text x="676" y="66" fill="#94a3b8" font-size="10" text-anchor="end">太多：過擬合</text>
+</svg><figcaption>左＝學習曲線：驗證分數隨樣本數上升，壓平即代表資料已足夠（再多無益）；右＝驗證曲線：驗證誤差隨特徵數呈 U 形，最低點＝最佳特徵數（偏差-變異平衡）</figcaption></figure>
+<p><strong>維度災難 (curse of dimensionality)。</strong> $d$ 一大，資料點在空間中極稀疏、距離失去意義，需要<strong>指數級</strong>更多樣本才填得滿；故<strong>少而精常勝過多而弱</strong>。挑特徵的具體演算法見 I.7，其中最接近「有公式」的是 <strong>PCA 保留累積解釋變異達門檻（常用 95%）所需的主成分數</strong>，以及 <strong>LASSO（L1）自動把無用權重壓成 0</strong>（<a href="02-training-neural-networks.html#6">§6</a>）。</p>
+<p><strong>統一觀點（古典界，非鐵律）：盯「樣本 / 模型容量」比值。</strong> 古典統計學習理論的<strong>上界</strong>大致是<strong>泛化落差</strong> $\lesssim \sqrt{\text{模型容量}/N}$（容量 $\approx$ 參數量 / VC 維度），直覺是 $N$ 要大於有效容量。<strong>但這是上界、有前提</strong>：現代<strong>過參數化</strong>深度網路常在<strong>參數量遠大於 $N$</strong> 時仍泛化良好（<strong>double descent</strong>、隱式正則化），與此界的直覺相反。所以比值只是<strong>起點直覺、非保證</strong>；資料不足時仍以<strong>加資料 / 降容量 / 加正則化（<a href="02-training-neural-networks.html#6">§6</a>）</strong> 為對策。深度學習的 <strong>scaling laws</strong> 則是另一條經驗冪律。</p>
+<p><strong>少數算得上「公式」的定量法（各限特定前提）：</strong></p>
+<ul>
+<li><strong>樣本</strong>：<strong>檢定力分析 (power analysis)</strong>——給定目標效果量、顯著水準 $\alpha$、檢定力（如 0.8），反推最小 $N$（多用於 A/B 測試、臨床）。</li>
+<li><strong>特徵</strong>：<strong>PCA 95% 變異準則</strong>（見上）。</li>
+</ul>
+<p><strong>實務配方。</strong> ① 領域知識給候選特徵（I.1）→ ② 經驗法則設底線（$N\ge10\times$特徵、每類數十筆）→ ③ 學習曲線看資料夠不夠 → ④ 特徵數掃描 / LASSO / PCA 定 $d$ → ⑤ CV + 正則化收斂（<a href="02-training-neural-networks.html#6">§6</a> / <a href="06-evaluation-and-validation.html#19">§19</a>）。</p>
+
+<h3>I.10 一句話</h3>
+<p><strong>特徵工程 ＝ 用數學把原始資料變成好特徵</strong>：相關性用 <strong>Pearson $r$ / 互資訊</strong>、變異用 <strong>Var</strong>、冗餘用 <strong>相關矩陣 / VIF</strong>、尺度用 <strong>標準化 / Min-Max / log</strong>；選擇分<strong>過濾（統計量）、包裝（看模型）、嵌入（L1／樹重要度）</strong>三類。深度學習把「學特徵」自動化，但<strong>表格資料仍靠人工特徵工程 + GBDT</strong>。</p>
+<p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#vol-toc">↑ 回目錄</a></p>
+</main>
+<section class="next-step"><p><strong>下一步閱讀：</strong><a href="09-math-appendices.html">09 數學推導附錄</a>：正文用到的公式從哪裡推出來？</p></section>
+<nav class="volnav"><a href="07-hardware-and-deployment.html">← 07 硬體、數值格式與部署</a><a href="index.html">教材首頁</a><a href="09-math-appendices.html">09 數學推導附錄 →</a></nav>
+<p class="totop"><a href="#top">↑ 回頁首</a></p>
+</div>
+</body>
+</html>
