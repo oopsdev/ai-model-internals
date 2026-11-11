@@ -78,7 +78,7 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 <div class="wrap">
 <header class="doc">
 <h1>AI 模型原理與數學 — 工程師深入教材</h1>
-<div class="meta"><span>2026-07-16</span><span>v0.1.0</span><span>NikeChen</span></div>
+<div class="meta"><span>2026-11-11</span><span>v0.2.0</span><span>NikeChen</span></div>
 </header>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <marker id="ar-b" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#38bdf8"/></marker>
@@ -89,6 +89,8 @@ tbody tr:hover{background:rgba(56,189,248,.09)}
 </defs></svg>
 
 <p>這份是 <strong>ai-background-knowledge</strong> 的<strong>深入版</strong>：前者講「是什麼、用在哪」（中深、無數學），本文講「<strong>為什麼會動</strong>」— 含數學式、運算展開、神經網路內部推導。目標是讓工程師看懂模型內部運作，而不只是會呼叫 API。</p>
+
+<blockquote><p><strong>本版更新（v0.2.0，2026-11-11）。</strong> 修正多處無前提的定論與交叉引用，並新增首頁「路線 0：第一次順讀」。主要新增或改寫：</p><ul><li><a href="#12">§12</a>：Tokenization：切分結果標明依 tokenizer 而定；區分 character / byte / subword / byte-level BPE</li><li><a href="#13">§13</a>：Embedding：拆成 lookup / contextual / sequence / retrieval 四種</li><li><a href="#15">§15</a>：Transformer：從 token ids 追到 vocabulary logits 的 shape 表、訓練目標、prefill 與 decode 成本</li><li><a href="#18.4">§18.4</a>：機率校準、Brier / ECE、ROC-AUC vs PR-AUC、門檻選擇流程</li><li><a href="#19.4">§19.4</a>：Bootstrap 前提、p-value 定義、「有沒有訊號」與「A 是否優於 B」分開檢定</li><li><a href="#20">§20</a>：混合精度、NPU 格式、量化後實際記憶體</li><li><a href="#c.6.1">附錄 C.6.1</a>：GBDT：加法模型 ≠ 對特徵線性；選型條件</li></ul></blockquote>
 
 <h2 id="landscape">先看定位：AI / ML / 深度學習</h2>
 <p>開始前先建立全景——本教材談的模型落在哪裡：<strong>深度學習（多層神經網路）是機器學習的一支</strong>，CNN / RNN / Transformer 都是它的架構；而 <strong>GBDT / LightGBM</strong> 雖是 ML 主力，卻<strong>不是神經網路、不算深度學習</strong>（<a href="#c1">附錄 C</a> 專門與 NN 對照）。</p>
@@ -129,7 +131,23 @@ AI（人工智慧）
 <section class="learning-paths">
 <h2 id="start">我該從哪裡開始？</h2>
 <p>本文從線性代數一路到 CNN / Transformer / 量化 / GBDT，內容完整但長。<strong>不用從頭讀到尾</strong>——先選你的學習目標、按推薦順序讀；完整章節見下方<a href="#toc">目錄</a>。（不熟的縮寫如 CNN／Transformer／GBDT，見下方<a href="#abbr">縮寫對照表</a>。）</p>
+<p><strong>章號不等於閱讀順序</strong>：章節依主題分類（數學 → 訓練 → 架構 → 評估 → 部署），方便查閱；第一次從頭學，請走<strong>路線 0</strong>，不需前後跳。</p>
 <div class="path-cards">
+  <div class="path-card">
+    <h3>🌱 0：第一次順讀（初學者）</h3>
+    <p class="who">適合：第一次系統學 NN。章號是查閱用的分類，照這條順序讀就不必來回跳。</p>
+    <ol>
+      <li><a href="#1.2">單一神經元：$z=\mathbf{w}^\top\mathbf{x}+b$</a></li>
+      <li><a href="#8">激活函數：加入非線性</a></li>
+      <li><a href="#7">多層前向傳播：逐層算出預測</a></li>
+      <li><a href="#3">損失函數：怎麼知道錯多少</a></li>
+      <li><a href="#4.3">鏈鎖律：梯度如何層層相乘</a></li>
+      <li><a href="#9">反向傳播：算出每層的梯度</a></li>
+      <li><a href="#5">梯度下降 / Adam：用梯度更新參數</a></li>
+      <li><a href="#10">初始化與正規化層</a>、<a href="#6">正則化</a>：訓練得穩、避免過擬合</li>
+    </ol>
+    <p class="after">完成後：能從單一神經元一路說明到一個多層網路如何被訓練。</p>
+  </div>
   <div class="path-card">
     <h3>🚀 A：30 分鐘快速理解</h3>
     <p class="who">適合：想先懂模型如何完成一次預測，不急著看完整推導。</p>
@@ -225,7 +243,7 @@ AI（人工智慧）
 </details>
 </blockquote>
 
-<p id="toc"><strong>目錄</strong>（點章節可跳轉）：</p>
+<details id="toc" open><summary style="cursor:pointer;color:var(--accent);font-weight:700">完整目錄（點章節可跳轉；點此可收合）</summary>
 <p><strong>導覽</strong></p>
 <ul style="list-style:none;margin-left:0">
 <li><a href="#pipeline">ML 完整管線 — 每一步對應哪一章</a></li>
@@ -279,6 +297,7 @@ AI（人工智慧）
 <li><a href="#h1">H. 資料來源、採樣與資料可信度</a></li>
 <li><a href="#i1">I. 特徵工程 (Feature Engineering)</a></li>
 </ol>
+</details>
 <blockquote><p><a href="#1">§1</a>–<a href="#20">§20</a> 與附錄 A–I 均已完成初稿（持續深化例子與圖解）；主題編號維持穩定（只補不重排）。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
