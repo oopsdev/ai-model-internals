@@ -829,7 +829,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>即「真類機率的負對數」— 越確信正確類、損失越小。梯度同樣化簡為 $\frac{\partial L}{\partial z_k}=\hat y_k-y_k$。</p>
 <p><strong>標籤定義原則（多元）。</strong> 上面用的是 <strong>one-hot 目標</strong>（真類那格為 1、其餘 0）+ softmax + 交叉熵；背後原則看「類別<strong>有沒有順序</strong>」：</p>
 <ul>
-<li><strong>名目類別 (nominal，無順序)</strong>（貓/狗/鳥、A/B/C）：<strong>不可</strong>用單一數值（如 $1,3,5,7,9$）當訓練目標——那會讓模型誤以為類別有大小/距離（「9 &gt; 1」「5 在 3 與 7 中間」「猜 6 算接近」），把<strong>假的順序</strong>灌進梯度、把模型帶歪。正解是<strong>類別索引 $0\dots C-1$（只當 ID）→ one-hot → softmax</strong>；one-hot 讓各類<strong>互相正交、等距</strong>，徹底拿掉順序。ID 要命名成 $1,3,5,7,9$ 也行（反正會被 one-hot 抹掉大小），但<strong>別把它當一個連續數值餵進去回歸</strong>。</li>
+<li><strong>名目類別 (nominal，無順序)</strong>（貓/狗/鳥、A/B/C）：<strong>不可</strong>用單一數值（如 $1,3,5,7,9$）當訓練目標——那會讓模型誤以為類別有大小/距離（「9 &gt; 1」「5 在 3 與 7 中間」「猜 6 算接近」），把<strong>假的順序</strong>灌進梯度、把模型帶歪。正解是<strong>類別索引 $0\dots C-1$（只當 ID）→ one-hot → softmax</strong>；one-hot 讓各類<strong>互相正交、等距</strong>，徹底拿掉順序。ID 要命名成 $1,3,5,7,9$ 也行（反正會被 one-hot 抹掉大小），但<strong>別把它當一個連續數值餵進去迴歸</strong>。</li>
 <li><strong>序數類別 (ordinal，只保證順序、間距未必相等)</strong>（1~5 星評分、病情 輕/中/重、風險 低/中/高）：<strong>順序</strong>是可靠資訊，但<strong>相鄰級距未必等寬</strong>。宜用<strong>序數迴歸 (ordinal regression，如 cumulative-link / threshold-based)</strong> 這類「用順序、不假設等距」的方法；若<strong>直接當迴歸</strong>（給 $1,2,3,4,5$ 或 $1,3,5,7,9$），等於<strong>額外假設了各級距的數值間距</strong>（前者假設等寬、後者假設不等寬）——這假設要講清楚、且未必成立。</li>
 </ul>
 <p>一句話：<strong>名目類別一律 index + one-hot（數字只是 ID、無大小）；只有序數類別才可以用帶大小/間距的數值編碼。</strong></p>
