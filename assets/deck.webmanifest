@@ -1,0 +1,29 @@
+{
+ "name": "AI 模型內部原理全貌",
+ "short_name": "AI 全貌",
+ "description": "AI 模型內部原理全貌簡報（18 頁）",
+ "start_url": "https://oopsdev.github.io/ai-model-internals/deck.html",
+ "scope": "https://oopsdev.github.io/ai-model-internals/",
+ "display": "standalone",
+ "background_color": "#0f172a",
+ "theme_color": "#0f172a",
+ "lang": "zh-Hant",
+ "icons": [
+  {
+   "src": "deck-icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "deck-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "deck-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
