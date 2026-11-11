@@ -1388,7 +1388,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>例如 $L=(y-\hat y)^2$、$\hat y=\sigma(z)$、$z=wx+b$，則</p>
 <p>$$\frac{\partial L}{\partial w}=\underbrace{2(\hat y-y)}_{\partial L/\partial\hat y}\cdot\underbrace{\sigma'(z)}_{\partial\hat y/\partial z}\cdot\underbrace{x}_{\partial z/\partial w}$$</p>
 <p><strong>反向傳播就是把鏈鎖律由輸出往輸入逐層套用</strong>（<a href="#9">§9</a> 完整推導）。局部導數在前向時記下、反向時相乘，讓百萬參數的梯度一次算出。</p>
-<blockquote><p><strong>工程意涵。</strong> 「訓練吃算力遠大於推論」的數學原因：推論只做前向（一遍矩陣乘法）；訓練要前向 + 反向（再算梯度）+ 更新，且重複很多輪。對應「邊緣做推論、再訓練放中央」。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 就<strong>同一個模型、同一批樣本</strong>而言，一次訓練步驟比一次推論貴得多：推論只做前向（一遍矩陣乘法）；訓練要前向 + 反向（再算梯度）+ 更新，且整個資料集要重複很多輪 (epoch)。但上線後推論會被呼叫非常多次，<strong>整個產品生命週期的總推論量可能遠高於一次訓練</strong>。「邊緣做推論、再訓練放中央」是依單次成本與硬體需求做的分工。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -1814,7 +1814,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>為什麼高效</strong>：上游梯度 $\boldsymbol{\delta}$ 只算一次、往回傳時重複利用；否則對每個參數各自算會是天文數字。這讓百萬/十億參數的梯度能一次算完。</li>
 <li>算完梯度 → 交給優化器更新（<a href="#5">§5</a>）。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 訓練 = 前向 + 反向，所以<strong>訓練算力 ≈ 推論的 2–3 倍</strong>、且要<strong>額外記憶體存各層激活</strong>（activation memory，大模型訓練的記憶體瓶頸）。這對應「邊緣推論、中央訓練」。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 訓練 = 前向 + 反向，所以就同一批樣本而言，<strong>一次訓練步驟的計算量粗估約為單次前向的 3 倍</strong>（反向約為前向的 2 倍；實際依架構與實作而異），且要<strong>額外記憶體存各層激活</strong>（activation memory，大模型訓練的記憶體瓶頸）。這對應「邊緣推論、中央訓練」。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
@@ -2624,25 +2624,26 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <p><strong>NPU/TPU 更專精、更省電：</strong></p>
 <ul>
 <li><strong>脈動陣列 (systolic array)</strong>：一整片 MAC 單元排成網格，資料像水流過、每個單元邊流邊乘加 → 一次吞一大塊矩陣乘，能效比 GPU 更高。</li>
-<li>幾乎整顆晶片都是乘加器、多以 <strong>INT8/INT4</strong> 定點運算為主 → 低功耗高吞吐，<strong>正適合邊緣設備</strong>（代價是通用性低）。</li>
+<li>晶片面積大量用於乘加器，並常針對<strong>低精度</strong>運算最佳化 → 低功耗高吞吐，<strong>適合邊緣設備</strong>（代價是通用性低）。支援的數值格式<strong>依硬體而異</strong>：常見 INT8、INT4，也有 FP16、BF16 或混合精度。</li>
 </ul>
 <p><strong>反向傳播的「微積分」也是矩陣乘法。</strong> 以一層 $\mathbf{z}=\mathbf{W}\mathbf{x}$ 為例（鏈鎖律，3.2）：</p>
 <p>$$\text{前向：}\ \mathbf{z}=\mathbf{W}\mathbf{x}\qquad \text{反向：}\ \frac{\partial L}{\partial \mathbf{x}}=\mathbf{W}^\top\frac{\partial L}{\partial \mathbf{z}},\quad \frac{\partial L}{\partial \mathbf{W}}=\frac{\partial L}{\partial \mathbf{z}}\,\mathbf{x}^\top$$</p>
 <p>反向兩式<strong>又都是 matmul</strong>；激活函數的導數是逐元素運算。所以「訓練 = 前向 matmul + 反向 matmul + 逐元素」，全是 GPU/NPU 的強項；<strong>自動微分 (autodiff)</strong> 就是把微分自動拆成這串可平行運算。</p>
-<blockquote><p><strong>工程意涵。</strong> ① <strong>訓練算力 ≫ 推論</strong>：推論只做前向一遍，訓練要前向＋反向（再一整套 matmul）＋重複多輪 → 對應「邊緣做推論、再訓練放中央」。② <strong>參數量 → matmul 次數 (FLOPs) → 算力與記憶體需求</strong>（幾 B 模型為何吃資源）。③ <strong>量化 (INT8/INT4)</strong> 讓 NPU 吞吐↑、記憶體↓ → 邊緣落地的關鍵。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> ① <strong>訓練 vs 推論</strong>：就同一個模型、同一批樣本或 token 而言，一次訓練步驟（前向＋反向＋更新）遠貴於一次推論，且訓練要重複多輪 → 對應「邊緣做推論、再訓練放中央」；但上線後的<strong>總推論量</strong>可能遠高於一次訓練。② <strong>參數量只能粗估計算量</strong>：dense Transformer 推論每個 token 約 $2\times$ 參數量 FLOPs，可當直覺；實際成本還受序列長度、activation、稀疏性（如 MoE 每次只啟用部分參數）、batch、架構與記憶體頻寬影響。③ <strong>量化</strong>（依硬體支援的格式，如 INT8 / INT4）可提高吞吐、降低記憶體 → 邊緣落地的關鍵之一。</p></blockquote>
 
 <h3 id="20.2">20.2 浮點與數值格式</h3>
 <p>數字在電腦裡用固定位元存。常見格式（每參數位元組）：</p>
 <div class="tablewrap"><table>
 <thead><tr><th>格式</th><th>位元</th><th>每參數</th><th>特點</th></tr></thead>
 <tbody>
-<tr><td><strong>FP32</strong></td><td>32</td><td>4 B</td><td>全精度（1/8/23：sign/exp/fraction），訓練預設</td></tr>
-<tr><td><strong>FP16</strong></td><td>16</td><td>2 B</td><td>半精度（1/5/10），範圍小、易溢位</td></tr>
-<tr><td><strong>BF16</strong></td><td>16</td><td>2 B</td><td>腦浮點（1/8/7），範圍同 FP32、精度較低 → 訓練常用</td></tr>
-<tr><td><strong>INT8</strong></td><td>8</td><td>1 B</td><td>定點整數，推論量化</td></tr>
-<tr><td><strong>INT4</strong></td><td>4</td><td>0.5 B</td><td>更激進，邊緣部署</td></tr>
+<tr><td><strong>FP32</strong></td><td>32</td><td>4 B</td><td>全精度（1/8/23：sign/exp/fraction）；混合精度訓練中常用於主權重副本、優化器狀態與部分累加</td></tr>
+<tr><td><strong>FP16</strong></td><td>16</td><td>2 B</td><td>半精度（1/5/10），範圍小、易溢位；混合精度訓練需搭配 loss scaling</td></tr>
+<tr><td><strong>BF16</strong></td><td>16</td><td>2 B</td><td>腦浮點（1/8/7），範圍同 FP32、精度較低 → 現代加速器混合精度訓練常用</td></tr>
+<tr><td><strong>INT8</strong></td><td>8</td><td>1 B</td><td>整數，推論量化常用</td></tr>
+<tr><td><strong>INT4</strong></td><td>4</td><td>0.5 B</td><td>更激進，多用於權重量化（邊緣 / 本地部署）</td></tr>
 </tbody>
 </table></div>
+<p><strong>訓練用什麼格式？</strong> FP32 不是現代訓練的普遍預設：在支援的加速器上，常用 <strong>BF16 / FP16 混合精度 (mixed precision)</strong>——矩陣乘法以 16 位元計算，同時保留 FP32 的主權重副本、優化器狀態或部分累加，以兼顧速度與數值穩定。實際配置依框架與硬體而定。</p>
 <p>浮點數 = <strong>sign（正負）＋ exponent（範圍）＋ mantissa（精度）</strong>。BF16 給更多 exponent（大範圍不溢位）、較少 fraction；FP16 相反（範圍小但精度略高）。註：正規化浮點有一個<strong>隱含的 leading 1</strong>，故<strong>有效尾數精度 ＝ fraction bits + 1</strong>（FP16 為 10+1、BF16 為 7+1）：</p>
 <figure><svg viewBox="0 0 460 130" role="img" aria-label="FP16 與 BF16 的位元組成比較">
   <text x="30" y="42" fill="#94a3b8" font-size="12">FP16</text>
@@ -2657,11 +2658,11 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <h3 id="20.3">20.3 量化 (Quantization)</h3>
 <p>把權重/激活從 FP16 降到 <strong>INT8/INT4</strong> 表示：</p>
 <ul>
-<li><strong>好處</strong>：記憶體 ÷2～÷4、頻寬省、NPU 整數運算更快。</li>
+<li><strong>好處</strong>：權重儲存量相對 FP16 約 ÷2（INT8）～÷4（INT4）、頻寬省；硬體支援時整數運算更快。</li>
 <li><strong>方法</strong>：<strong>PTQ</strong>（訓練後量化，快、免重訓）、<strong>QAT</strong>（量化感知訓練，較準但要重訓）。</li>
 <li><strong>取捨</strong>：位元越低越省，但<strong>精度誤差</strong>越大，需權衡。</li>
 </ul>
-<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>——INT4 讓 7B 模型從 14GB 壓到 ~3.5GB，才塞得進邊緣設備（換算見 ai-background-knowledge <a href="ai-background-knowledge.html#params">§3.1</a>）。這也是為什麼邊緣 NPU 設備多以 INT8/INT4 為主。</p></blockquote>
+<blockquote><p><strong>工程意涵。</strong> 量化是<strong>邊緣落地的關鍵</strong>之一。<strong>7B 權重若由 FP16 理論上降為 4-bit，純權重儲存量約由 14 GB 降至 3.5 GB；實際執行所需記憶體通常更高</strong>——還要加上 scale / zero-point 等量化 metadata（常以群組為單位存放）、KV cache（<a href="#15.4">§15.4</a>）、activation、runtime buffer 與框架 overhead，且部分層（如 embedding、LM head）可能保留較高精度（換算見 ai-background-knowledge <a href="ai-background-knowledge.html#params">§3.1</a>）。邊緣 NPU 常提供 INT8 / INT4 等低精度加速，但支援格式依硬體而異，部署前要確認目標硬體支援哪些格式。</p></blockquote>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <hr>
