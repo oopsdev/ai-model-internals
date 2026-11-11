@@ -359,8 +359,8 @@ AI（人工智慧）
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
     <a href="#1.5" xlink:href="#1.5"><text x="95" y="214">標準化 §1.5</text></a>
-    <a href="#1.3" xlink:href="#1.3"><text x="260" y="212">matmul §1.3·內積 §1.1</text></a><a href="#3.2" xlink:href="#3.2"><text x="260" y="226">激活 §3.2</text></a>
-    <a href="#3.2" xlink:href="#3.2"><text x="425" y="214">softmax / argmax §3.2</text></a>
+    <a href="#1.3" xlink:href="#1.3"><text x="260" y="212">matmul §1.3·內積 §1.1</text></a><a href="#8" xlink:href="#8"><text x="260" y="226">激活 §8</text></a>
+    <a href="#3.3" xlink:href="#3.3"><text x="425" y="214">softmax / argmax §3.3</text></a>
   </g>
   <g stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="170" y1="214" x2="185" y2="214"/><line x1="335" y1="214" x2="350" y2="214"/>
@@ -376,9 +376,9 @@ AI（人工智慧）
   </g>
   <g font-size="11" fill="#cbd5e1" text-anchor="middle">
     <a href="#1.1" xlink:href="#1.1"><text x="95" y="340">向量 §1.1</text></a><a href="#1.4" xlink:href="#1.4"><text x="95" y="356">RAG:餘弦 §1.4</text></a>
-    <a href="#1.1" xlink:href="#1.1"><text x="260" y="340">Q·K 內積 §1.1</text></a><a href="#3.2" xlink:href="#3.2"><text x="260" y="356">softmax §3.2·matmul §1.3</text></a>
-    <a href="#1.3" xlink:href="#1.3"><text x="425" y="340">matmul §1.3</text></a><a href="#3.2" xlink:href="#3.2"><text x="425" y="356">激活 §3.2</text></a>
-    <a href="#3.2" xlink:href="#3.2"><text x="590" y="340">softmax §3.2</text></a><a href="#2" xlink:href="#2"><text x="590" y="356">取樣(機率 §2)</text></a>
+    <a href="#1.1" xlink:href="#1.1"><text x="260" y="340">Q·K 內積 §1.1</text></a><a href="#3.3" xlink:href="#3.3"><text x="260" y="356">softmax §3.3·matmul §1.3</text></a>
+    <a href="#1.3" xlink:href="#1.3"><text x="425" y="340">matmul §1.3</text></a><a href="#8" xlink:href="#8"><text x="425" y="356">激活 §8</text></a>
+    <a href="#3.3" xlink:href="#3.3"><text x="590" y="340">softmax §3.3</text></a><a href="#2" xlink:href="#2"><text x="590" y="356">取樣(機率 §2)</text></a>
   </g>
   <g stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar-s)">
     <line x1="170" y1="340" x2="185" y2="340"/><line x1="335" y1="340" x2="350" y2="340"/><line x1="500" y1="340" x2="515" y2="340"/>
@@ -390,8 +390,8 @@ AI（人工智慧）
 <thead><tr><th>① 訓練 — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
 <tr><td>資料正規化 ＋ 設定超參數</td><td>標準化 / Min-Max；超參數選擇</td><td>正規化後的輸入資料；選定的<strong>超參數</strong>（層數 / 維度 / 學習率 / batch…）</td><td><a href="#1.5">§1.5</a>, <a href="#6">§6</a></td></tr>
-<tr><td>前向傳播</td><td>矩陣乘法、內積、神經元、激活</td><td>各層激活值 → 預測（logits / 機率）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#3.2">§3.2</a></td></tr>
-<tr><td>算損失</td><td>MSE / 交叉熵、最大似然</td><td>一個純量損失值（模型錯多少）</td><td><a href="#3">§3</a>, <a href="#3.2">§3.2</a>, <a href="#2">§2</a></td></tr>
+<tr><td>前向傳播</td><td>矩陣乘法、內積、神經元、激活</td><td>各層激活值 → 預測（logits / 機率）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#8">§8</a></td></tr>
+<tr><td>算損失</td><td>MSE / 交叉熵、最大似然</td><td>一個純量損失值（模型錯多少）</td><td><a href="#3">§3</a>, <a href="#3.2">§3.2</a>–<a href="#3.3">§3.3</a>, <a href="#2">§2</a></td></tr>
 <tr><td>反向傳播</td><td>偏導、鏈鎖律、梯度、Jacobian</td><td>各參數的梯度（∂L/∂θ）</td><td><a href="#4">§4</a></td></tr>
 <tr><td>更新參數</td><td>梯度下降、正則化</td><td>更新後的參數（新的 W, b）</td><td><a href="#4.2">§4.2</a>, <a href="#5">§5</a>, <a href="#1.4">§1.4</a>, <a href="#6">§6</a></td></tr>
 </tbody>
@@ -400,17 +400,17 @@ AI（人工智慧）
 <thead><tr><th>② 推論 — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
 <tr><td>輸入 → 正規化</td><td>標準化</td><td>正規化後的輸入資料</td><td><a href="#1.5">§1.5</a></td></tr>
-<tr><td>前向傳播</td><td>矩陣乘法、內積、激活</td><td>各層激活 → logits（原始分數）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#3.2">§3.2</a></td></tr>
-<tr><td>輸出</td><td>softmax / argmax</td><td>各類別機率 → 取最高分為預測類別（argmax＝挑最大者，見 <a href="#3.3">§3.3</a>）</td><td><a href="#3.2">§3.2</a></td></tr>
+<tr><td>前向傳播</td><td>矩陣乘法、內積、激活</td><td>各層激活 → logits（原始分數）</td><td><a href="#1.1">§1.1</a>–<a href="#1.3">§1.3</a>, <a href="#8">§8</a></td></tr>
+<tr><td>輸出</td><td>softmax / argmax</td><td>各類別機率 → 取最高分為預測類別（argmax＝挑最大者，見 <a href="#3.3">§3.3</a>）</td><td><a href="#3.3">§3.3</a></td></tr>
 </tbody>
 </table></div>
 <div class="tablewrap"><table class="t-gen">
 <thead><tr><th>③ 生成 (LLM) — 階段</th><th>用到的數學</th><th>輸出的內容</th><th>章節</th></tr></thead>
 <tbody>
 <tr><td>Embedding</td><td>向量表示；RAG 檢索用餘弦相似度</td><td>每個 token 的向量表示</td><td><a href="#1.1">§1.1</a>, <a href="#1.4">§1.4</a></td></tr>
-<tr><td>注意力</td><td>Q·K 內積、softmax、矩陣乘法</td><td>融合上下文後的向量表示</td><td><a href="#1.1">§1.1</a>, <a href="#3.2">§3.2</a>, <a href="#1.3">§1.3</a></td></tr>
-<tr><td>前向 (FFN)</td><td>矩陣乘法、激活</td><td>各位置的特徵向量</td><td><a href="#1.3">§1.3</a>, <a href="#3.2">§3.2</a></td></tr>
-<tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td>下一個 token 的機率分布 → 取樣出的 token</td><td><a href="#3.2">§3.2</a>, <a href="#2">§2</a></td></tr>
+<tr><td>注意力</td><td>Q·K 內積、softmax、矩陣乘法</td><td>融合上下文後的向量表示</td><td><a href="#1.1">§1.1</a>, <a href="#3.3">§3.3</a>, <a href="#1.3">§1.3</a>, <a href="#15.1">§15.1</a></td></tr>
+<tr><td>前向 (FFN)</td><td>矩陣乘法、激活</td><td>各位置的特徵向量</td><td><a href="#1.3">§1.3</a>, <a href="#8">§8</a></td></tr>
+<tr><td>下一個 token</td><td>softmax、取樣（機率）</td><td>下一個 token 的機率分布 → 取樣出的 token</td><td><a href="#3.3">§3.3</a>, <a href="#2">§2</a>, <a href="#16">§16</a></td></tr>
 </tbody>
 </table></div>
 <blockquote><p><strong>註：Embedding 為何只列在 ③?</strong> 並非「只有生成才需要」。①② 是以<strong>影像 / 數值模型</strong>為例（輸入本身就是連續數字，直接正規化即可，<strong>不需 embedding</strong>）；③ 是 <strong>LLM，輸入是離散 token</strong>，必須先 embedding 變成向量。<strong>Embedding 的必要性取決於「輸入是不是離散符號」，與訓練 / 推論 / 生成階段無關</strong>——LLM 在這三階段都要查 embedding（<a href="#13">§13</a>）。</p></blockquote>
@@ -445,7 +445,7 @@ AI（人工智慧）
   <!-- training loop -->
   <g text-anchor="middle">
     <rect x="640" y="165" width="115" height="48" rx="7" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-width="1.3"/>
-    <text x="697" y="185" fill="#fff" font-size="11" font-weight="700">損失</text><a href="#3.2" xlink:href="#3.2"><text x="697" y="201" fill="#fca5a5" font-size="8.3">交叉熵 §3.2 · MLE §2</text></a>
+    <text x="697" y="185" fill="#fff" font-size="11" font-weight="700">損失</text><a href="#3.3" xlink:href="#3.3"><text x="697" y="201" fill="#fca5a5" font-size="8.3">交叉熵 §3.3 · MLE §2</text></a>
     <rect x="430" y="165" width="115" height="48" rx="7" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-width="1.3"/>
     <text x="487" y="185" fill="#fff" font-size="11" font-weight="700">反向傳播</text><a href="#4" xlink:href="#4"><text x="487" y="201" fill="#fca5a5" font-size="8.3">鏈鎖律 §4</text></a>
     <rect x="220" y="165" width="115" height="48" rx="7" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-width="1.3"/>
@@ -469,8 +469,8 @@ AI（人工智慧）
 <tr><td>池化 Pool</td><td>縮小、取每小塊最大值（抓重點、降維、<strong>對小幅位移較穩健</strong>；非完整平移不變）</td><td>取最大（降維精神）</td><td><a href="#1.6">§1.6</a></td></tr>
 <tr><td>展平 + 全連接</td><td>特徵攤平成向量，$\mathbf{W}\mathbf{x}+\mathbf{b}$ → 各類分數 (logits)</td><td>矩陣乘法</td><td><a href="#1.3">§1.3</a></td></tr>
 <tr><td>Softmax</td><td>分數 → 機率分布，取最高分</td><td>softmax、argmax</td><td><a href="#3.3">§3.3</a></td></tr>
-<tr><td>輸出</td><td>預測類別 + 信心（「貓 0.92」）</td><td>argmax</td><td><a href="#3.2">§3.2</a></td></tr>
-<tr><td><strong>(訓練) 損失 → 反向 → 更新</strong></td><td>比對正確答案算損失、逐層算梯度、更新權重、重複多輪</td><td>交叉熵/MLE、鏈鎖律、梯度下降</td><td><a href="#2">§2</a>, <a href="#4">§4</a>, <a href="#3.2">§3.2</a>, <a href="#6.2">§6.2</a></td></tr>
+<tr><td>輸出</td><td>預測類別 + 信心（「貓 0.92」）</td><td>argmax</td><td><a href="#3.3">§3.3</a></td></tr>
+<tr><td><strong>(訓練) 損失 → 反向 → 更新</strong></td><td>比對正確答案算損失、逐層算梯度、更新權重、重複多輪</td><td>交叉熵/MLE、鏈鎖律、梯度下降</td><td><a href="#2">§2</a>, <a href="#4">§4</a>, <a href="#3.3">§3.3</a>, <a href="#6.2">§6.2</a></td></tr>
 </tbody>
 </table></div>
 <p><strong>卷積具體長怎樣？</strong> 一個 3×3 的 filter 蓋在影像的 3×3 小塊上，對應元素相乘再相加（＝一次<strong>內積</strong>，<a href="#1.1">§1.1</a>）得到一個數；filter 滑過整張圖就得到一整張「特徵圖」。<strong>例：一張 9×9 影像、用 3×3 filter、每次滑一格 (stride 1)、不補邊 (padding 0)</strong> — 水平能放 $(9-3)/1+1=7$ 個位置、垂直也 7 個 → 特徵圖為 <strong>7×7</strong>（比原圖小一圈；輸出邊長公式見 <a href="#11.4">§11.4</a>）。不同 filter 抓不同樣式（邊緣、角、紋理）——所以說 <strong>filter 就是神經元</strong>，是一組<strong>權重樣板</strong>（<a href="#1.2">§1.2</a>）。（一步卷積是內積＝一個數、<strong>非</strong>矩陣×矩陣；整張卷積可用 im2col 重排成一次大矩陣乘法、由 GPU/NPU 加速 <a href="#20">§20</a>。<strong>完整定義與幾何意義見<a href="#11">§11</a>。</strong>）</p>
@@ -486,7 +486,7 @@ AI（人工智慧）
 </tbody>
 </table></div>
 <p>即：<strong>一個 filter = 一個神經元</strong>；它掃過 9×9 影像的 49 個位置、產生 7×7 特徵圖。<strong>卷積這步給的是「內積+偏置」$z$；$\sigma$ 由下一步 ReLU 施加（$a=\sigma(z)$）——卷積 + ReLU 合起來才是神經元（<a href="#1.2">§1.2</a>）的完整輸出。</strong> 注意是<strong>同一個神經元權重共享</strong>掃全圖，不是 49 個獨立神經元（<a href="#11.2">§11.2</a>）。</p>
-<p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（<a href="#3.2">§3.2</a>，即負對數似然 <a href="#2">§2</a>）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（<a href="#4">§4</a>）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§11.3 各架構的參數組成</a>；<a href="#4.2">§4.2</a>）→ 重複多輪（epoch，<a href="#6.2">§6.2</a>）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
+<p><strong>訓練迴圈（下排）。</strong> 把輸出機率和正確答案比，用<strong>交叉熵</strong>算損失（<a href="#3.3">§3.3</a>，即負對數似然 <a href="#2">§2</a>）→ <strong>反向傳播</strong>用鏈鎖律由輸出往輸入逐層算梯度（<a href="#4">§4</a>）→ <strong>梯度下降</strong>更新每個 filter 與權重（＝<strong>模型參數</strong>，組成見 <a href="#params">§11.3 各架構的參數組成</a>；<a href="#4.2">§4.2</a>）→ 重複多輪（epoch，<a href="#6.2">§6.2</a>）。<strong>推論時只走上排前向；訓練時才有下排這條迴圈。</strong></p>
 
 <p style="text-align:right;margin:.4em 0;font-size:.85em"><a href="#toc">↑ 回目錄</a></p>
 <blockquote><p><strong>編按（一顆神經元的全貌 — 把導覽的觀念收成一張最小圖像）。</strong> 一個神經元的核心是一組<strong>權重 $\mathbf{w}$</strong>——它就是這個神經元的<strong>特徵樣板</strong>（要偵測的樣式，<a href="#1.2">§1.2</a>）；輸入特徵向量 $\mathbf{x}$ 進來，神經元先做 $z=\mathbf{w}^\top\mathbf{x}+b$（加權加總，$b$ 是門檻），再過激活 $a=\sigma(z)$（<a href="#8">§8</a>）。訓練階段餵入多筆輸入向量，各自前向算出預測，用<strong>損失</strong>衡量與標籤的差距（分類用交叉熵、迴歸用 MSE，<a href="#3">§3</a>），再由<strong>反向傳播 + 梯度下降</strong>反覆微調 $\mathbf{w}, b$ 讓損失下降（<a href="#9">§9</a> / <a href="#5">§5</a>）；如此反覆到損失不再降。<strong>訓練收斂後固定下來的 $\mathbf{w}, b$，就是這個神經元學到的特徵樣板</strong>，推論時直接沿用。（實際網路由許多這樣的神經元分層堆疊，淺層樣板組合成深層更抽象的樣板，<a href="#layer-output">§1.3.1</a>。）</p></blockquote>
@@ -1120,7 +1120,7 @@ $$\mathbf{C}=\begin{bmatrix}\text{Var}(x)&\text{Cov}(x,y)\\ \text{Cov}(x,y)&\tex
 <p>這個 $-\sum\log P$ 就是<strong>負對數似然</strong>，也就是分類最常用的<strong>交叉熵損失</strong>（<a href="#3.2">§3.2</a>）。<strong>損失函數多半是負對數似然的化身，不是憑空設計。</strong></p>
 <p><strong>訓練 ↔ 推論的閉環（MLE 找到的 θ 之後怎麼用）。</strong> MLE 找到的 $\theta^\star$ 就是<strong>模型的全部權重</strong>（所有 $\mathbf{W},\mathbf{b}$、filter、embedding…），訓練完<strong>固定下來、存成模型檔</strong>。推論時對<strong>新輸入 $x$</strong> 用同一組 $\theta^\star$ 跑<strong>前向傳播（<a href="#7">§7</a>）</strong>、算出：</p>
 <ul>
-<li><strong>分類</strong> → $P(y\mid x;\theta^\star)$ 各類機率（softmax，<a href="#3.2">§3.2</a>）→ argmax 取類別、或當信心分數調門檻；</li>
+<li><strong>分類</strong> → $P(y\mid x;\theta^\star)$ 各類機率（softmax，<a href="#3.3">§3.3</a>）→ argmax 取類別、或當信心分數調門檻；</li>
 <li><strong>迴歸</strong> → 預測數值 $\hat y=f(x;\theta^\star)$；</li>
 <li><strong>生成 / LLM</strong> → $P(\text{下一個 token}\mid \text{context};\theta^\star)$ → 取樣生成（<a href="#16">§16</a>）。</li>
 </ul>
@@ -1726,7 +1726,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <thead><tr><th>形式</th><th>是什麼</th><th>何時</th></tr></thead>
 <tbody>
 <tr><td><strong>原始分數 (logits)</strong></td><td>最後一層線性輸出 $\mathbf{z}^{(L)}=\mathbf{W}\mathbf{a}+\mathbf{b}$，<strong>任意實數（可正可負）</strong></td><td>分類的中間輸出（過 softmax 前）</td></tr>
-<tr><td><strong>機率分布</strong></td><td>logits 過 <strong>softmax</strong>（多類）/ <strong>sigmoid</strong>（二元）→ 各值 ∈ (0,1)、多類總和 = 1</td><td>分類的可解讀輸出（<a href="#3.2">§3.2</a>）</td></tr>
+<tr><td><strong>機率分布</strong></td><td>logits 過 <strong>softmax</strong>（多類）/ <strong>sigmoid</strong>（二元）→ 各值 ∈ (0,1)、多類總和 = 1</td><td>分類的可解讀輸出（<a href="#3.2">§3.2</a>、<a href="#3.3">§3.3</a>）</td></tr>
 <tr><td><strong>類別標籤</strong></td><td>對機率取 <strong>argmax</strong> → 單一離散類別（如「貓」）</td><td>最終決策</td></tr>
 <tr><td><strong>預測數值</strong></td><td>迴歸：輸出層<strong>不過激活（線性）</strong>→ 一個實數（如 68ms）</td><td>迴歸（<a href="#3">§3</a>）</td></tr>
 <tr><td><strong>下一個 token 分布</strong></td><td>對<strong>整個詞表</strong> softmax → 長度＝詞表大小的機率向量 → 取樣</td><td>LLM 生成（<a href="#16">§16</a>）</td></tr>
@@ -1797,7 +1797,7 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <li><strong>反向</strong>：從輸出誤差開始，逐層往回傳「上游梯度」，每層用鏈鎖律乘上該層的局部導數。</li>
 </ol>
 <p>記 $\boldsymbol{\delta}^{(l)}=\frac{\partial L}{\partial \mathbf{z}^{(l)}}$（第 $l$ 層的「誤差訊號」）：</p>
-<p>$$\boldsymbol{\delta}^{(L)}=\hat{\mathbf{y}}-\mathbf{y}\ (\text{softmax+交叉熵, §3.2}),\qquad \boldsymbol{\delta}^{(l)}=\big(\mathbf{W}^{(l+1)\top}\boldsymbol{\delta}^{(l+1)}\big)\odot\sigma'(\mathbf{z}^{(l)})$$</p>
+<p>$$\boldsymbol{\delta}^{(L)}=\hat{\mathbf{y}}-\mathbf{y}\ (\text{softmax+交叉熵, §3.3}),\qquad \boldsymbol{\delta}^{(l)}=\big(\mathbf{W}^{(l+1)\top}\boldsymbol{\delta}^{(l+1)}\big)\odot\sigma'(\mathbf{z}^{(l)})$$</p>
 <p>$$\frac{\partial L}{\partial \mathbf{W}^{(l)}}=\boldsymbol{\delta}^{(l)}\,\mathbf{a}^{(l-1)\top},\qquad \frac{\partial L}{\partial \mathbf{b}^{(l)}}=\boldsymbol{\delta}^{(l)}$$</p>
 <figure><svg viewBox="0 0 480 150" role="img" aria-label="反向傳播計算圖：前向 x→z→a→L，反向逐層傳梯度">
   <g fill="#243449" stroke="#94a3b8" stroke-width="1.3"><circle cx="55" cy="60" r="16"/><circle cx="185" cy="60" r="16"/><circle cx="315" cy="60" r="16"/><circle cx="430" cy="60" r="16"/></g>
@@ -2362,8 +2362,8 @@ $$p(\text{丁})=\frac{1}{1+e^{4.02}}=\frac{1}{1+55.70}=0.018\quad(P(\text{女})=
 <h2 id="17">17. 訓練目標與微調 (Fine-tuning / LoRA)</h2>
 <p>大模型分兩階段：</p>
 <ul>
-<li><strong>預訓練 (pretrain)</strong>：用<strong>海量無標籤資料</strong> + <strong>自監督</strong>目標（LLM = 一直「預測下一個 token」，<a href="#16">§16</a>）學到通用語言能力。成本極高，只有大廠做。</li>
-<li><strong>微調 (fine-tune)</strong>：拿預訓練好的模型，用<strong>少量任務/領域資料</strong>再訓練，適配到目標用途。</li>
+<li><strong>預訓練 (pretrain)</strong>：用<strong>海量無標籤資料</strong> + <strong>自監督</strong>目標（LLM = 一直「預測下一個 token」，<a href="#15.3">§15.3</a>、<a href="#16">§16</a>）學到通用語言能力。從零訓練通用大型基礎模型通常需要極高的算力與資料成本，多由資源充足的組織執行；但較小的模型、領域模型，以及在既有模型上以領域資料繼續預訓練（continued pretraining），也可能由研究團隊或企業進行。</li>
+<li><strong>微調 (fine-tune)</strong>：拿預訓練好的模型，用<strong>任務 / 領域資料</strong>再訓練，適配到目標用途。所需資料量依模型大小、任務難度與訓練方法（全量微調、PEFT，<a href="#17.1">§17.1</a>）而定，從數百筆到大量資料都有可能。</li>
 </ul>
 <h3 id="17.1">17.1 全量微調 vs 參數高效微調 (PEFT)</h3>
 <ul>
