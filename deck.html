@@ -196,6 +196,12 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   .route .url a{color:var(--accent); text-decoration:none}
   .formula{font-size:clamp(16px,1.7vw,22px)}
   .cover-art{display:block; width:min(520px,86vw); height:auto; max-height:16vh; margin:0 auto}
+  @media (max-width:820px){
+    .tag-more{display:none}  /* 手機只留版權，避免蓋到導覽按鈕 */
+    /* 範本手機規則把 .diagram 固定 58vh 高；內嵌 SVG 改為依寬度等比縮放，橫向很寬的流程圖保持可讀寬度、可左右滑動 */
+    .svgwrap svg.diagram{width:100% !important; height:auto !important; max-height:none !important; max-width:none !important}
+    .svgwrap svg.diagram.wide{width:auto !important; min-width:720px}
+  }
   aside.notes{display:none}
   body.show-notes .slide.active aside.notes{display:block; position:fixed; left:2.2vw; right:2.2vw; bottom:8vh; z-index:9;
        max-height:30vh; overflow:auto; background:rgba(11,18,32,.96); border:1px solid var(--warn); border-radius:10px;
@@ -241,7 +247,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   <section class="slide">
     <h2>AI 模型的完整生命週期</h2>
     <div class="svgwrap">
-    <svg class="diagram" viewBox="0 0 1000 270" role="img" aria-label="生命週期：問題與資料、特徵與表示、模型與訓練、驗證與測試、部署與推論、監控與重訓，再回到資料">
+    <svg class="diagram wide" viewBox="0 0 1000 270" role="img" aria-label="生命週期：問題與資料、特徵與表示、模型與訓練、驗證與測試、部署與推論、監控與重訓，再回到資料">
       <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
             <marker id="a2y" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker></defs>
       <g font-size="17" text-anchor="middle">
@@ -318,7 +324,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   <section class="slide">
     <h2>訓練與推論</h2>
     <div class="svgwrap">
-    <svg class="diagram" viewBox="0 0 1000 340" role="img" aria-label="訓練：前向、損失、反向、更新形成迴圈；推論：只有前向">
+    <svg class="diagram wide" viewBox="0 0 1000 340" role="img" aria-label="訓練：前向、損失、反向、更新形成迴圈；推論：只有前向">
       <defs><marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
             <marker id="a5o" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#f87171"/></marker>
             <marker id="a5g" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#34d399"/></marker></defs>
@@ -500,7 +506,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   <section class="slide">
     <h2>CNN 的完整資料流</h2>
     <div class="svgwrap">
-    <svg class="diagram" viewBox="0 0 1000 300" role="img" aria-label="CNN：影像經卷積與激活、pooling 下採樣，再卷積得到高階特徵，最後分類頭輸出">
+    <svg class="diagram wide" viewBox="0 0 1000 300" role="img" aria-label="CNN：影像經卷積與激活、pooling 下採樣，再卷積得到高階特徵，最後分類頭輸出">
       <defs><marker id="a12" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
       <g stroke="#475569">
         <rect x="20" y="70" width="120" height="120" fill="#1e3a5f"/>
@@ -730,7 +736,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   <button id="full" aria-label="Toggle fullscreen" title="Toggle fullscreen (F)">Fullscreen</button>
   <button id="pdf" aria-label="Export PDF" title="Print / Save as PDF - one slide per page">PDF</button>
 </div>
-<div class="tag">&copy; 2026 Nike Chen &middot; AI 模型內部原理全貌 &middot; 教材 v0.3.0</div>
+<div class="tag">&copy; 2026 Nike Chen<span class="tag-more"> &middot; AI 模型內部原理全貌 &middot; 教材 v0.3.0</span></div>
 
 <script>
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
@@ -759,13 +765,14 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
     if (window.innerWidth <= 820 || window.matchMedia('print').matches) return;
     // 量測時先關掉捲軸：Windows 的傳統捲軸會吃掉約 17px 寬度，造成換行變多、又更高的循環
     s.style.overflow = 'hidden';
-    var z = 1, slack = 4;
-    while (s.scrollHeight > s.clientHeight - slack && z > 0.6) {
+    // 每頁撐滿可視區（延伸閱讀貼底），未超出時 scrollHeight 恰等於 clientHeight，所以只在「真的超出」時才縮
+    var z = 1;
+    while (s.scrollHeight > s.clientHeight && z > 0.6) {
       z = Math.round((z - 0.03) * 100) / 100;
       kids.forEach(function(c){ c.style.zoom = z; });
     }
     // 縮到最小仍放不下（極矮的視窗）才恢復可捲動
-    if (s.scrollHeight > s.clientHeight - slack) s.style.overflow = '';
+    if (s.scrollHeight > s.clientHeight + 2) s.style.overflow = '';
   }
   function refit(){ if (slides[i]) fitSlide(slides[i]); }
   window.addEventListener('resize', refit);
