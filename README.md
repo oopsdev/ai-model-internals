@@ -21,6 +21,8 @@
 | 08 傳統 ML 與特徵工程 | GBDT / LightGBM、迴歸分析、資料可信度、特徵工程 |
 | 09 數學推導附錄 | 餘弦定律、貝氏定理、MSE = 高斯 MLE、熵與交叉熵、高斯密度 |
 
+**全貌簡報（18 頁）**：https://oopsdev.github.io/ai-model-internals/deck.html （方向鍵換頁、F 全螢幕、P 匯出 PDF）
+
 舊的單頁網址加上章節錨點（例如 `…/ai-model-internals/#15.1`）會自動導向所屬分冊。
 
 > 通用 AI 技術教材，繁體中文。
