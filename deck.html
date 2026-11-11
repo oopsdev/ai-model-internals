@@ -755,17 +755,24 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   function fitSlide(s){
     var kids = Array.prototype.filter.call(s.children, function(c){ return c.tagName !== 'ASIDE'; });
     kids.forEach(function(c){ c.style.zoom = ''; });
+    s.style.overflow = '';
     if (window.innerWidth <= 820 || window.matchMedia('print').matches) return;
-    var z = 1;
-    while (s.scrollHeight > s.clientHeight + 1 && z > 0.7) {
+    // 量測時先關掉捲軸：Windows 的傳統捲軸會吃掉約 17px 寬度，造成換行變多、又更高的循環
+    s.style.overflow = 'hidden';
+    var z = 1, slack = 4;
+    while (s.scrollHeight > s.clientHeight - slack && z > 0.6) {
       z = Math.round((z - 0.03) * 100) / 100;
       kids.forEach(function(c){ c.style.zoom = z; });
     }
+    // 縮到最小仍放不下（極矮的視窗）才恢復可捲動
+    if (s.scrollHeight > s.clientHeight - slack) s.style.overflow = '';
   }
   function refit(){ if (slides[i]) fitSlide(slides[i]); }
   window.addEventListener('resize', refit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
+  window.addEventListener('load', refit);
   window.addEventListener('beforeprint', function(){ slides.forEach(function(s){
-    Array.prototype.forEach.call(s.children, function(c){ c.style.zoom = ''; }); }); });
+    s.style.overflow = ''; Array.prototype.forEach.call(s.children, function(c){ c.style.zoom = ''; }); }); });
   window.addEventListener('afterprint', refit);
   if (window.MathJax && MathJax.startup && MathJax.startup.promise) { MathJax.startup.promise.then(refit); }
   else { window.addEventListener('load', function(){ if (window.MathJax && MathJax.startup) MathJax.startup.promise.then(refit); }); }
