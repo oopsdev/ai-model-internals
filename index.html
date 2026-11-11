@@ -3298,7 +3298,7 @@ $$I(X;Y)=\sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)\,p(y)} = H(X)-H(X\mid Y)$$</li>
   </ul></li>
 <li><strong>④ 嵌入層 (embedding, <a href="#13">§13</a>)</strong>：離散輸入（token / 類別）用<strong>可學的查表</strong>映射成向量、與模型一起訓 → 學出語意表徵。</li>
 </ul>
-<p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>不該用</strong>——<strong>表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，<strong>GBDT + 人工特徵工程在中小型表格資料常與 NN 相當或更好</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
+<p><strong>什麼時候用 / 不用</strong>：<strong>該用</strong>——高維、非結構化、人工難抽特徵的訊號（<strong>影像、文字、語音、原始封包序列</strong>）；<strong>不該用</strong>——<strong>表格資料</strong>（欄位本身已是人造特徵、缺可挖的低階結構，<strong>GBDT + 人工特徵工程在中小型表格資料常與 NN 相當或更好，仍需在目標資料上比較</strong>，<a href="#c1">附錄 C</a>）。所以 I.1–I.7 的手工特徵工程在傳統 / 邊緣場景依然是核心功夫。</p>
 <p><strong>一句話</strong>：表徵學習 ＝ 讓「損失 + 反向傳播」自動把原始輸入逐層轉成有用特徵、再取中間層當特徵用；實作靠 <strong>監督 end-to-end / 遷移學習 / 自監督</strong> 三條路。</p>
 
 <h3>I.9 該取多少樣本、留多少特徵？</h3>
