@@ -181,6 +181,10 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   }
 
   /* ---- AI 全貌簡報補充樣式 ---- */
+  /* 頁內元素不准被 flex 壓扁：空間不夠時交給 fitSlide 整頁等比縮小，避免圖溢出到下方方框底下 */
+  .slide > *{flex-shrink:0}
+  /* 底部留白至少 = 導覽列位置（2.2vh）+ 按鈕高度 + 約 24px，內容不會貼到按鈕 */
+  @media (min-width:821px){ .slide{padding-bottom:max(9vh, calc(2.2vh + 72px))} }
   .ref{margin-top:auto; padding-top:.6em; color:var(--muted); font-size:clamp(12px,1.1vw,14.5px); text-align:right}
   .ref a{color:var(--accent); text-decoration:none} .ref a:hover{text-decoration:underline}
   .key{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--warn);
