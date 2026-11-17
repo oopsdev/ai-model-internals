@@ -189,6 +189,8 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   @media (min-width:821px){ .slide{padding-bottom:max(9vh, calc(2.2vh + 72px))} }
   .ref{margin-top:auto; padding-top:.6em; color:var(--muted); font-size:clamp(12px,1.1vw,14.5px); text-align:right}
   .ref a{color:var(--accent); text-decoration:none} .ref a:hover{text-decoration:underline}
+  /* 延伸閱讀每頁同字級：蓋過 .slide.cozy p / .slide.compact p 的段落字級 */
+  .slide p.ref,.slide.cozy p.ref,.slide.compact p.ref{font-size:clamp(12px,1.1vw,14.5px); line-height:1.5}
   .key{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--warn);
        border-radius:8px; padding:.55em .9em; margin:.6em 0 0}
   .key p{margin:0}
@@ -220,7 +222,7 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   body.show-notes .slide.active aside.notes{display:block; flex:none; margin-top:.5em; background:rgba(251,191,36,.07);
        border:1px solid var(--warn); border-radius:10px; padding:.45em .9em; color:var(--ink); font-size:clamp(12px,1.1vw,15px); line-height:1.55}
   aside.notes::before{content:"講者備註"; display:block; color:var(--warn); font-weight:700; margin-bottom:.2em}
-  @media print{ .ref{font-size:8.5pt; margin-top:.3em !important; padding-top:0} .qr{width:3cm !important} aside.notes{display:none !important} .reader{display:none !important}
+  @media print{ .ref,.slide p.ref,.slide.cozy p.ref,.slide.compact p.ref{font-size:8.5pt; margin-top:.3em !important; padding-top:0} .qr{width:3cm !important} aside.notes{display:none !important} .reader{display:none !important}
     .svgwrap svg.diagram{width:100% !important; max-width:100% !important; height:auto !important; max-height:10cm !important}
     .two .svgwrap svg.diagram{max-height:9.5cm !important}
     .cover-art{max-height:3cm !important}
@@ -833,7 +835,8 @@ window.MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
   // 自動縮放：內容比可視區高時，把該頁內容等比縮小到放得下（最小 70%），避免換螢幕/系統縮放後要捲動。
   // 手機寬度（<=820px）維持範本的可捲動設計；列印前還原。
   function fitSlide(s){
-    var kids = Array.prototype.filter.call(s.children, function(c){ return c.tagName !== 'ASIDE'; });
+    // 講者備註與延伸閱讀不縮放：延伸閱讀每頁字級一致
+    var kids = Array.prototype.filter.call(s.children, function(c){ return c.tagName !== 'ASIDE' && !c.classList.contains('ref'); });
     kids.forEach(function(c){ c.style.zoom = ''; });
     s.style.overflow = '';
     if (window.innerWidth <= 820 || window.matchMedia('print').matches) return;
